@@ -8,6 +8,58 @@ import { AppConst, AppMessages } from '../utils/constants'
 import { check, validationResult } from 'express-validator'
 export const privateRoute = express.Router()
 
+
+/**
+ * @swagger
+ * /createDID:
+ *      post:
+ *          summary: did:web
+ *          description: required domain name to create did:web
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              domain:
+ *                                  type: string
+ *                                  example: dev.smartproof.in
+ *          responses:
+ *              200:
+ *                  description: Success
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  data:
+ *                                      type: object
+ *                                  message:
+ *                                      type: string
+ *              422:
+ *                  description: Success
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  error:
+ *                                      type: string
+ *                                  message:
+ *                                      type: string
+ *              500:
+ *                  description: Success
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  error:
+ *                                      type: string
+ *                                  message:
+ *                                      type: string
+ */
 privateRoute.post(
 	'/createDID',
 	check('domain')
@@ -46,8 +98,83 @@ privateRoute.post(
 	}
 )
 
+/**
+ * @swagger
+ * /onBoardGaiaX:
+ *      post:
+ *          summary: On board to Gaia-X
+ *          description: Generate Legal Person and Service Offer Credentials
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              domain:
+ *                                  type: string
+ *                                  example: dev.smartproof.in
+ *                              type:
+ *                                  type: string
+ *                                  example: LegalParticipant
+ *                              privateKeyUrl:
+ *                                  type: string
+ *                                  example: https://example.com
+ *                              data:
+ *                                  type: object
+ *                                  properties:
+ *                                      legalName:
+ *                                        type: string
+ *                                        example: Smart Proof
+ *                                      legalRegistrationType:
+ *                                        type: string
+ *                                        example: taxID
+ *                                      legalRegistrationNumber:
+ *                                        type: string
+ *                                        example: 0762747721
+ *                                      headquarterAddress:
+ *                                        type: string
+ *                                        example: BE-BRU
+ *                                      legalAddress:
+ *                                        type: string
+ *                                        example: BE-BRU
+ *          responses:
+ *              200:
+ *                  description: Success
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  data:
+ *                                      type: object
+ *                                  message:
+ *                                      type: string
+ *              422:
+ *                  description: Success
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  error:
+ *                                      type: string
+ *                                  message:
+ *                                      type: string
+ *              500:
+ *                  description: Success
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  error:
+ *                                      type: string
+ *                                  message:
+ *                                      type: string
+ */
 privateRoute.post(
-	'/signPresentation',
+	'/onBoardGaiaX',
 	check('domain')
 		.not()
 		.isEmpty()
@@ -93,8 +220,8 @@ privateRoute.post(
 				)
 				const hash = Utils.sha256(crypto, canonizedSD)
 				console.log(`📈 Hashed canonized SD ${hash}`)
-				const privateKey = (await axios.get(privateKeyUrl)).data as string;
-				// const privateKey = process.env.PRIVATE_KEY as string
+				// const privateKey = (await axios.get(privateKeyUrl)).data as string;
+				const privateKey = process.env.PRIVATE_KEY as string
 				const proof = await Utils.createProof(jose, didId, AppConst.RSA_ALGO, hash, privateKey)
 				console.log(proof ? '🔒 SD signed successfully' : '❌ SD signing failed')
 				const x5uURL = `https://${domain}/.well-known/x509CertificateChain.pem`
@@ -103,8 +230,8 @@ privateRoute.post(
 				const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
 				console.log(verificationResult?.content === hash ? '✅ Verification successful' : '❌ Verification failed')
 				selfDescription['verifiableCredential'][0].proof = proof
-				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string,selfDescription)).data;
-				// const complianceCredential = {}
+				// const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string,selfDescription)).data;
+				const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 				const completeSd = {
 					selfDescriptionCredential: selfDescription,
