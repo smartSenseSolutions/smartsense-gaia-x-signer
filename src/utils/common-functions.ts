@@ -20,6 +20,7 @@ module Util {
   }
 
   export function generateLegalPerson(
+    participantURL: string,
     didId: string,
     legalName: string,
     legalRegistrationType: string,
@@ -46,7 +47,7 @@ module Util {
           issuer: didId,
           issuanceDate: new Date().toISOString(),
           credentialSubject: {
-            id: didId,
+            id: participantURL,
             "gx:legalName": legalName,
             "gx:legalRegistrationNumber": {
               [legalRegistrationType]: legalRegistrationNumber,

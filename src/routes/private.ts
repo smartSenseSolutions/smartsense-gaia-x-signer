@@ -44,20 +44,25 @@ privateRoute.post(
 );
 
 privateRoute.post(
-  "/createLegalPerson",
+  "/signPresentation",
   async (req: Request, res: Response): Promise<void> => {
     try {
       const {
         domain,
+        type,
+        privateKeyUrl,
+      } = req.body;
+      const {
         legalName,
         legalRegistrationType,
         legalRegistrationNumber,
         headquarterAddress,
         legalAddress,
-        privateKeyUrl,
-      } = req.body;
+      } = req.body.data;
       const didId = `did:web:${domain}`;
+      const participantURL = `https://${domain}/.well-known/participant.json`;
       const selfDescription = generateLegalPerson(
+        participantURL,
         didId,
         legalName,
         legalRegistrationType,
@@ -65,7 +70,7 @@ privateRoute.post(
         headquarterAddress,
         legalAddress
       );
-      const canonizedSD = await normalize(jsonld, selfDescription);
+      const canonizedSD = await normalize(jsonld, selfDescription["verifiableCredential"][0]);
       const hash = sha256(crypto, canonizedSD);
       console.log(`📈 Hashed canonized SD ${hash}`);
       // const privateKey = (await axios.get(privateKeyUrl)).data as string;
@@ -98,8 +103,9 @@ privateRoute.post(
           : "❌ Verification failed"
       );
       selfDescription["verifiableCredential"][0].proof = proof;
-      console.log(JSON.stringify(selfDescription))
-      const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string,selfDescription)).data;
+      
+      // const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string,selfDescription)).data;
+      const complianceCredential = {};
       console.log(
         complianceCredential
           ? "🔒 SD signed successfully (compliance service)"
@@ -107,7 +113,7 @@ privateRoute.post(
       );
       const completeSd = {
         selfDescriptionCredential: selfDescription,
-        complianceCredential: complianceCredential.complianceCredential,
+        complianceCredential: complianceCredential,
       };
 
       res.status(200).json({
