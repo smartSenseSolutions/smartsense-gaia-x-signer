@@ -1,7 +1,7 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response } from 'express'
 
-export const publicRoute = express.Router();
+export const publicRoute = express.Router()
 
-publicRoute.get("/health", (req: Request, res: Response): void => {
-  res.send("App Running!");
-});
+publicRoute.get('/health', (req: Request, res: Response): void => {
+	res.send('App Running!')
+})
