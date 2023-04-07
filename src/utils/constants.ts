@@ -11,4 +11,5 @@ export class AppMessages {
 	static readonly VP_SUCCESS = 'VP created successfully.'
 	static readonly VP_FAILED = 'VP creation failed.'
 	static readonly VP_VALIDATION = 'VP validation failed.'
+	static readonly VP_TYPE_NOT_SUPPORTED = 'VP type not yet supported'
 }

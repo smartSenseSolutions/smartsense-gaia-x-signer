@@ -75,12 +75,17 @@ namespace CommonFunctions {
 		}
 
 		async normalize(jsonld: any, payload: object) {
-			const canonized = await jsonld.canonize(payload, {
-				algorithm: 'URDNA2015',
-				format: 'application/n-quads'
-			})
-			if (canonized === '') throw new Error('Canonized SD is empty')
-			return canonized
+			try {
+				const canonized = await jsonld.canonize(payload, {
+					algorithm: 'URDNA2015',
+					format: 'application/n-quads'
+				})
+				if (canonized === '') throw new Error('Canonized SD is empty')
+				return canonized
+			} catch (error) {
+				console.log(`❌ Canonizing failed | Error: ${error}`)
+				return undefined
+			}
 		}
 
 		sha256(crypto: any, input: object) {
@@ -113,6 +118,28 @@ namespace CommonFunctions {
 				protectedHeader: result.protectedHeader,
 				content: new TextDecoder().decode(result.payload)
 			}
+		}
+
+		createLpVpObj(claims: any): Object {
+			const vp = {
+				'@context': [
+					'https://www.w3.org/2018/credentials/v1'
+					// 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
+					// 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
+				],
+				type: ['VerifiablePresentation'],
+				verifiableCredential: claims
+			}
+			return vp
+		}
+
+		createInvoiceVpObj(invoiceCred: any): Object {
+			const invoiceVp = {
+				'@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#'],
+				type: ['VerifiablePresentation'],
+				verifiableCredential: invoiceCred
+			}
+			return invoiceVp
 		}
 	}
 }

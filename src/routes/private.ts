@@ -125,3 +125,65 @@ privateRoute.post(
 		}
 	}
 )
+
+privateRoute.post(
+	'/createVP',
+	// check params
+	check('claims').isArray(),
+	check('templateId').isIn([AppConst.LEGAL_PARTICIPANT, AppConst.SERVICE_OFFER]),
+	check('privateKeyUrl').not().isEmpty().trim().escape(),
+	check('holderDID').exists().isString().trim(),
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const errors = validationResult(req)
+			if (!errors.isEmpty()) {
+				const errorsArr = errors.array()
+				res.status(422).json({
+					error: `${errorsArr[0].msg} for param '${errorsArr[0].param}'`,
+					message: AppMessages.VP_VALIDATION
+				})
+			} else {
+				const { templateId } = req.body
+
+				let generatedVp: any = null
+				if (templateId === AppConst.LEGAL_PARTICIPANT) {
+					const { claims } = req.body
+					generatedVp = Utils.createLpVpObj(claims)
+				} else {
+					res.status(422).json({
+						error: `Type Not Supported`,
+						message: AppMessages.VP_TYPE_NOT_SUPPORTED
+					})
+				}
+
+				const { privateKeyUrl, holderDID } = req.body
+
+				const canonizedCredential = await Utils.normalize(
+					jsonld,
+					// eslint-disable-next-line
+					generatedVp.verifiableCredential[0]
+				)
+				if (typeof canonizedCredential === 'undefined') {
+					throw new Error('canonizing failed')
+				}
+
+				const hash = await Utils.sha256(crypto, canonizedCredential)
+				// const privateKey = (await axios.get(privateKeyUrl)).data as string;
+				const privateKey = process.env.PRIVATE_KEY as string
+				const proof = await Utils.createProof(jose, holderDID, AppConst.RSA_ALGO, hash, privateKey)
+
+				generatedVp.verifiableCredential[0].proof = proof
+				res.status(200).json({
+					data: { vp: generatedVp },
+					message: AppMessages.VP_SUCCESS
+				})
+			}
+		} catch (e) {
+			console.log(e)
+			res.status(500).json({
+				error: (e as Error).message,
+				message: AppMessages.VP_FAILED
+			})
+		}
+	}
+)
