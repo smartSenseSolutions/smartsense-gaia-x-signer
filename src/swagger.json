@@ -1,0 +1,176 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "REST API for SmartSense Gaia-X Singer Tool",
+		"version": "1.0.0"
+	},
+	"schemes": ["http"],
+	"servers": [{ "url": "http://localhost:8000/" }],
+	"paths": {
+		"/createWebDID": {
+			"post": {
+				"summary": "Create Web DID",
+				"description": "Required domain name to create did:web",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateDIDSchemaBody"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/onBoardToGaiaX": {
+			"post": {
+				"summary": "On board to Gaia-X",
+				"description": "Generate Legal Person and Service Offer Credentials",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/OnBoardGaiaXSchemaBody"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"SuccessSchemaResponse": {
+				"properties": {
+					"data": {
+						"type": "object"
+					},
+					"message": {
+						"type": "string"
+					}
+				}
+			},
+			"ErrorSchemaResponse": {
+				"properties": {
+					"error": {
+						"type": "string"
+					},
+					"message": {
+						"type": "string"
+					}
+				}
+			},
+			"CreateDIDSchemaBody": {
+				"required": ["domain"],
+				"properties": {
+					"domain": {
+						"type": "string",
+						"example": "dev.smartproof.in"
+					}
+				}
+			}
+            ,
+			"OnBoardGaiaXSchemaBody": {
+				"required": ["domain"],
+				"properties": {
+					"domain": {
+						"type": "string",
+						"example": "dev.smartproof.in"
+					},"templateId": {
+						"type": "string",
+						"example": "LegalParticipant"
+					},"privateKeyUrl": {
+						"type": "string",
+						"example": "https://example.com"
+					},"data": {
+						"type": "object",
+						"properties": {
+                            "legalName": {
+                                "type": "string",
+                                "example": "Smart Proof"
+                            },"legalRegistrationType": {
+                                "type": "string",
+                                "example": "taxID"
+                            },"legalRegistrationNumber": {
+                                "type": "string",
+                                "example": "0762747721"
+                            },"headquarterAddress": {
+                                "type": "string",
+                                "example": "BE-BRU"
+                            },"legalAddress": {
+                                "type": "string",
+                                "example": "BE-BRU"
+                            }
+                        }
+					}
+				}
+			}
+		}
+	}
+}

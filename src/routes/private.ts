@@ -8,60 +8,8 @@ import { AppConst, AppMessages } from '../utils/constants'
 import { check, validationResult } from 'express-validator'
 export const privateRoute = express.Router()
 
-
-/**
- * @swagger
- * /createDID:
- *      post:
- *          summary: did:web
- *          description: required domain name to create did:web
- *          requestBody:
- *              required: true
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: object
- *                          properties:
- *                              domain:
- *                                  type: string
- *                                  example: dev.smartproof.in
- *          responses:
- *              200:
- *                  description: Success
- *                  content:
- *                      application/json:
- *                          schema:
- *                              type: object
- *                              properties:
- *                                  data:
- *                                      type: object
- *                                  message:
- *                                      type: string
- *              422:
- *                  description: Success
- *                  content:
- *                      application/json:
- *                          schema:
- *                              type: object
- *                              properties:
- *                                  error:
- *                                      type: string
- *                                  message:
- *                                      type: string
- *              500:
- *                  description: Success
- *                  content:
- *                      application/json:
- *                          schema:
- *                              type: object
- *                              properties:
- *                                  error:
- *                                      type: string
- *                                  message:
- *                                      type: string
- */
 privateRoute.post(
-	'/createDID',
+	'/createWebDID',
 	check('domain')
 		.not()
 		.isEmpty()
@@ -98,90 +46,15 @@ privateRoute.post(
 	}
 )
 
-/**
- * @swagger
- * /onBoardGaiaX:
- *      post:
- *          summary: On board to Gaia-X
- *          description: Generate Legal Person and Service Offer Credentials
- *          requestBody:
- *              required: true
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: object
- *                          properties:
- *                              domain:
- *                                  type: string
- *                                  example: dev.smartproof.in
- *                              type:
- *                                  type: string
- *                                  example: LegalParticipant
- *                              privateKeyUrl:
- *                                  type: string
- *                                  example: https://example.com
- *                              data:
- *                                  type: object
- *                                  properties:
- *                                      legalName:
- *                                        type: string
- *                                        example: Smart Proof
- *                                      legalRegistrationType:
- *                                        type: string
- *                                        example: taxID
- *                                      legalRegistrationNumber:
- *                                        type: string
- *                                        example: 0762747721
- *                                      headquarterAddress:
- *                                        type: string
- *                                        example: BE-BRU
- *                                      legalAddress:
- *                                        type: string
- *                                        example: BE-BRU
- *          responses:
- *              200:
- *                  description: Success
- *                  content:
- *                      application/json:
- *                          schema:
- *                              type: object
- *                              properties:
- *                                  data:
- *                                      type: object
- *                                  message:
- *                                      type: string
- *              422:
- *                  description: Success
- *                  content:
- *                      application/json:
- *                          schema:
- *                              type: object
- *                              properties:
- *                                  error:
- *                                      type: string
- *                                  message:
- *                                      type: string
- *              500:
- *                  description: Success
- *                  content:
- *                      application/json:
- *                          schema:
- *                              type: object
- *                              properties:
- *                                  error:
- *                                      type: string
- *                                  message:
- *                                      type: string
- */
 privateRoute.post(
-	'/onBoardGaiaX',
+	'/onBoardToGaiaX',
 	check('domain')
 		.not()
 		.isEmpty()
 		.trim()
 		.escape()
 		.matches(/^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/),
-	check('type').isIn([AppConst.LEGAL_PARTICIPANT, AppConst.SERVICE_OFFER]),
+	check('templateId').isIn([AppConst.LEGAL_PARTICIPANT, AppConst.SERVICE_OFFER]),
 	check('privateKeyUrl').not().isEmpty().trim().escape(),
 	check('data').isObject(),
 	check('data.legalName').not().isEmpty().trim().escape(),
@@ -199,12 +72,12 @@ privateRoute.post(
 					message: AppMessages.VP_VALIDATION
 				})
 			} else {
-				const { domain, type, privateKeyUrl } = req.body
+				const { domain, templateId, privateKeyUrl } = req.body
 
 				const didId = `did:web:${domain}`
 				const participantURL = `https://${domain}/.well-known/participant.json`
 				let selfDescription: any = null
-				if (type === AppConst.LEGAL_PARTICIPANT) {
+				if (templateId === AppConst.LEGAL_PARTICIPANT) {
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
 					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress)
 				} else {
