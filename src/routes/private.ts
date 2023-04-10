@@ -6,6 +6,9 @@ import axios from 'axios'
 import { Utils } from '../utils/common-functions'
 import { AppConst, AppMessages } from '../utils/constants'
 import { check, validationResult } from 'express-validator'
+import web from 'web-did-resolver'
+import { Resolver } from 'did-resolver'
+
 export const privateRoute = express.Router()
 
 privateRoute.post(
@@ -121,6 +124,72 @@ privateRoute.post(
 			res.status(500).json({
 				error: (e as Error).message,
 				message: AppMessages.VP_FAILED
+			})
+		}
+	}
+)
+privateRoute.post(
+	'/createVc',
+	check('templateId').isIn([AppConst.LEGAL_PARTICIPANT]),
+	check('privateKeyUrl').not().isEmpty().trim().escape(),
+	check('credentialOffer').isObject(),
+	check('issuerDid').not().isEmpty().trim().escape(),
+	check('subjectDid').not().isEmpty().trim().escape(),
+
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const errors = validationResult(req)
+			if (!errors.isEmpty()) {
+				const errorsArr = errors.array()
+				res.status(422).json({
+					error: `${errorsArr[0].msg} for param '${errorsArr[0].param}'`,
+					message: AppMessages.VC_VALIDATION
+				})
+			} else {
+				const { templateId, issuerDid, subjectDid, credentialOffer, privateKeyUrl } = req.body
+				const webResolver = web.getResolver()
+				const resolver = new Resolver(webResolver)
+				let keyPairTrue: any = null
+				keyPairTrue = await Utils.verifyKeyPair(issuerDid, privateKeyUrl, jose, resolver, AppConst.RSA_ALGO)
+				if (!keyPairTrue.status) {
+					res.status(422).json({
+						error: keyPairTrue.message,
+						message: AppMessages.KEYPAIR_VALIDATION
+					})
+				} else {
+					let verifiableCredential: any = null
+					if (templateId === AppConst.LEGAL_PARTICIPANT) {
+						verifiableCredential = Utils.generateLegalPerson(
+							subjectDid,
+							issuerDid,
+							credentialOffer?.legalName,
+							credentialOffer?.legalRegistrationType,
+							credentialOffer?.legalRegistrationNumber,
+							credentialOffer?.headquarterAddress,
+							credentialOffer?.legalAddress
+						)
+					}
+					const canonizedSD = await Utils.normalize(
+						jsonld,
+						// eslint-disable-next-line
+						verifiableCredential['verifiableCredential'][0]
+					)
+					const hash = Utils.sha256(crypto, canonizedSD)
+					// const privateKey = (await axios.get(privateKeyUrl)).data as string;
+					const privateKey = process.env.PRIVATE_KEY as string
+					const proof = await Utils.createProof(jose, issuerDid, AppConst.RSA_ALGO, hash, privateKey)
+					verifiableCredential['verifiableCredential'][0].proof = proof
+					res.status(200).json({
+						data: verifiableCredential['verifiableCredential'][0],
+						message: AppMessages.VC_SUCCESS
+					})
+				}
+			}
+		} catch (e) {
+			console.log(e)
+			res.status(500).json({
+				error: (e as Error).message,
+				message: AppMessages.VC_FAILED
 			})
 		}
 	}

@@ -32,16 +32,16 @@ namespace CommonFunctions {
 			const selfDescription = {
 				'@context': [
 					'https://www.w3.org/2018/credentials/v1',
-					'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
-					'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
+					'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
+					'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
 				],
 				type: ['VerifiablePresentation'],
 				verifiableCredential: [
 					{
 						'@context': [
 							'https://www.w3.org/2018/credentials/v1',
-							'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
-							'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
+							'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
+							'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
 						],
 						type: ['VerifiableCredential', 'gx:LegalParticipant'],
 						id: didId,
@@ -112,6 +112,37 @@ namespace CommonFunctions {
 			return {
 				protectedHeader: result.protectedHeader,
 				content: new TextDecoder().decode(result.payload)
+			}
+		}
+		async verifyKeyPair(issuerDid: string, privateKeyUrl: string, jose: any, resolver: any, algorithm: string): Promise<object> {
+			try {
+				const ddo = await resolver.resolve(issuerDid)
+				if (!ddo.didDocument) {
+					return {
+						status: false,
+						message: `Couldn't resolve issuerDid`
+					}
+				} else {
+					let message = 'some random message'
+					let publicKeyJwk: any
+
+					if (ddo.didDocument?.verificationMethod) {
+						publicKeyJwk = ddo.didDocument?.verificationMethod[0].publicKeyJwk
+					}
+					const publicKey = await jose.importJWK(publicKeyJwk, algorithm)
+					const jwe = await new jose.FlattenedEncrypt(new TextEncoder().encode(message)).setProtectedHeader({ alg: 'RSA-OAEP-256', enc: 'A256GCM' }).encrypt(publicKey)
+					// const privateKey = (await axios.get(privateKeyUrl)).data as string;
+					const privateKey = await jose.importPKCS8(process.env.PRIVATE_KEY as string, algorithm)
+					const { plaintext } = await jose.flattenedDecrypt(jwe, privateKey)
+					const decoder = new TextDecoder()
+					return { status: decoder.decode(plaintext) === message, message: '' }
+				}
+			} catch (e: any) {
+				if (e?.code === 'ERR_JWE_DECRYPTION_FAILED') {
+					return { status: false, message: 'Incorrect key pair' }
+				} else {
+					return { status: false, message: e }
+				}
 			}
 		}
 	}

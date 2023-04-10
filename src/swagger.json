@@ -55,6 +55,53 @@
 				}
 			}
 		},
+		"/createVC": {
+			"post": {
+				"summary": "Create verifiable credential",
+				"description": "Generate verifiable credential along with proof",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateVCSchemaBody"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CreateVCSchemaBody"
+								}
+							}
+						}
+					},"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CreateVCSchemaBodyValidationError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/onBoardToGaiaX": {
 			"post": {
 				"summary": "On board to Gaia-X",
@@ -79,18 +126,7 @@
 								}
 							}
 						}
-					},
-					"422": {
-						"description": "Validation Error",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorSchemaResponse"
-								}
-							}
-						}
-					},
-					"500": {
+					},"500": {
 						"description": "Internal server error",
 						"content": {
 							"application/json": {
@@ -170,7 +206,83 @@
                         }
 					}
 				}
+			},
+			"CreateVCSchemaBody": {
+				"required": ["issuerDid","subjectDid","templateId","privateKeyUrl","credentialOffer"],
+				"properties": {
+					"issuerDid": {
+						"type": "string",
+						"example": "did:web:dev.smartproof.in"
+					},"subjectDid": {
+						"type": "string",
+						"example": "did:web:dev.smartproof.in"
+					},"templateId": {
+						"type": "string",
+						"example": "LegalParticipant"
+					},"privateKeyUrl": {
+						"type": "string",
+						"example": "https://example.com"
+					},"credentialOffer": {
+						"type": "object",
+						"properties": {
+                            "legalName": {
+                                "type": "string",
+                                "example": "Smart Proof"
+                            },"legalRegistrationType": {
+                                "type": "string",
+                                "example": "taxID"
+                            },"legalRegistrationNumber": {
+                                "type": "string",
+                                "example": "0762747721"
+                            },"headquarterAddress": {
+                                "type": "string",
+                                "example": "BE-BRU"
+                            },"legalAddress": {
+                                "type": "string",
+                                "example": "BE-BRU"
+                            }
+                        }
+					}
+				}
+			},"CreateVCSchemaBodyValidationError": {
+				"required": ["issuerDid","subjectDid","templateId","privateKeyUrl","credentialOffer"],
+				"properties": {
+					"issuerDid": {
+						"type": "string",
+						"example": "did:web:dev.smartproof1.in"
+					},"subjectDid": {
+						"type": "string",
+						"example": "did:web:dev.smartproof.in"
+					},"templateId": {
+						"type": "string",
+						"example": "LegalParticipant"
+					},"privateKeyUrl": {
+						"type": "string",
+						"example": ""
+					},"credentialOffer": {
+						"type": "object",
+						"properties": {
+                            "legalName": {
+                                "type": "string",
+                                "example": "Smart Proof"
+                            },"legalRegistrationType": {
+                                "type": "string",
+                                "example": "taxID"
+                            },"legalRegistrationNumber": {
+                                "type": "string",
+                                "example": "0762747721"
+                            },"headquarterAddress": {
+                                "type": "string",
+                                "example": "BE-BRU"
+                            },"legalAddress": {
+                                "type": "string",
+                                "example": "BE-BRU"
+                            }
+                        }
+					}
+				}
 			}
+
 		}
 	}
 }
