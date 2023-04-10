@@ -48,7 +48,7 @@ privateRoute.post(
 )
 
 privateRoute.post(
-	'/onBoardToGaiaX:url(*)',
+	'/onBoardToGaiaX',
 	check('domain')
 		.not()
 		.isEmpty()
