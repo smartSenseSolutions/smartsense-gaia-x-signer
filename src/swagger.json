@@ -102,6 +102,54 @@
 					}
 				}
 			}
+		},
+		"/createVP": {
+			"post": {
+				"summary": "Create a Verifiable Presentation",
+				"description": "Generate Legal Person, Service Offering or Compliance Credential VP ",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateVPSchemaBody"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"components": {
@@ -134,40 +182,89 @@
 						"example": "dev.smartproof.in"
 					}
 				}
-			}
-            ,
+			},
 			"OnBoardGaiaXSchemaBody": {
 				"required": ["domain"],
 				"properties": {
 					"domain": {
 						"type": "string",
 						"example": "dev.smartproof.in"
-					},"templateId": {
+					},
+					"templateId": {
 						"type": "string",
 						"example": "LegalParticipant"
-					},"privateKeyUrl": {
+					},
+					"privateKeyUrl": {
 						"type": "string",
 						"example": "https://example.com"
-					},"data": {
+					},
+					"data": {
 						"type": "object",
 						"properties": {
-                            "legalName": {
-                                "type": "string",
-                                "example": "Smart Proof"
-                            },"legalRegistrationType": {
-                                "type": "string",
-                                "example": "taxID"
-                            },"legalRegistrationNumber": {
-                                "type": "string",
-                                "example": "0762747721"
-                            },"headquarterAddress": {
-                                "type": "string",
-                                "example": "BE-BRU"
-                            },"legalAddress": {
-                                "type": "string",
-                                "example": "BE-BRU"
-                            }
-                        }
+							"legalName": {
+								"type": "string",
+								"example": "Smart Proof"
+							},
+							"legalRegistrationType": {
+								"type": "string",
+								"example": "taxID"
+							},
+							"legalRegistrationNumber": {
+								"type": "string",
+								"example": "0762747721"
+							},
+							"headquarterAddress": {
+								"type": "string",
+								"example": "BE-BRU"
+							},
+							"legalAddress": {
+								"type": "string",
+								"example": "BE-BRU"
+							}
+						}
+					}
+				}
+			},
+			"CreateVPSchemaBody": {
+				"required": ["claims"],
+				"properties": {
+					"holderDID": {
+						"type": "string",
+						"example": "did:web:dev.smartproof.in"
+					},
+					"templateId": {
+						"type": "string",
+						"example": "LegalParticipant"
+					},
+					"privateKeyUrl": {
+						"type": "string",
+						"example": "https://example.com"
+					},
+					"claims": {
+						"type": "array",
+						"example": [
+							{
+								"@context": ["https://www.w3.org/2018/credentials/v1"],
+								"type": ["VerifiableCredential", "gx:LegalParticipant"],
+								"id": "did:web:dev.smartproof.in",
+								"issuer": "did:web:dev.smartproof.in",
+								"issuanceDate": "2023-03-21T12:00:00.148Z",
+								"credentialSubject": {
+									"id": "did:web:dev.smartproof.in",
+									"gx:legalName": "Dev Smartproof",
+
+									"gx:legalRegistrationNumber": {
+										"gx:taxID": "0762747721"
+									},
+									"gx:headquarterAddress": {
+										"gx:countrySubdivisionCode": "BE-BRU"
+									},
+									"gx:legalAddress": {
+										"gx:countrySubdivisionCode": "BE-BRU"
+									}
+								}
+							}
+						]
 					}
 				}
 			}

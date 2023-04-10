@@ -171,10 +171,14 @@ privateRoute.post(
 				// const privateKey = (await axios.get(privateKeyUrl)).data as string;
 				const privateKey = process.env.PRIVATE_KEY as string
 				const proof = await Utils.createProof(jose, holderDID, AppConst.RSA_ALGO, hash, privateKey)
+				console.log(proof ? '🔒 VP signed successfully' : '❌ VP signing failed')
+
+				// Validate SHACL
+				// Verify Signature
 
 				generatedVp.verifiableCredential[0].proof = proof
 				res.status(200).json({
-					data: { vp: generatedVp },
+					data: { verifiablePresentation: generatedVp },
 					message: AppMessages.VP_SUCCESS
 				})
 			}

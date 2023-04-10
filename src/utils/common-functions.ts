@@ -135,7 +135,10 @@ namespace CommonFunctions {
 
 		createInvoiceVpObj(invoiceCred: any): Object {
 			const invoiceVp = {
-				'@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#'],
+				'@context': [
+					'https://www.w3.org/2018/credentials/v1'
+					//  'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#'
+				],
 				type: ['VerifiablePresentation'],
 				verifiableCredential: invoiceCred
 			}
