@@ -51,7 +51,7 @@ namespace CommonFunctions {
 							id: participantURL,
 							'gx:legalName': legalName,
 							'gx:legalRegistrationNumber': {
-								[legalRegistrationType]: legalRegistrationNumber
+								[`gx:${legalRegistrationType}`]: legalRegistrationNumber
 							},
 							'gx:headquarterAddress': {
 								'gx:countrySubdivisionCode': headquarterAddress
