@@ -2,7 +2,6 @@ import express, { Express } from 'express'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import swaggerUi from 'swagger-ui-express'
-import swaggerJSDoc from 'swagger-jsdoc'
 import { routes } from './routes'
 dotenv.config()
 
