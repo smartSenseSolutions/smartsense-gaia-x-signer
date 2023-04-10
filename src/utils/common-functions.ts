@@ -116,7 +116,7 @@ namespace CommonFunctions {
 		}
 
 		// function to check if private key and did are correct pair by performing encryption- decryption on a dummy message
-		async verifyKeyPair(issuerDid: string, privateKeyUrl: string, jose: any, resolver: any, algorithm: string): Promise<object> {
+		async verifyKeyPair(issuerDid: string, privateKeyUrl: string, jose: any, resolver: any, algorithm: string, axios: any, he: any): Promise<object> {
 			try {
 				//retrieve ddo from the did
 				const ddo = await resolver.resolve(issuerDid)
@@ -139,10 +139,11 @@ namespace CommonFunctions {
 					//encrypt the message using the public key
 					const jwe = await new jose.FlattenedEncrypt(new TextEncoder().encode(message)).setProtectedHeader({ alg: 'RSA-OAEP-256', enc: 'A256GCM' }).encrypt(publicKey)
 					// import private key
-					// const privateKey = (await axios.get(privateKeyUrl)).data as string;
-					const privateKey = await jose.importPKCS8(process.env.PRIVATE_KEY as string, algorithm)
+					const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+					const rsaPrivateKey = await jose.importPKCS8(privateKey as string, algorithm)
+					// const rsaPrivateKey = await jose.importPKCS8(process.env.PRIVATE_KEY as string, algorithm)
 					// decode the encrypted jwe using private key
-					const { plaintext } = await jose.flattenedDecrypt(jwe, privateKey)
+					const { plaintext } = await jose.flattenedDecrypt(jwe, rsaPrivateKey)
 					// get decoder object
 					const decoder = new TextDecoder()
 					// return true if dummy message and encrypted message are same, verifying private and public key are a key pair
