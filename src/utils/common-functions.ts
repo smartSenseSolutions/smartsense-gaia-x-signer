@@ -116,7 +116,17 @@ namespace CommonFunctions {
 		}
 
 		// function to check if private key and did are correct pair by performing encryption- decryption on a dummy message
-		async verifyKeyPair(issuerDid: string, privateKeyUrl: string, jose: any, resolver: any, algorithm: string, axios: any, he: any): Promise<object> {
+		async verifyKeyPair(
+			issuerDid: string,
+			privateKeyUrl: string,
+			jose: any,
+			resolver: any,
+			algorithm: string,
+			axios: any,
+			he: any,
+			flattenEncryptAlgorithm: string,
+			flattenEncryptEncoding: string
+		): Promise<object> {
 			try {
 				//retrieve ddo from the did
 				const ddo = await resolver.resolve(issuerDid)
@@ -137,7 +147,9 @@ namespace CommonFunctions {
 					//import public key from jwk
 					const publicKey = await jose.importJWK(publicKeyJwk, algorithm)
 					//encrypt the message using the public key
-					const jwe = await new jose.FlattenedEncrypt(new TextEncoder().encode(message)).setProtectedHeader({ alg: 'RSA-OAEP-256', enc: 'A256GCM' }).encrypt(publicKey)
+					const jwe = await new jose.FlattenedEncrypt(new TextEncoder().encode(message))
+						.setProtectedHeader({ alg: flattenEncryptAlgorithm, enc: flattenEncryptEncoding })
+						.encrypt(publicKey)
 					// import private key
 					const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
 					const rsaPrivateKey = await jose.importPKCS8(privateKey as string, algorithm)

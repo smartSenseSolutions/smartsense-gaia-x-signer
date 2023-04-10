@@ -178,7 +178,17 @@ privateRoute.post(
 				const resolver = new Resolver(webResolver)
 				let keyPairTrue: any = null
 				// to check if provide private and public key are a pair, performed by getting public jwk from the given issuerDid
-				keyPairTrue = await Utils.verifyKeyPair(issuerDid, privateKeyUrl, jose, resolver, AppConst.RSA_ALGO, axios, he)
+				keyPairTrue = await Utils.verifyKeyPair(
+					issuerDid,
+					privateKeyUrl,
+					jose,
+					resolver,
+					AppConst.RSA_ALGO,
+					axios,
+					he,
+					AppConst.FLATTEN_ENCRYPT_ALGORITHM,
+					AppConst.FLATTEN_ENCRYPT_ENCODING
+				)
 				// returns false if not a key pair and the message if any error
 				if (!keyPairTrue.status) {
 					res.status(422).json({
