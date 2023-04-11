@@ -7,6 +7,9 @@ import { Utils } from '../utils/common-functions'
 import { AppConst, AppMessages } from '../utils/constants'
 import { check, validationResult } from 'express-validator'
 import * as he from 'he'
+import web from 'web-did-resolver'
+import { Resolver } from 'did-resolver'
+
 export const privateRoute = express.Router()
 
 privateRoute.post(
@@ -144,6 +147,96 @@ privateRoute.post(
 			res.status(500).json({
 				error: (e as Error).message,
 				message: AppMessages.VP_FAILED
+			})
+		}
+	}
+)
+
+privateRoute.post(
+	'/createVC',
+	check('templateId').isIn([AppConst.LEGAL_PARTICIPANT]),
+	check('privateKeyUrl').not().isEmpty().trim().escape(),
+	check('credentialOffer').isObject(),
+	check('issuerDid').not().isEmpty().trim().escape(),
+	check('subjectDid').not().isEmpty().trim().escape(),
+
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const errors = validationResult(req)
+			// check for validation errors
+			if (!errors.isEmpty()) {
+				const errorsArr = errors.array()
+				res.status(422).json({
+					error: `${errorsArr[0].msg} for param '${errorsArr[0].param}'`,
+					message: AppMessages.VC_VALIDATION
+				})
+			} else {
+				//get required parameters from the body
+				const { templateId, issuerDid, subjectDid, credentialOffer, privateKeyUrl } = req.body
+				// get webresolver
+				const webResolver = web.getResolver()
+				// create a new resolver using web resolver
+				const resolver = new Resolver(webResolver)
+				let keyPairTrue: any = null
+				// to check if provide private and public key are a pair, performed by getting public jwk from the given issuerDid
+				keyPairTrue = await Utils.verifyKeyPair(
+					issuerDid,
+					privateKeyUrl,
+					jose,
+					resolver,
+					AppConst.RSA_ALGO,
+					axios,
+					he,
+					AppConst.FLATTEN_ENCRYPT_ALGORITHM,
+					AppConst.FLATTEN_ENCRYPT_ENCODING
+				)
+				// returns false if not a key pair and the message if any error
+				if (!keyPairTrue.status) {
+					res.status(422).json({
+						error: keyPairTrue.message,
+						message: AppMessages.KEYPAIR_VALIDATION
+					})
+				} else {
+					let verifiableCredential: any = null
+					if (templateId === AppConst.LEGAL_PARTICIPANT) {
+						// create legal person document
+						verifiableCredential = Utils.generateLegalPerson(
+							subjectDid,
+							issuerDid,
+							credentialOffer?.legalName,
+							credentialOffer?.legalRegistrationType,
+							credentialOffer?.legalRegistrationNumber,
+							credentialOffer?.headquarterAddress,
+							credentialOffer?.legalAddress
+						)
+					}
+					// normalise
+					const canonizedSD = await Utils.normalize(
+						jsonld,
+						// eslint-disable-next-line
+						verifiableCredential['verifiableCredential'][0]
+					)
+					// create hash
+					const hash = Utils.sha256(crypto, canonizedSD)
+					// retrieve private key
+					const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+					// const privateKey = process.env.PRIVATE_KEY as string
+					// create proof
+					const proof = await Utils.createProof(jose, issuerDid, AppConst.RSA_ALGO, hash, privateKey)
+					// attach proof to vc
+					verifiableCredential['verifiableCredential'][0].proof = proof
+					// send vc as response with success message
+					res.status(200).json({
+						data: verifiableCredential['verifiableCredential'][0],
+						message: AppMessages.VC_SUCCESS
+					})
+				}
+			}
+		} catch (e) {
+			console.log(e)
+			res.status(500).json({
+				error: (e as Error).message,
+				message: AppMessages.VC_FAILED
 			})
 		}
 	}
