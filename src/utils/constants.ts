@@ -17,7 +17,8 @@ export class AppMessages {
 	static readonly VP_SUCCESS = 'VP created successfully.'
 	static readonly VP_FAILED = 'VP creation failed.'
 	static readonly VP_VALIDATION = 'VP validation failed.'
-	static readonly VP_TYPE_NOT_SUPPORTED = 'VP type not yet supported'
 	static readonly SIG_VERIFY_SUCCESS = 'Signature verification successful'
 	static readonly SIG_VERIFY_FAILED = 'Signature verification failed'
+	static readonly CERT_VALIDATION_FAILED = 'Certificates verification failed against the Gaia-x Registry'
+	static readonly PUB_KEY_MISMATCH = 'Public Key from did and SSL certificates do not match'
 }

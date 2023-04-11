@@ -113,11 +113,15 @@ namespace CommonFunctions {
 		}
 
 		async verify(jose: any, jws: string, algorithm: string, publicKeyJwk: string) {
-			const pubkey = await jose.importJWK(publicKeyJwk, algorithm)
-			const result = await jose.compactVerify(jws, pubkey)
-			return {
-				protectedHeader: result.protectedHeader,
-				content: new TextDecoder().decode(result.payload)
+			try {
+				const pubkey = await jose.importJWK(publicKeyJwk, algorithm)
+				const result = await jose.compactVerify(jws, pubkey)
+				return {
+					protectedHeader: result.protectedHeader,
+					content: new TextDecoder().decode(result.payload)
+				}
+			} catch (error) {
+				throw new Error(`Signature Verification Failed | error: ${error}`)
 			}
 		}
 
@@ -197,7 +201,36 @@ namespace CommonFunctions {
 		}
 
 		async getDDOfromDID(did: string, resolver: any) {
-			const ddo = await resolver.resolve(did)
+			try {
+				const ddo = await resolver.resolve(did)
+				// ddo validation? verificationMethod
+				return ddo
+			} catch (error) {
+				throw new Error(`Fetching DDO failed for did: ${did}`)
+			}
+		}
+
+		async validateSslFromRegistry(certificates: string, axios: any) {
+			try {
+				// const registryRes = await axios.post(process.env.REGISTRY_TRUST_ANCHOR_URL as string, { certs: certificates })
+				// todo - check the response from the registry to be 200
+				// return registryRes.status === 200
+				return true
+			} catch (error) {
+				throw new Error(` Validation from registry failed for certificates | error: ${error}`)
+			}
+		}
+
+		async comparePubKeys(certificates: string, publicKeyJwk: any, jose: any) {
+			try {
+				const pk = await jose.importJWK(publicKeyJwk)
+				const spki = await jose.exportSPKI(pk)
+
+				const x509 = await jose.importX509(certificates, 'PS256')
+				const spkiX509 = await jose.exportSPKI(x509)
+
+				return spki === spkiX509
+			} catch (error) {}
 		}
 	}
 }

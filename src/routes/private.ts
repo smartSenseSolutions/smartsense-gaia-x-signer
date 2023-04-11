@@ -12,6 +12,9 @@ import { Resolver } from 'did-resolver'
 
 export const privateRoute = express.Router()
 
+const webResolver = web.getResolver()
+const resolver = new Resolver(webResolver)
+
 privateRoute.post(
 	'/createWebDID',
 	check('domain')
@@ -173,10 +176,7 @@ privateRoute.post(
 			} else {
 				//get required parameters from the body
 				const { templateId, issuerDid, subjectDid, credentialOffer, privateKeyUrl } = req.body
-				// get webresolver
-				const webResolver = web.getResolver()
-				// create a new resolver using web resolver
-				const resolver = new Resolver(webResolver)
+
 				let keyPairTrue: any = null
 				// to check if provide private and public key are a pair, performed by getting public jwk from the given issuerDid
 				keyPairTrue = await Utils.verifyKeyPair(
@@ -296,18 +296,72 @@ privateRoute.post('/verifySignature', check('credential').isObject().not().isEmp
 	try {
 		/**
 		 * Steps for signature verification
-		 * 1 - Validate SHACL (Shapes)
-		 * 2 - getPublicKeys
-		 * 3 - loadCertificat4esRaw
-		 * 4 - checkSignature
+		 * Validation? JSONWebSignature
+		 * 1 - getPublicKeys
+		 * 2 - loadCertificat4esRaw
+		 * 3 - checkSignature
 		 */
 		const { credential } = req.body
+
+		//todo: seperate the contect and proof here
+
+		// proof and verificatioMEthod check
 		console.log(credential.proof.verificationMethod)
 
-		// const ddo = await Utils.getDDOfromDID(credential.proof.verificationMethod, resolver)
+		const ddo = await Utils.getDDOfromDID(credential.proof.verificationMethod, resolver)
+
+		// validation check
+		// console.log(JSON.stringify(ddo, undefined, 2))
+
+		// const { x5u, publicKeyJwk } = ddo.verificationMethod[0]
+
+		const publicKeyJwk = ddo.didDocument.verificationMethod[0].publicKeyJwk
+		const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
+
+		// get the SSL certificates
+		const certificates = (await axios.get(x5u)).data as string
+
+		// signature check against registry
+		const registryRes = await Utils.validateSslFromRegistry(certificates, axios)
+		if (!registryRes) {
+			res.status(400).json({
+				error: `Certificates validation Failed`,
+				message: AppMessages.CERT_VALIDATION_FAILED
+			})
+		}
+
+		//check weather the public key matches with the certificate
+		const comparePubKey = await Utils.comparePubKeys(certificates, publicKeyJwk, jose)
+
+		if (!comparePubKey) {
+			res.status(400).json({
+				error: `Public Keys Mismatched`,
+				message: AppMessages.PUB_KEY_MISMATCH
+			})
+		}
+
+		// check signature
+
+		//normalize claim
+		const canonizedCredential = await Utils.normalize(
+			jsonld,
+			// eslint-disable-next-line
+			credential.verifiableCredential
+		)
+
+		if (typeof canonizedCredential === 'undefined') {
+			throw new Error('canonizing failed')
+		}
+
+		// explore the isValidityCheck here, to include the jws in the hash
+		//hash
+		const hash = await Utils.sha256(crypto, canonizedCredential)
+
+		// verify Signature
+		const verificationResult = await Utils.verify(jose, credential.proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
 
 		res.status(200).json({
-			data: { Verification: true },
+			data: { verified: verificationResult?.content === hash },
 			message: AppMessages.SIG_VERIFY_SUCCESS
 		})
 	} catch (error) {
