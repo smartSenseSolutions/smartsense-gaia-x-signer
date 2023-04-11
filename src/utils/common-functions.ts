@@ -75,12 +75,18 @@ namespace CommonFunctions {
 		}
 
 		async normalize(jsonld: any, payload: object) {
-			const canonized = await jsonld.canonize(payload, {
-				algorithm: 'URDNA2015',
-				format: 'application/n-quads'
-			})
-			if (canonized === '') throw new Error('Canonized SD is empty')
-			return canonized
+			try {
+				const canonized = await jsonld.canonize(payload, {
+					algorithm: 'URDNA2015',
+					format: 'application/n-quads'
+				})
+				if (canonized === '') throw new Error('Canonized SD is empty')
+
+				return canonized
+			} catch (error) {
+				console.log(`❌ Canonizing failed | Error: ${error}`)
+				return undefined
+			}
 		}
 
 		sha256(crypto: any, input: object) {
@@ -113,6 +119,81 @@ namespace CommonFunctions {
 				protectedHeader: result.protectedHeader,
 				content: new TextDecoder().decode(result.payload)
 			}
+		}
+
+		// function to check if private key and did are correct pair by performing encryption- decryption on a dummy message
+		async verifyKeyPair(
+			issuerDid: string,
+			privateKeyUrl: string,
+			jose: any,
+			resolver: any,
+			algorithm: string,
+			axios: any,
+			he: any,
+			flattenEncryptAlgorithm: string,
+			flattenEncryptEncoding: string
+		): Promise<object> {
+			try {
+				//retrieve ddo from the did
+				const ddo = await resolver.resolve(issuerDid)
+				//if ddo not found throw error
+				if (!ddo.didDocument) {
+					return {
+						status: false,
+						message: `Couldn't resolve issuerDid`
+					}
+				} else {
+					//dummy message to encrypt
+					let message = 'some random message'
+					let publicKeyJwk: any
+					// get public jwk from ddo
+					if (ddo.didDocument?.verificationMethod) {
+						publicKeyJwk = ddo.didDocument?.verificationMethod[0].publicKeyJwk
+					}
+					//import public key from jwk
+					const publicKey = await jose.importJWK(publicKeyJwk, algorithm)
+					//encrypt the message using the public key
+					const jwe = await new jose.FlattenedEncrypt(new TextEncoder().encode(message))
+						.setProtectedHeader({ alg: flattenEncryptAlgorithm, enc: flattenEncryptEncoding })
+						.encrypt(publicKey)
+					// import private key
+					const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+					const rsaPrivateKey = await jose.importPKCS8(privateKey as string, algorithm)
+					// const rsaPrivateKey = await jose.importPKCS8(process.env.PRIVATE_KEY as string, algorithm)
+					// decode the encrypted jwe using private key
+					const { plaintext } = await jose.flattenedDecrypt(jwe, rsaPrivateKey)
+					// get decoder object
+					const decoder = new TextDecoder()
+					// return true if dummy message and encrypted message are same, verifying private and public key are a key pair
+					return { status: decoder.decode(plaintext) === message, message: '' }
+				}
+			} catch (e: any) {
+				// this error is raised when incorrect private key is used, signifying incorrect keypair
+				if (e?.code === 'ERR_JWE_DECRYPTION_FAILED') {
+					return { status: false, message: 'Incorrect key pair' }
+				} else {
+					return { status: false, message: e }
+				}
+			}
+		}
+
+		createVpObj(claims: any): Object {
+			let contextUris: string[] = []
+			for (const claim of claims) {
+				const contextUriArr = claim['@context']
+				for (const uri of contextUriArr) {
+					if (!contextUris.includes(uri)) {
+						contextUris.push(uri)
+					}
+				}
+			}
+
+			const vp = {
+				'@context': contextUris,
+				type: ['VerifiablePresentation'],
+				verifiableCredential: claims
+			}
+			return vp
 		}
 
 		async getDDOfromDID(did: string, resolver: any) {

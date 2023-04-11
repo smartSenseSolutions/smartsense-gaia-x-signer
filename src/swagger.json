@@ -55,6 +55,54 @@
 				}
 			}
 		},
+		"/createVC": {
+			"post": {
+				"summary": "Create verifiable credential",
+				"description": "Generate verifiable credential along with proof",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateVCSchemaBody"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/onBoardToGaiaX": {
 			"post": {
 				"summary": "On board to Gaia-X",
@@ -65,6 +113,44 @@
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/OnBoardGaiaXSchemaBody"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/createVP": {
+			"post": {
+				"summary": "Create a Verifiable Presentation",
+				"description": "Generate Legal Person, Service Offering or Compliance Credential VP ",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateVPSchemaBody"
 							}
 						}
 					}
@@ -134,40 +220,143 @@
 						"example": "dev.smartproof.in"
 					}
 				}
-			}
-            ,
+			},
 			"OnBoardGaiaXSchemaBody": {
 				"required": ["domain"],
 				"properties": {
 					"domain": {
 						"type": "string",
 						"example": "dev.smartproof.in"
-					},"templateId": {
+					},
+					"templateId": {
 						"type": "string",
 						"example": "LegalParticipant"
-					},"privateKeyUrl": {
+					},
+					"privateKeyUrl": {
 						"type": "string",
 						"example": "https://example.com"
-					},"data": {
+					},
+					"data": {
 						"type": "object",
 						"properties": {
-                            "legalName": {
-                                "type": "string",
-                                "example": "Smart Proof"
-                            },"legalRegistrationType": {
-                                "type": "string",
-                                "example": "taxID"
-                            },"legalRegistrationNumber": {
-                                "type": "string",
-                                "example": "0762747721"
-                            },"headquarterAddress": {
-                                "type": "string",
-                                "example": "BE-BRU"
-                            },"legalAddress": {
-                                "type": "string",
-                                "example": "BE-BRU"
-                            }
-                        }
+							"legalName": {
+								"type": "string",
+								"example": "Smart Proof"
+							},
+							"legalRegistrationType": {
+								"type": "string",
+								"example": "taxID"
+							},
+							"legalRegistrationNumber": {
+								"type": "string",
+								"example": "0762747721"
+							},
+							"headquarterAddress": {
+								"type": "string",
+								"example": "BE-BRU"
+							},
+							"legalAddress": {
+								"type": "string",
+								"example": "BE-BRU"
+							}
+						}
+					}
+				}
+			},
+			"CreateVCSchemaBody": {
+				"required": ["issuerDid", "subjectDid", "templateId", "privateKeyUrl", "credentialOffer"],
+				"properties": {
+					"issuerDid": {
+						"type": "string",
+						"example": "did:web:dev.smartproof.in"
+					},
+					"subjectDid": {
+						"type": "string",
+						"example": "did:web:dev.smartproof.in"
+					},
+
+					"templateId": {
+						"type": "string",
+						"example": "LegalParticipant"
+					},
+					"privateKeyUrl": {
+						"type": "string",
+						"example": "https://example.com"
+					},
+
+					"credentialOffer": {
+						"type": "object",
+						"properties": {
+							"legalName": {
+								"type": "string",
+								"example": "Smart Proof"
+							},
+							"legalRegistrationType": {
+								"type": "string",
+								"example": "taxID"
+							},
+							"legalRegistrationNumber": {
+								"type": "string",
+								"example": "0762747721"
+							},
+							"headquarterAddress": {
+								"type": "string",
+								"example": "BE-BRU"
+							},
+							"legalAddress": {
+								"type": "string",
+								"example": "BE-BRU"
+							}
+						}
+					}
+				}
+			},
+			"CreateVPSchemaBody": {
+				"required": ["claims", "privateKeyUrl", "holderDID"],
+				"properties": {
+					"holderDID": {
+						"type": "string",
+						"example": "did:web:dev.smartproof.in"
+					},
+					"privateKeyUrl": {
+						"type": "string",
+						"example": "https://example.com"
+					},
+					"claims": {
+						"type": "array",
+						"example": [
+							{
+								"@context": [
+									"https://www.w3.org/2018/credentials/v1",
+									"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#",
+									"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#"
+								],
+								"type": ["VerifiableCredential", "gx:LegalParticipant"],
+								"id": "did:web:dev01.proofsense.in",
+								"issuer": "did:web:dev01.proofsense.in",
+								"issuanceDate": "2023-04-11T05:44:44.421Z",
+								"credentialSubject": {
+									"id": "did:web:dev01.proofsense.in",
+									"gx:legalName": "Proof Sense",
+									"gx:legalRegistrationNumber": {
+										"gx:taxID": "0762747721"
+									},
+									"gx:headquarterAddress": {
+										"gx:countrySubdivisionCode": "BE-BRU"
+									},
+									"gx:legalAddress": {
+										"gx:countrySubdivisionCode": "BE-BRU"
+									}
+								},
+								"proof": {
+									"type": "JsonWebSignature2020",
+									"created": "2023-04-11T05:44:50.619Z",
+									"proofPurpose": "assertionMethod",
+									"verificationMethod": "did:web:dev01.proofsense.in",
+									"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..PtMOEMBKg7JDBomlTaogZO38JuZPFj_ke8YAnI9IXLV3KQZMD8TUSOfsKlh8P9UGI7dKS_kMZIjgU3TxIuaiWY7PczxRnyTJpSVyWa5ckhNrtEzhKg73rfx2rrlbp3uofWDqezDnQRkukSiBKQXtiHHdqgyDnonUnfEfxdj56bJIULfsXwjQY4F_z4oXA1cGJ8SBQoqdxjDxIkp7BVuFhv2zA8BwcQF7N-p9RzB1-DTddWEiF_iCjTDC3HkGW3dkD9QjWX25Q-LYvXYzTzGhkuntlLaxtw5MC7-lopIVHAE4kYlR-4sPxbMyVBwasocs8BUIpT0OtCIrgoChsN9yCA"
+								}
+							}
+						]
 					}
 				}
 			}
