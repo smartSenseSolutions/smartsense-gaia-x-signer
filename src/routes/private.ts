@@ -152,7 +152,7 @@ privateRoute.post(
 	}
 )
 privateRoute.post(
-	'/createVc',
+	'/createVC',
 	check('templateId').isIn([AppConst.LEGAL_PARTICIPANT]),
 	check('privateKeyUrl').not().isEmpty().trim().escape(),
 	check('credentialOffer').isObject(),
