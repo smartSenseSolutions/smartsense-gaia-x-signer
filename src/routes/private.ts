@@ -148,3 +148,30 @@ privateRoute.post(
 		}
 	}
 )
+
+privateRoute.post('/verifySignature', check('credential').isObject().not().isEmpty(), async (req: Request, res: Response): Promise<void> => {
+	try {
+		/**
+		 * Steps for signature verification
+		 * 1 - Validate SHACL (Shapes)
+		 * 2 - getPublicKeys
+		 * 3 - loadCertificat4esRaw
+		 * 4 - checkSignature
+		 */
+		const { credential } = req.body
+		console.log(credential.proof.verificationMethod)
+
+		// const ddo = await Utils.getDDOfromDID(credential.proof.verificationMethod, resolver)
+
+		res.status(200).json({
+			data: { Verification: true },
+			message: AppMessages.SIG_VERIFY_SUCCESS
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({
+			error: (error as Error).message,
+			message: AppMessages.SIG_VERIFY_FAILED
+		})
+	}
+})

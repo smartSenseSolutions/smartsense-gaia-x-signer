@@ -114,6 +114,10 @@ namespace CommonFunctions {
 				content: new TextDecoder().decode(result.payload)
 			}
 		}
+
+		async getDDOfromDID(did: string, resolver: any) {
+			const ddo = await resolver.resolve(did)
+		}
 	}
 }
 
