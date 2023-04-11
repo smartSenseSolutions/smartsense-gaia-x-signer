@@ -75,16 +75,17 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/CreateVCSchemaBody"
+									"$ref": "#/components/schemas/SuccessSchemaResponse"
 								}
 							}
 						}
-					},"422": {
+					},
+					"422": {
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/CreateVCSchemaBodyValidationError"
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
 								}
 							}
 						}
@@ -126,7 +127,8 @@
 								}
 							}
 						}
-					},"500": {
+					},
+					"500": {
 						"description": "Internal server error",
 						"content": {
 							"application/json": {
@@ -170,119 +172,95 @@
 						"example": "dev.smartproof.in"
 					}
 				}
-			}
-            ,
+			},
 			"OnBoardGaiaXSchemaBody": {
 				"required": ["domain"],
 				"properties": {
 					"domain": {
 						"type": "string",
 						"example": "dev.smartproof.in"
-					},"templateId": {
+					},
+					"templateId": {
 						"type": "string",
 						"example": "LegalParticipant"
-					},"privateKeyUrl": {
+					},
+					"privateKeyUrl": {
 						"type": "string",
 						"example": "https://example.com"
-					},"data": {
+					},
+					"data": {
 						"type": "object",
 						"properties": {
-                            "legalName": {
-                                "type": "string",
-                                "example": "Smart Proof"
-                            },"legalRegistrationType": {
-                                "type": "string",
-                                "example": "taxID"
-                            },"legalRegistrationNumber": {
-                                "type": "string",
-                                "example": "0762747721"
-                            },"headquarterAddress": {
-                                "type": "string",
-                                "example": "BE-BRU"
-                            },"legalAddress": {
-                                "type": "string",
-                                "example": "BE-BRU"
-                            }
-                        }
+							"legalName": {
+								"type": "string",
+								"example": "Smart Proof"
+							},
+							"legalRegistrationType": {
+								"type": "string",
+								"example": "taxID"
+							},
+							"legalRegistrationNumber": {
+								"type": "string",
+								"example": "0762747721"
+							},
+							"headquarterAddress": {
+								"type": "string",
+								"example": "BE-BRU"
+							},
+							"legalAddress": {
+								"type": "string",
+								"example": "BE-BRU"
+							}
+						}
 					}
 				}
 			},
 			"CreateVCSchemaBody": {
-				"required": ["issuerDid","subjectDid","templateId","privateKeyUrl","credentialOffer"],
+				"required": ["issuerDid", "subjectDid", "templateId", "privateKeyUrl", "credentialOffer"],
 				"properties": {
 					"issuerDid": {
 						"type": "string",
 						"example": "did:web:dev.smartproof.in"
-					},"subjectDid": {
+					},
+					"subjectDid": {
 						"type": "string",
 						"example": "did:web:dev.smartproof.in"
-					},"templateId": {
+					},
+					"templateId": {
 						"type": "string",
 						"example": "LegalParticipant"
-					},"privateKeyUrl": {
+					},
+					"privateKeyUrl": {
 						"type": "string",
 						"example": "https://example.com"
-					},"credentialOffer": {
+					},
+					"credentialOffer": {
 						"type": "object",
 						"properties": {
-                            "legalName": {
-                                "type": "string",
-                                "example": "Smart Proof"
-                            },"legalRegistrationType": {
-                                "type": "string",
-                                "example": "taxID"
-                            },"legalRegistrationNumber": {
-                                "type": "string",
-                                "example": "0762747721"
-                            },"headquarterAddress": {
-                                "type": "string",
-                                "example": "BE-BRU"
-                            },"legalAddress": {
-                                "type": "string",
-                                "example": "BE-BRU"
-                            }
-                        }
-					}
-				}
-			},"CreateVCSchemaBodyValidationError": {
-				"required": ["issuerDid","subjectDid","templateId","privateKeyUrl","credentialOffer"],
-				"properties": {
-					"issuerDid": {
-						"type": "string",
-						"example": "did:web:dev.smartproof1.in"
-					},"subjectDid": {
-						"type": "string",
-						"example": "did:web:dev.smartproof.in"
-					},"templateId": {
-						"type": "string",
-						"example": "LegalParticipant"
-					},"privateKeyUrl": {
-						"type": "string",
-						"example": ""
-					},"credentialOffer": {
-						"type": "object",
-						"properties": {
-                            "legalName": {
-                                "type": "string",
-                                "example": "Smart Proof"
-                            },"legalRegistrationType": {
-                                "type": "string",
-                                "example": "taxID"
-                            },"legalRegistrationNumber": {
-                                "type": "string",
-                                "example": "0762747721"
-                            },"headquarterAddress": {
-                                "type": "string",
-                                "example": "BE-BRU"
-                            },"legalAddress": {
-                                "type": "string",
-                                "example": "BE-BRU"
-                            }
-                        }
+							"legalName": {
+								"type": "string",
+								"example": "Smart Proof"
+							},
+							"legalRegistrationType": {
+								"type": "string",
+								"example": "taxID"
+							},
+							"legalRegistrationNumber": {
+								"type": "string",
+								"example": "0762747721"
+							},
+							"headquarterAddress": {
+								"type": "string",
+								"example": "BE-BRU"
+							},
+							"legalAddress": {
+								"type": "string",
+								"example": "BE-BRU"
+							}
+						}
 					}
 				}
 			}
-
 		}
 	}
 }
