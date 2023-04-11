@@ -178,8 +178,8 @@ privateRoute.post(
 				}
 
 				const hash = await Utils.sha256(crypto, canonizedCredential)
-				// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-				const privateKey = process.env.PRIVATE_KEY as string
+				const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+				// const privateKey = process.env.PRIVATE_KEY as string
 				const proof = await Utils.createProof(jose, holderDID, AppConst.RSA_ALGO, hash, privateKey)
 				console.log(proof ? '🔒 VP signed successfully' : '❌ VP signing failed')
 
