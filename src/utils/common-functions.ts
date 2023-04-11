@@ -32,16 +32,16 @@ namespace CommonFunctions {
 			const selfDescription = {
 				'@context': [
 					'https://www.w3.org/2018/credentials/v1',
-					'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
-					'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
+					'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
+					'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
 				],
 				type: ['VerifiablePresentation'],
 				verifiableCredential: [
 					{
 						'@context': [
 							'https://www.w3.org/2018/credentials/v1',
-							'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
-							'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
+							'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
+							'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
 						],
 						type: ['VerifiableCredential', 'gx:LegalParticipant'],
 						id: didId,
@@ -51,7 +51,7 @@ namespace CommonFunctions {
 							id: participantURL,
 							'gx:legalName': legalName,
 							'gx:legalRegistrationNumber': {
-								[legalRegistrationType]: legalRegistrationNumber
+								[`gx:${legalRegistrationType}`]: legalRegistrationNumber
 							},
 							'gx:headquarterAddress': {
 								'gx:countrySubdivisionCode': headquarterAddress
