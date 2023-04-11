@@ -75,12 +75,18 @@ namespace CommonFunctions {
 		}
 
 		async normalize(jsonld: any, payload: object) {
-			const canonized = await jsonld.canonize(payload, {
-				algorithm: 'URDNA2015',
-				format: 'application/n-quads'
-			})
-			if (canonized === '') throw new Error('Canonized SD is empty')
-			return canonized
+			try {
+				const canonized = await jsonld.canonize(payload, {
+					algorithm: 'URDNA2015',
+					format: 'application/n-quads'
+				})
+				if (canonized === '') throw new Error('Canonized SD is empty')
+
+				return canonized
+			} catch (error) {
+				console.log(`❌ Canonizing failed | Error: ${error}`)
+				return undefined
+			}
 		}
 
 		sha256(crypto: any, input: object) {
@@ -169,6 +175,25 @@ namespace CommonFunctions {
 					return { status: false, message: e }
 				}
 			}
+		}
+
+		createVpObj(claims: any): Object {
+			let contextUris: string[] = []
+			for (const claim of claims) {
+				const contextUriArr = claim['@context']
+				for (const uri of contextUriArr) {
+					if (!contextUris.includes(uri)) {
+						contextUris.push(uri)
+					}
+				}
+			}
+
+			const vp = {
+				'@context': contextUris,
+				type: ['VerifiablePresentation'],
+				verifiableCredential: claims
+			}
+			return vp
 		}
 	}
 }
