@@ -81,6 +81,7 @@ namespace CommonFunctions {
 					format: 'application/n-quads'
 				})
 				if (canonized === '') throw new Error('Canonized SD is empty')
+
 				return canonized
 			} catch (error) {
 				console.log(`❌ Canonizing failed | Error: ${error}`)
@@ -120,29 +121,23 @@ namespace CommonFunctions {
 			}
 		}
 
-		createLpVpObj(claims: any): Object {
+		createVpObj(claims: any): Object {
+			let contextUris: string[] = []
+			for (const claim of claims) {
+				const contextUriArr = claim['@context']
+				for (const uri of contextUriArr) {
+					if (!contextUris.includes(uri)) {
+						contextUris.push(uri)
+					}
+				}
+			}
+
 			const vp = {
-				'@context': [
-					'https://www.w3.org/2018/credentials/v1'
-					// 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
-					// 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
-				],
+				'@context': contextUris,
 				type: ['VerifiablePresentation'],
 				verifiableCredential: claims
 			}
 			return vp
-		}
-
-		createInvoiceVpObj(invoiceCred: any): Object {
-			const invoiceVp = {
-				'@context': [
-					'https://www.w3.org/2018/credentials/v1'
-					//  'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#'
-				],
-				type: ['VerifiablePresentation'],
-				verifiableCredential: invoiceCred
-			}
-			return invoiceVp
 		}
 	}
 }
