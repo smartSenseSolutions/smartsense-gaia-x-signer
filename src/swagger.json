@@ -232,10 +232,6 @@
 						"type": "string",
 						"example": "did:web:dev.smartproof.in"
 					},
-					"templateId": {
-						"type": "string",
-						"example": "LegalParticipant"
-					},
 					"privateKeyUrl": {
 						"type": "string",
 						"example": "https://example.com"
@@ -244,15 +240,18 @@
 						"type": "array",
 						"example": [
 							{
-								"@context": ["https://www.w3.org/2018/credentials/v1"],
+								"@context": [
+									"https://www.w3.org/2018/credentials/v1",
+									"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#",
+									"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#"
+								],
 								"type": ["VerifiableCredential", "gx:LegalParticipant"],
-								"id": "did:web:dev.smartproof.in",
-								"issuer": "did:web:dev.smartproof.in",
-								"issuanceDate": "2023-03-21T12:00:00.148Z",
+								"id": "did:web:dev01.proofsense.in",
+								"issuer": "did:web:dev01.proofsense.in",
+								"issuanceDate": "2023-04-11T05:44:44.421Z",
 								"credentialSubject": {
-									"id": "did:web:dev.smartproof.in",
-									"gx:legalName": "Dev Smartproof",
-
+									"id": "did:web:dev01.proofsense.in",
+									"gx:legalName": "Proof Sense",
 									"gx:legalRegistrationNumber": {
 										"gx:taxID": "0762747721"
 									},
@@ -262,6 +261,13 @@
 									"gx:legalAddress": {
 										"gx:countrySubdivisionCode": "BE-BRU"
 									}
+								},
+								"proof": {
+									"type": "JsonWebSignature2020",
+									"created": "2023-04-11T05:44:50.619Z",
+									"proofPurpose": "assertionMethod",
+									"verificationMethod": "did:web:dev01.proofsense.in",
+									"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..PtMOEMBKg7JDBomlTaogZO38JuZPFj_ke8YAnI9IXLV3KQZMD8TUSOfsKlh8P9UGI7dKS_kMZIjgU3TxIuaiWY7PczxRnyTJpSVyWa5ckhNrtEzhKg73rfx2rrlbp3uofWDqezDnQRkukSiBKQXtiHHdqgyDnonUnfEfxdj56bJIULfsXwjQY4F_z4oXA1cGJ8SBQoqdxjDxIkp7BVuFhv2zA8BwcQF7N-p9RzB1-DTddWEiF_iCjTDC3HkGW3dkD9QjWX25Q-LYvXYzTzGhkuntlLaxtw5MC7-lopIVHAE4kYlR-4sPxbMyVBwasocs8BUIpT0OtCIrgoChsN9yCA"
 								}
 							}
 						]
