@@ -226,7 +226,7 @@
 				}
 			},
 			"CreateVPSchemaBody": {
-				"required": ["claims"],
+				"required": ["claims", "privateKeyUrl", "holderDID"],
 				"properties": {
 					"holderDID": {
 						"type": "string",
