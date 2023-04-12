@@ -219,8 +219,8 @@ privateRoute.post(
 					// create hash
 					const hash = Utils.sha256(crypto, canonizedSD)
 					// retrieve private key
-					const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-					// const privateKey = process.env.PRIVATE_KEY as string
+					// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+					const privateKey = process.env.PRIVATE_KEY as string
 					// create proof
 					const proof = await Utils.createProof(jose, issuerDid, AppConst.RSA_ALGO, hash, privateKey)
 					// attach proof to vc
@@ -260,6 +260,8 @@ privateRoute.post(
 			} else {
 				const { privateKeyUrl, holderDID, claims } = req.body
 
+				// TODO - check the relation between holder DID and the provided claims
+
 				const generatedVp: any = Utils.createVpObj(claims)
 				const canonizedCredential = await Utils.normalize(
 					jsonld,
@@ -271,8 +273,8 @@ privateRoute.post(
 				}
 
 				const hash = await Utils.sha256(crypto, canonizedCredential)
-				const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-				// const privateKey = process.env.PRIVATE_KEY as string
+				// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+				const privateKey = process.env.PRIVATE_KEY as string
 				const proof = await Utils.createProof(jose, holderDID, AppConst.RSA_ALGO, hash, privateKey)
 				console.log(proof ? '🔒 VP signed successfully' : '❌ VP signing failed')
 
@@ -312,8 +314,24 @@ privateRoute.post('/verifySignature', check('credential').isObject().not().isEmp
 		 */
 
 		const { credential } = req.body
-		const credentialContent = credential.verifiableCredential
-		const proof = credential.proof
+
+		let credentialContent, proof
+		if (credential.type.includes('VerifiableCredential') && credential.type.includes('gx:LegalParticipant')) {
+			proof = credential.proof
+			delete credential.proof
+			credentialContent = credential
+			console.log('Verifying a gx:LegalParticipant Verifiable Credential...')
+		} else if (credential.type.includes('VerifiablePresentation')) {
+			credentialContent = credential.verifiableCredential
+			proof = credential.proof
+			console.log('Verifying a Verifiable Presentation...')
+		} else {
+			console.log(`❌ Credential Type not supported`)
+			res.status(400).json({
+				error: `Credential Type not supported`
+			})
+			return
+		}
 
 		const isVerified = await verification(credentialContent, proof)
 
