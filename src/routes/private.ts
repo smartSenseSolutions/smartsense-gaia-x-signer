@@ -301,67 +301,105 @@ privateRoute.post('/verifySignature', check('credential').isObject().not().isEmp
 		 * 2 - loadCertificat4esRaw
 		 * 3 - checkSignature
 		 */
+
+		/**
+		 * List of validation check
+		 * 1-credential in request body
+		 *      - verifiableCredential in credential
+		 *      - proof in credential
+		 *
+		 * 2-verificationMethod in proof
+		 */
+
 		const { credential } = req.body
+		const credentialContent = credential.verifiableCredential
+		const proof = credential.proof
 
-		//todo: seperate the contect and proof here
+		const isVerified = await verification(credentialContent, proof)
 
-		// proof and verificatioMEthod check
-		console.log(credential.proof.verificationMethod)
+		async function verification(credentialContent: any, proof: any) {
+			if (proof.type !== 'JsonWebSignature2020') {
+				console.log(`❌ signature type: '${proof.type}' not supported`)
+				res.status(400).json({
+					error: `signature type: '${proof.type}' not supported`,
+					message: AppMessages.ONLY_JWS2020
+				})
+				return
+			}
 
-		const ddo = await Utils.getDDOfromDID(credential.proof.verificationMethod, resolver)
+			const ddo = await Utils.getDDOfromDID(proof.verificationMethod, resolver)
+			if (!ddo) {
+				console.log(`❌ DDO not found for given did: '${proof.verificationMethod}' in proof`)
+				res.status(400).json({
+					error: `DDO not found for given did: '${proof.verificationMethod}' in proof`
+				})
+				return
+			}
 
-		// validation check
-		// console.log(JSON.stringify(ddo, undefined, 2))
+			const publicKeyJwk = ddo.didDocument.verificationMethod[0].publicKeyJwk
+			const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
 
-		// const { x5u, publicKeyJwk } = ddo.verificationMethod[0]
+			// get the SSL certificates
+			const certificates = (await axios.get(x5u)).data as string
 
-		const publicKeyJwk = ddo.didDocument.verificationMethod[0].publicKeyJwk
-		const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
+			// signature check against registry
+			const registryRes = await Utils.validateSslFromRegistry(certificates, axios)
+			if (!registryRes) {
+				res.status(400).json({
+					error: `Certificates validation Failed`,
+					message: AppMessages.CERT_VALIDATION_FAILED
+				})
+				return
+			}
 
-		// get the SSL certificates
-		const certificates = (await axios.get(x5u)).data as string
+			//check weather the public key matches with the certificate
+			const comparePubKey = await Utils.comparePubKeys(certificates, publicKeyJwk, jose)
+			if (!comparePubKey) {
+				console.log(`❌ Public Keys Mismatched`)
+				res.status(400).json({
+					error: `Public Keys Mismatched`,
+					message: AppMessages.PUB_KEY_MISMATCH
+				})
+				return
+			}
 
-		// signature check against registry
-		const registryRes = await Utils.validateSslFromRegistry(certificates, axios)
-		if (!registryRes) {
-			res.status(400).json({
-				error: `Certificates validation Failed`,
-				message: AppMessages.CERT_VALIDATION_FAILED
-			})
+			/**
+			 * Signature Check Flow
+			 */
+
+			// normalize
+			const canonizedCredential = await Utils.normalize(
+				jsonld,
+				// eslint-disable-next-line
+				credentialContent
+			)
+			if (typeof canonizedCredential === 'undefined') {
+				console.log(`❌ Normalizing Credential Failed`)
+				res.status(400).json({
+					error: `Normalizing Credential Failed`
+				})
+				return
+			}
+
+			// TODO: explore the isValidityCheck here, to include the jws in the hash
+
+			// hash
+			const hash = await Utils.sha256(crypto, canonizedCredential)
+
+			// verify Signature
+			const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
+			const isVerified = verificationResult?.content === hash
+			console.log(isVerified ? `✅ ${AppMessages.SIG_VERIFY_SUCCESS}` : `❌ ${AppMessages.SIG_VERIFY_FAILED}`)
+
+			return isVerified
 		}
 
-		//check weather the public key matches with the certificate
-		const comparePubKey = await Utils.comparePubKeys(certificates, publicKeyJwk, jose)
-
-		if (!comparePubKey) {
-			res.status(400).json({
-				error: `Public Keys Mismatched`,
-				message: AppMessages.PUB_KEY_MISMATCH
-			})
+		if (typeof isVerified !== 'boolean') {
+			return
 		}
-
-		// check signature
-
-		//normalize claim
-		const canonizedCredential = await Utils.normalize(
-			jsonld,
-			// eslint-disable-next-line
-			credential.verifiableCredential
-		)
-
-		if (typeof canonizedCredential === 'undefined') {
-			throw new Error('canonizing failed')
-		}
-
-		// explore the isValidityCheck here, to include the jws in the hash
-		//hash
-		const hash = await Utils.sha256(crypto, canonizedCredential)
-
-		// verify Signature
-		const verificationResult = await Utils.verify(jose, credential.proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
 
 		res.status(200).json({
-			data: { verified: verificationResult?.content === hash },
+			data: { verified: isVerified },
 			message: AppMessages.SIG_VERIFY_SUCCESS
 		})
 	} catch (error) {

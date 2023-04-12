@@ -81,7 +81,6 @@ namespace CommonFunctions {
 					format: 'application/n-quads'
 				})
 				if (canonized === '') throw new Error('Canonized SD is empty')
-
 				return canonized
 			} catch (error) {
 				console.log(`❌ Canonizing failed | Error: ${error}`)
@@ -203,10 +202,13 @@ namespace CommonFunctions {
 		async getDDOfromDID(did: string, resolver: any) {
 			try {
 				const ddo = await resolver.resolve(did)
-				// ddo validation? verificationMethod
+				if (!ddo.didDocument.verificationMethod || ddo.didDocument === null || ddo.didResolutionMetadata.error) {
+					return undefined
+				}
 				return ddo
 			} catch (error) {
-				throw new Error(`Fetching DDO failed for did: ${did}`)
+				console.log(`❌ Fetching DDO failed for did: ${did}`)
+				return undefined
 			}
 		}
 
@@ -217,7 +219,8 @@ namespace CommonFunctions {
 				// return registryRes.status === 200
 				return true
 			} catch (error) {
-				throw new Error(` Validation from registry failed for certificates | error: ${error}`)
+				console.log(`❌ Validation from registry failed for certificates | error: ${error}`)
+				return false
 			}
 		}
 
@@ -230,7 +233,10 @@ namespace CommonFunctions {
 				const spkiX509 = await jose.exportSPKI(x509)
 
 				return spki === spkiX509
-			} catch (error) {}
+			} catch (error) {
+				console.log(`❌ Comparing publicKeyJwk and pub key from certificates failed | error: ${error}`)
+				return false
+			}
 		}
 	}
 }

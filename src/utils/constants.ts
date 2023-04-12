@@ -21,4 +21,5 @@ export class AppMessages {
 	static readonly SIG_VERIFY_FAILED = 'Signature verification failed'
 	static readonly CERT_VALIDATION_FAILED = 'Certificates verification failed against the Gaia-x Registry'
 	static readonly PUB_KEY_MISMATCH = 'Public Key from did and SSL certificates do not match'
+	static readonly ONLY_JWS2020 = 'Only JsonWebSignature2020 is supported'
 }
