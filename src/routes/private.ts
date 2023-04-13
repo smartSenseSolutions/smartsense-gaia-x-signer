@@ -111,7 +111,7 @@ privateRoute.post(
 				const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
 				console.log(verificationResult?.content === hash ? '✅ Verification successful' : '❌ Verification failed')
 				selfDescription['verifiableCredential'][0].proof = proof
-				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string,selfDescription)).data;
+				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
 				// const complianceCredential = {
 				// 	'@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'],
 				// 	type: ['VerifiableCredential'],
@@ -157,7 +157,7 @@ privateRoute.post(
 
 privateRoute.post(
 	'/createVC',
-	check('templateId').isIn([AppConst.LEGAL_PARTICIPANT]),
+	check('templateId').isIn([AppConst.LEGAL_PARTICIPANT, AppConst.SERVICE_OFFER]),
 	check('privateKeyUrl').not().isEmpty().trim().escape(),
 	check('credentialOffer').isObject(),
 	check('issuerDid').not().isEmpty().trim().escape(),
@@ -196,20 +196,23 @@ privateRoute.post(
 						error: keyPairTrue.message,
 						message: AppMessages.KEYPAIR_VALIDATION
 					})
-				} else {
-					let verifiableCredential: any = null
-					if (templateId === AppConst.LEGAL_PARTICIPANT) {
-						// create legal person document
-						verifiableCredential = Utils.generateLegalPerson(
-							subjectDid,
-							issuerDid,
-							credentialOffer?.legalName,
-							credentialOffer?.legalRegistrationType,
-							credentialOffer?.legalRegistrationNumber,
-							credentialOffer?.headquarterAddress,
-							credentialOffer?.legalAddress
-						)
-					}
+				}
+
+				let resCredential: any = null
+				let verifiableCredential: any = null
+
+				if (templateId === AppConst.LEGAL_PARTICIPANT) {
+					// create legal person document
+					verifiableCredential = Utils.generateLegalPerson(
+						subjectDid,
+						issuerDid,
+						credentialOffer?.legalName,
+						credentialOffer?.legalRegistrationType,
+						credentialOffer?.legalRegistrationNumber,
+						credentialOffer?.headquarterAddress,
+						credentialOffer?.legalAddress
+					)
+
 					// normalise
 					const canonizedSD = await Utils.normalize(
 						jsonld,
@@ -225,12 +228,38 @@ privateRoute.post(
 					const proof = await Utils.createProof(jose, issuerDid, AppConst.RSA_ALGO, hash, privateKey)
 					// attach proof to vc
 					verifiableCredential['verifiableCredential'][0].proof = proof
-					// send vc as response with success message
-					res.status(200).json({
-						data: verifiableCredential['verifiableCredential'][0],
-						message: AppMessages.VC_SUCCESS
-					})
+
+					resCredential = verifiableCredential['verifiableCredential'][0]
+				} else if (templateId === AppConst.SERVICE_OFFER) {
+					verifiableCredential = Utils.generateServiceOffObj(
+						subjectDid,
+						issuerDid,
+						credentialOffer?.name,
+						credentialOffer?.requestType,
+						credentialOffer?.privacyPolicy,
+						credentialOffer?.webAddress
+					)
+
+					const canonizedSD = await Utils.normalize(
+						jsonld,
+						// eslint-disable-next-line
+						verifiableCredential
+					)
+
+					const hash = Utils.sha256(crypto, canonizedSD)
+					// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+					const privateKey = process.env.PRIVATE_KEY as string
+					const proof = await Utils.createProof(jose, issuerDid, AppConst.RSA_ALGO, hash, privateKey)
+					verifiableCredential.proof = proof
+
+					resCredential = verifiableCredential
 				}
+
+				// send vc as response with success message
+				res.status(200).json({
+					data: resCredential,
+					message: AppMessages.VC_SUCCESS
+				})
 			}
 		} catch (e) {
 			console.log(e)
