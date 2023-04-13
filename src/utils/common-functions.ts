@@ -30,25 +30,18 @@ namespace CommonFunctions {
 			legalAddress: string
 		): object {
 			const selfDescription = {
-				'@context': [
-					'https://www.w3.org/2018/credentials/v1',
-					'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
-					'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
-				],
+				'@context': 'https://www.w3.org/2018/credentials/v1',
 				type: ['VerifiablePresentation'],
 				verifiableCredential: [
 					{
-						'@context': [
-							'https://www.w3.org/2018/credentials/v1',
-							'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#',
-							'https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#'
-						],
-						type: ['VerifiableCredential', 'gx:LegalParticipant'],
+						'@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#'],
+						type: ['VerifiableCredential'],
 						id: didId,
 						issuer: didId,
 						issuanceDate: new Date().toISOString(),
 						credentialSubject: {
 							id: participantURL,
+							type: 'gx:LegalParticipant',
 							'gx:legalName': legalName,
 							'gx:legalRegistrationNumber': {
 								[`gx:${legalRegistrationType}`]: legalRegistrationNumber
@@ -58,7 +51,8 @@ namespace CommonFunctions {
 							},
 							'gx:legalAddress': {
 								'gx:countrySubdivisionCode': legalAddress
-							}
+							},
+							'gx-terms-and-conditions:gaiaxTermsAndConditions': '70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700'
 						}
 					}
 				]
