@@ -60,7 +60,24 @@ namespace CommonFunctions {
 			return selfDescription
 		}
 
-		generateServiceOffObj(subjectDid: string, issuerDid: string, name: string, requestType: string, privacyPolicy: string, webAddress: string): Object {
+		generateServiceOffObj(
+			subjectDid: string,
+			issuerDid: string,
+			name: string,
+			producedBy: string,
+			copyrightOwnedBy: string,
+			description: string,
+			license: string,
+			policy: string,
+			expiration: string,
+			articleNumber: string,
+			group: string,
+			GTIN: string,
+			image: string,
+			model: string,
+			KBAnumber: string,
+			cradleToGate: string
+		): Object {
 			const selfDescription = {
 				'@context': ['https://www.w3.org/2018/credentials/v1'],
 				type: [
@@ -73,34 +90,21 @@ namespace CommonFunctions {
 				issuanceDate: new Date().toISOString(),
 				credentialSubject: {
 					id: subjectDid,
-					'gx-service-offering:dataExport': [
-						{
-							'gx-service-offering:requestType': requestType,
-							'gx-service-offering:accessType': 'digital',
-							'gx-service-offering:formatType': 'mime/png'
-						}
-					],
-					'gx-service-offering:dataProtectionRegime': ['GDPR2016'],
-					'gx-service-offering:dependsOn': [],
-					'gx-service-offering:description':
-						'The Compliance Service will validate the shape and content of Self Descriptions. Required fields and consistency rules are defined in the Gaia-X Trust Framework.',
-					'gx-service-offering:gdpr': [
-						{
-							'gx-service-offering:imprint': 'https://gaia-x.eu/imprint/',
-							'gx-service-offering:privacyPolicy': privacyPolicy
-						}
-					],
 					'gx-service-offering:name': name,
-					'gx-service-offering:providedBy': subjectDid,
-					'gx-service-offering:termsAndConditions': [
-						{
-							'gx-service-offering:hash': '70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700',
-							'gx-service-offering:url': privacyPolicy
-						}
-					],
-					'gx-service-offering:webAddress': webAddress,
-					'gx-service-offering:title': name,
-					'gx-service-offering:descriptionMarkDown': 'The Compliance Service will validate the shape and content of Self Descriptions.'
+					'gx-service-offering:producedBy': producedBy,
+					'gx-service-offering:copyrightOwnedBy': copyrightOwnedBy,
+					'gx-service-offering:description': description,
+					'gx-service-offering:license': license,
+					'gx-service-offering:policy': policy,
+					'gx-service-offering:expiration': expiration,
+					'gx-service-offering:containsPII': false,
+					'gx-service-offering:articleNumber': articleNumber,
+					'gx-service-offering:group': group,
+					'gx-service-offering:GTIN': GTIN,
+					'gx-service-offering:image': image,
+					'gx-service-offering:model': model,
+					'gx-service-offering:KBAnumber': KBAnumber,
+					'gx-service-offering:cradleToGate': cradleToGate
 				}
 			}
 			return selfDescription

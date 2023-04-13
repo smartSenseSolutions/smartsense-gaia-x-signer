@@ -235,9 +235,19 @@ privateRoute.post(
 						subjectDid,
 						issuerDid,
 						credentialOffer?.name,
-						credentialOffer?.requestType,
-						credentialOffer?.privacyPolicy,
-						credentialOffer?.webAddress
+						credentialOffer?.producedBy,
+						credentialOffer?.copyrightOwnedBy,
+						credentialOffer?.description,
+						credentialOffer?.license,
+						credentialOffer?.policy,
+						credentialOffer?.expiration,
+						credentialOffer?.articleNumber,
+						credentialOffer?.group,
+						credentialOffer?.GTIN,
+						credentialOffer?.image,
+						credentialOffer?.model,
+						credentialOffer?.KBAnumber,
+						credentialOffer?.cradleToGat
 					)
 
 					const canonizedSD = await Utils.normalize(
