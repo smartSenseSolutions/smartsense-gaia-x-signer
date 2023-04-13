@@ -410,8 +410,14 @@
 				}
 			},
 			"VerifySigSchemaBody": {
-				"required": ["credential"],
+				"required": ["policies", "credential"],
 				"properties": {
+					"policies": {
+						"type": "object",
+						"example": {
+							"checkSignature": true
+						}
+					},
 					"credential": {
 						"type": "object",
 						"example": {
@@ -431,7 +437,7 @@
 									"type": ["VerifiableCredential", "gx:LegalParticipant"],
 									"id": "did:web:dev.smartproof.in",
 									"issuer": "did:web:dev.smartproof.in",
-									"issuanceDate": "2023-04-12T12:35:28.813Z",
+									"issuanceDate": "2023-04-13T09:18:14.453Z",
 									"credentialSubject": {
 										"id": "did:web:dev.smartproof.in",
 										"gx:legalName": "Proof Sense",
@@ -447,19 +453,19 @@
 									},
 									"proof": {
 										"type": "JsonWebSignature2020",
-										"created": "2023-04-12T12:35:32.099Z",
+										"created": "2023-04-13T09:18:20.136Z",
 										"proofPurpose": "assertionMethod",
 										"verificationMethod": "did:web:dev.smartproof.in",
-										"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..iDS7aJ8mw8MlF5Se2ajSdc4bjETbpsLKKKYu6GXwZRQ8vbZT_dfiQQp0B9LmVQHfBndHaX0Dhj7XNoDCis7gQOMwwlc2O4NjWysVQT1q9ihT96sUihGvazpp3UGw1IMTAEDKO0X7tG-cPH54rDegzwDTRsz26tdaGsrv5H95_glKvZkjJctEdg4iQeUqZg4wS4-uzRoTv86i6sQj3a4lyZCwz4jlTiJWgUBY0-AH7XWrEK7ILTMfddXMgiMMS1bQOGzfh8LgYj84RxufXQqdAAXpNe95Y-Ye4zajKjGgkyOaLQ3G6iTy2_8511UUXqZCzYezUz90bunEoFtJ4c1oDw"
+										"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..RovCobjqoNZuPpWgUhpDPm19pEP7pfJ2eZejYL_dS4w3fCVmVUINks9YDKzpD93mneHcmYRk-WTTIYs6tBl9D2LurI6LilCdUN7Yb84WrLBcNvtRSBwI-0E_iKx3Rbk8ZAQCy98pIByKzZ00z3a3x9jaxhp1XUyH1GmA6bsOznN6wPga_alIaF4r4y-w60z_sJyLr8B6jRCogCxyzE27tbHas8vbLhX1QiNA3rosEgnefboroiExIe_AkMdLgWmFcvjwo_m5B69JqRS0d2NLuwvVDwFvIP7QrIiHe0zHjZpVyRH32DjFxReLMGEdinIJJ6Lxv54waZAcEDmiUNR57w"
 									}
 								}
 							],
 							"proof": {
 								"type": "JsonWebSignature2020",
-								"created": "2023-04-12T12:42:35.034Z",
+								"created": "2023-04-13T09:19:01.517Z",
 								"proofPurpose": "assertionMethod",
 								"verificationMethod": "did:web:dev.smartproof.in",
-								"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Rz_rtRsYTwfIuvLdLurtgqEcFpePVNynp0PR5w-1JNF6jomYat00btUNisCppJZBQ1eOXybCcyfBD0cRe4vGgI1g_NyzWec61assVsOFMbt0yxb0blY7vMf9I7qksCjBGr2G3Cp7Vq-O6EmlM_xYMZFWcG8jPDkSRDyKEqyzNYMks-vFBktyDB5DLzxXuVC_iiUDRvL_plZCs9qB-MkOCYTgY_LW_lztWGesY2BBiQI3uIxLowusEnoV1ka1yd5-cHd6ETFg-DjSOzJINquX3etQpPp9hlhcnJrUvtvLOHHnmRR3HFqrVeVyGK-yI4c55GEtvn-57s7axTlB7PwiQg"
+								"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Z1Dpf3vT0bL2ZVQFN4RrDoA3RtTvXBrw3bGz_PqGMPgfIKfU4nfwDiLJZosyZDhTyMSt7r4JGZVbfMdRI4NQuAw-INspCKvCkd3K6MMLMOAvA8AFrLQ8BQbMwvLrcXGmnyloIlwhWsJid2-T6_SBDd89oz1E8h3-uMNZdGtf316u6MP2gFbcWQyvL-Cf4Ygl-RvO2donFV5bJ3zmsMg88e9pWn3fwWAU1ZbZKzmPxQqvm4vYQ3MRqVOjbL6ha6IJUZr5hbppW_splx0VbFAlXs1L3zV7HdEmjSBoZN8vTsvTOt1InjL_JrjQDBNmuxOemMifEnm359oBqndd--54Mg"
 							}
 						}
 					}
