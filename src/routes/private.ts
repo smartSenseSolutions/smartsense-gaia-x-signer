@@ -294,137 +294,177 @@ privateRoute.post(
 	}
 )
 
-privateRoute.post('/verifySignature', check('credential').isObject().not().isEmpty(), async (req: Request, res: Response): Promise<void> => {
-	try {
-		/**
-		 * Steps for signature verification
-		 * Validation? JSONWebSignature
-		 * 1 - getPublicKeys
-		 * 2 - loadCertificat4esRaw
-		 * 3 - checkSignature
-		 */
+privateRoute.post(
+	'/verifySignature',
+	check('policies')
+		.isObject()
+		.exists()
+		.custom((obj) => {
+			for (const policy in obj) {
+				if (!AppConst.VERIFY_POLICIES.includes(policy)) {
+					return false
+				}
+			}
+			return true
+		}),
+	check('credential').isObject().exists(),
+	check('credential.type').exists(),
+	check('credential.proof').isObject().exists(),
+	check('credential.proof.type').exists().isString(),
+	check('credential.proof.verificationMethod').exists().isString(),
+	check('credential.proof.jws').exists().isString(),
 
-		/**
-		 * List of validation check
-		 * 1-credential in request body
-		 *      - verifiableCredential in credential
-		 *      - proof in credential
-		 *
-		 * 2-verificationMethod in proof
-		 */
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const errors = validationResult(req)
+			if (!errors.isEmpty()) {
+				const errorsArr = errors.array()
+				res.status(422).json({
+					error: `${errorsArr[0].msg} of param '${errorsArr[0].param}'`,
+					message: AppMessages.SIG_VERIFY_VALIDATION
+				})
+			} else {
+				const { credential, policies } = req.body
 
-		const { credential } = req.body
+				let credentialContent, proof
+				if (credential.type.includes('VerifiableCredential') && credential.type.includes('gx:LegalParticipant')) {
+					proof = credential.proof
+					delete credential.proof
+					credentialContent = credential
+					console.log('Verifying a gx:LegalParticipant Verifiable Credential...')
+				} else if (credential.type.includes('VerifiablePresentation')) {
+					credentialContent = credential.verifiableCredential
+					proof = credential.proof
+					console.log('Verifying a Verifiable Presentation...')
+				} else {
+					console.log(`❌ Credential Type not supported`)
+					res.status(400).json({
+						error: `Credential Type not supported`
+					})
+					return
+				}
 
-		let credentialContent, proof
-		if (credential.type.includes('VerifiableCredential') && credential.type.includes('gx:LegalParticipant')) {
-			proof = credential.proof
-			delete credential.proof
-			credentialContent = credential
-			console.log('Verifying a gx:LegalParticipant Verifiable Credential...')
-		} else if (credential.type.includes('VerifiablePresentation')) {
-			credentialContent = credential.verifiableCredential
-			proof = credential.proof
-			console.log('Verifying a Verifiable Presentation...')
-		} else {
-			console.log(`❌ Credential Type not supported`)
-			res.status(400).json({
-				error: `Credential Type not supported`
+				// get the policies set to true from request
+				const policyToExecute = Object.keys(policies).filter((key) => {
+					return policies[key] === true
+				})
+				// check that policyToExecute is not empty
+				if (policyToExecute.length === 0) {
+					console.log(`❌ No policy to execute`)
+					res.status(400).json({
+						error: `No policy to execute`
+					})
+					return
+				}
+
+				const responseObj: any = {}
+				for (const policy of policyToExecute) {
+					switch (policy) {
+						case AppConst.VERIFY_POLICIES[0]: //checkSignature
+							console.log(`Executing ${policy} policy...`)
+							responseObj.checkSignature = await verification(credentialContent, proof, res)
+							if (typeof responseObj.checkSignature !== 'boolean') return
+							break
+
+						case AppConst.VERIFY_POLICIES[1]: //policy2
+							console.log(`Executing ${policy} policy...`)
+							// specific function call for policy
+							responseObj.policy2 = true
+							break
+
+						default:
+							break
+					}
+				}
+
+				res.status(200).json({
+					data: { responseObj },
+					message: AppMessages.SIG_VERIFY_SUCCESS
+				})
+			}
+		} catch (error) {
+			console.log(error)
+			res.status(500).json({
+				error: (error as Error).message,
+				message: AppMessages.SIG_VERIFY_FAILED
 			})
-			return
 		}
-
-		const isVerified = await verification(credentialContent, proof)
-
-		async function verification(credentialContent: any, proof: any) {
-			if (proof.type !== 'JsonWebSignature2020') {
-				console.log(`❌ signature type: '${proof.type}' not supported`)
-				res.status(400).json({
-					error: `signature type: '${proof.type}' not supported`,
-					message: AppMessages.ONLY_JWS2020
-				})
-				return
-			}
-
-			const ddo = await Utils.getDDOfromDID(proof.verificationMethod, resolver)
-			if (!ddo) {
-				console.log(`❌ DDO not found for given did: '${proof.verificationMethod}' in proof`)
-				res.status(400).json({
-					error: `DDO not found for given did: '${proof.verificationMethod}' in proof`
-				})
-				return
-			}
-
-			const publicKeyJwk = ddo.didDocument.verificationMethod[0].publicKeyJwk
-			const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
-
-			// get the SSL certificates
-			const certificates = (await axios.get(x5u)).data as string
-
-			// signature check against registry
-			const registryRes = await Utils.validateSslFromRegistry(certificates, axios)
-			if (!registryRes) {
-				res.status(400).json({
-					error: `Certificates validation Failed`,
-					message: AppMessages.CERT_VALIDATION_FAILED
-				})
-				return
-			}
-
-			//check weather the public key matches with the certificate
-			const comparePubKey = await Utils.comparePubKeys(certificates, publicKeyJwk, jose)
-			if (!comparePubKey) {
-				console.log(`❌ Public Keys Mismatched`)
-				res.status(400).json({
-					error: `Public Keys Mismatched`,
-					message: AppMessages.PUB_KEY_MISMATCH
-				})
-				return
-			}
-
-			/**
-			 * Signature Check Flow
-			 */
-
-			// normalize
-			const canonizedCredential = await Utils.normalize(
-				jsonld,
-				// eslint-disable-next-line
-				credentialContent
-			)
-			if (typeof canonizedCredential === 'undefined') {
-				console.log(`❌ Normalizing Credential Failed`)
-				res.status(400).json({
-					error: `Normalizing Credential Failed`
-				})
-				return
-			}
-
-			// TODO: explore the isValidityCheck here, to include the jws in the hash
-
-			// hash
-			const hash = await Utils.sha256(crypto, canonizedCredential)
-
-			// verify Signature
-			const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
-			const isVerified = verificationResult?.content === hash
-			console.log(isVerified ? `✅ ${AppMessages.SIG_VERIFY_SUCCESS}` : `❌ ${AppMessages.SIG_VERIFY_FAILED}`)
-
-			return isVerified
-		}
-
-		if (typeof isVerified !== 'boolean') {
-			return
-		}
-
-		res.status(200).json({
-			data: { verified: isVerified },
-			message: AppMessages.SIG_VERIFY_SUCCESS
-		})
-	} catch (error) {
-		console.log(error)
-		res.status(500).json({
-			error: (error as Error).message,
-			message: AppMessages.SIG_VERIFY_FAILED
-		})
 	}
-})
+)
+
+async function verification(credentialContent: any, proof: any, res: Response) {
+	if (proof.type !== 'JsonWebSignature2020') {
+		console.log(`❌ signature type: '${proof.type}' not supported`)
+		res.status(400).json({
+			error: `signature type: '${proof.type}' not supported`,
+			message: AppMessages.ONLY_JWS2020
+		})
+		return
+	}
+
+	const ddo = await Utils.getDDOfromDID(proof.verificationMethod, resolver)
+	if (!ddo) {
+		console.log(`❌ DDO not found for given did: '${proof.verificationMethod}' in proof`)
+		res.status(400).json({
+			error: `DDO not found for given did: '${proof.verificationMethod}' in proof`
+		})
+		return
+	}
+
+	const publicKeyJwk = ddo.didDocument.verificationMethod[0].publicKeyJwk
+	const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
+
+	// get the SSL certificates
+	const certificates = (await axios.get(x5u)).data as string
+
+	// signature check against registry
+	const registryRes = await Utils.validateSslFromRegistry(certificates, axios)
+	if (!registryRes) {
+		res.status(400).json({
+			error: `Certificates validation Failed`,
+			message: AppMessages.CERT_VALIDATION_FAILED
+		})
+		return
+	}
+
+	//check weather the public key matches with the certificate
+	const comparePubKey = await Utils.comparePubKeys(certificates, publicKeyJwk, jose)
+	if (!comparePubKey) {
+		console.log(`❌ Public Keys Mismatched`)
+		res.status(400).json({
+			error: `Public Keys Mismatched`,
+			message: AppMessages.PUB_KEY_MISMATCH
+		})
+		return
+	}
+
+	/**
+	 * Signature Check Flow
+	 */
+
+	// normalize
+	const canonizedCredential = await Utils.normalize(
+		jsonld,
+		// eslint-disable-next-line
+		credentialContent
+	)
+	if (typeof canonizedCredential === 'undefined') {
+		console.log(`❌ Normalizing Credential Failed`)
+		res.status(400).json({
+			error: `Normalizing Credential Failed`
+		})
+		return
+	}
+
+	// TODO: explore the isValidityCheck here, to include the jws in the hash
+
+	// hash
+	const hash = await Utils.sha256(crypto, canonizedCredential)
+
+	// verify Signature
+	const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
+	const isVerified = verificationResult?.content === hash
+	console.log(isVerified ? `✅ ${AppMessages.SIG_VERIFY_SUCCESS}` : `❌ ${AppMessages.SIG_VERIFY_FAILED}`)
+
+	return isVerified
+}
