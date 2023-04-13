@@ -105,29 +105,29 @@ privateRoute.post(
 				const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
 				console.log(verificationResult?.content === hash ? '✅ Verification successful' : '❌ Verification failed')
 				selfDescription['verifiableCredential'][0].proof = proof
-				// const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string,selfDescription)).data;
-				const complianceCredential = {
-					'@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'],
-					type: ['VerifiableCredential'],
-					id: 'https://compliance.lab.gaia-x.eu//v1-0-0/credential-offers/5d1bb35f-4f6c-48e6-8b34-69cce8cd3032',
-					issuer: 'did:web:compliance.lab.gaia-x.eu::v1-0-0',
-					issuanceDate: '2023-03-29T13:25:19.874Z',
-					expirationDate: '2023-06-27T13:25:19.874Z',
-					credentialSubject: [
-						{
-							type: 'gx:compliance',
-							id: participantURL,
-							integrity: 'sha256-b797c1008627e01d61c4eae22fb847410936f48b630e341b47f82d26b7178947'
-						}
-					],
-					proof: {
-						type: 'JsonWebSignature2020',
-						created: '2023-03-29T13:25:20.148Z',
-						proofPurpose: 'assertionMethod',
-						jws: 'eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..T8xd-jIGa1EKUviYRr8seRvvvwATkmmMfPlkv6cJU7K0S1FVTDfDQojxeWT9PVWPaQoKHhaehcMUb6wWpfbydoIN8o7J_LcRtZ5CCckQDN63tpD4L_rSgRn71g6_9GuI8SKgFQPpqecj_2CRnEk4sCnNM3rsF8JI5WLxtEtiGwC9-id-pdsZdIc-T2Tg9YsXIOb4ErlO61ZfKDuD9_XDNrVPJBMRcPYJkIfzsSkljqryAwJtVoyJTabkoj9waTYGMRzyM3S0abmzR_BHMY7egnTSW7D5UMl9kq3guDfLaoGbtf5u6kdeWpwxvOuYzBNwty1vW89WR9BxfYoIv43BLw',
-						verificationMethod: 'did:web:compliance.lab.gaia-x.eu::v1-0-0'
-					}
-				}
+				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string,selfDescription)).data;
+				// const complianceCredential = {
+				// 	'@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'],
+				// 	type: ['VerifiableCredential'],
+				// 	id: 'https://compliance.lab.gaia-x.eu//v1-0-0/credential-offers/5d1bb35f-4f6c-48e6-8b34-69cce8cd3032',
+				// 	issuer: 'did:web:compliance.lab.gaia-x.eu::v1-0-0',
+				// 	issuanceDate: '2023-03-29T13:25:19.874Z',
+				// 	expirationDate: '2023-06-27T13:25:19.874Z',
+				// 	credentialSubject: [
+				// 		{
+				// 			type: 'gx:compliance',
+				// 			id: participantURL,
+				// 			integrity: 'sha256-b797c1008627e01d61c4eae22fb847410936f48b630e341b47f82d26b7178947'
+				// 		}
+				// 	],
+				// 	proof: {
+				// 		type: 'JsonWebSignature2020',
+				// 		created: '2023-03-29T13:25:20.148Z',
+				// 		proofPurpose: 'assertionMethod',
+				// 		jws: 'eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..T8xd-jIGa1EKUviYRr8seRvvvwATkmmMfPlkv6cJU7K0S1FVTDfDQojxeWT9PVWPaQoKHhaehcMUb6wWpfbydoIN8o7J_LcRtZ5CCckQDN63tpD4L_rSgRn71g6_9GuI8SKgFQPpqecj_2CRnEk4sCnNM3rsF8JI5WLxtEtiGwC9-id-pdsZdIc-T2Tg9YsXIOb4ErlO61ZfKDuD9_XDNrVPJBMRcPYJkIfzsSkljqryAwJtVoyJTabkoj9waTYGMRzyM3S0abmzR_BHMY7egnTSW7D5UMl9kq3guDfLaoGbtf5u6kdeWpwxvOuYzBNwty1vW89WR9BxfYoIv43BLw',
+				// 		verificationMethod: 'did:web:compliance.lab.gaia-x.eu::v1-0-0'
+				// 	}
+				// }
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 				const completeSd = {
 					selfDescriptionCredential: selfDescription,
