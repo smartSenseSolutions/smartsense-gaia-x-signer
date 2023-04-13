@@ -62,7 +62,7 @@ namespace CommonFunctions {
 
 		generateServiceOffObj(subjectDid: string, issuerDid: string, name: string, requestType: string, privacyPolicy: string, webAddress: string): Object {
 			const selfDescription = {
-				'@context': 'https://www.w3.org/2018/credentials/v1',
+				'@context': ['https://www.w3.org/2018/credentials/v1'],
 				type: [
 					'VerifiableCredential'
 					// SHACL validation failing due to this
