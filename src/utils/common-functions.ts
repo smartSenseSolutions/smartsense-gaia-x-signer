@@ -241,12 +241,11 @@ namespace CommonFunctions {
 			}
 		}
 
-		async validateSslFromRegistry(certificates: string, axios: any) {
+		async validateSslFromRegistry(certificates: any, axios: any) {
 			try {
-				// const registryRes = await axios.post(process.env.REGISTRY_TRUST_ANCHOR_URL as string, { certs: certificates })
-				// todo - check the response from the registry to be 200
-				// return registryRes.status === 200
-				return true
+				certificates = certificates.replace(/\n/gm, '') || undefined
+				const registryRes = await axios.post(process.env.REGISTRY_TRUST_ANCHOR_URL as string, { certs: certificates })
+				return registryRes.status === 200
 			} catch (error) {
 				console.log(`❌ Validation from registry failed for certificates | error: ${error}`)
 				return false
