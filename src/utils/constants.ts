@@ -1,7 +1,7 @@
 export class AppConst {
 	static readonly RSA_ALGO = 'PS256'
 	static readonly LEGAL_PARTICIPANT = 'LegalParticipant'
-	static readonly SERVICE_OFFER = 'ServiceOfferingExperimental'
+	static readonly SERVICE_OFFER = 'ServiceOffering'
 	static readonly FLATTEN_ENCRYPT_ALGORITHM = 'RSA-OAEP-256'
 	static readonly FLATTEN_ENCRYPT_ENCODING = 'A256GCM'
 	static readonly VERIFY_POLICIES = ['checkSignature', 'policy2']
