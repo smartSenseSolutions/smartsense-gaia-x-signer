@@ -282,7 +282,7 @@ privateRoute.post(
 )
 
 privateRoute.post(
-	'/verifySignature',
+	'/verify',
 	check('policies')
 		.isObject()
 		.exists()
