@@ -104,6 +104,50 @@
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/CreateVCSchemaBody"
+							},
+							"examples": {
+								"LegalParticipantVC": {
+									"summary": "Verifiable Credential of Legal Participant",
+									"value": {
+										"templateId": "LegalParticipant",
+										"privateKeyUrl": "preSignedURL.com",
+										"credentialOffer": {
+											"legalName": "Dev Smartproof",
+											"legalRegistrationType": "taxID",
+											"legalRegistrationNumber": "0762747721",
+											"headquarterAddress": "BE-BRU",
+											"legalAddress": "BE-BRU"
+										},
+										"issuerDid": "did:web:dev.smartproof.in",
+										"subjectDid": "did:web:dev.smartproof.in"
+									}
+								},
+								"ServiceOfferingVC": {
+									"summary": "Verifiable Credential of Service Offering",
+									"value": {
+										"templateId": "ServiceOfferingExperimental",
+										"privateKeyUrl": "preSignedURL.com",
+										"credentialOffer": {
+											"fields": "to be finalized",
+											"name": "Proof Sense",
+											"producedBy": "did:web:dev.smartproof.in",
+											"copyrightOwnedBy": "did:web:dev.smartproof.in",
+											"description": "Product Carbon Footprint (PCF) calculated on the basis of biomass balance and contains PCF in raw material procurement, production, packaging and transportation ",
+											"license": "https://smartproof.in/privacy-policy/",
+											"policy": "https://smartproof.in/privacy-policy/",
+											"expiration": "2023-07-13T13:35:19.269Z",
+											"articleNumber": "123",
+											"group": "abc",
+											"GTIN": "randomValue",
+											"image": "https://imageLink.in/",
+											"model": "modelXYZ",
+											"KBAnumber": "123",
+											"cradleToGate": "randomValue"
+										},
+										"issuerDid": "did:web:dev.smartproof.in",
+										"subjectDid": "did:web:dev.smartproof.in"
+									}
+								}
 							}
 						}
 					}
@@ -115,6 +159,83 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								},
+								"examples": {
+									"LegalParticipantVC": {
+										"summary": "LegalParticipantVC",
+										"value": {
+											"data": {
+												"@context": [
+													"https://www.w3.org/2018/credentials/v1",
+													"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+												],
+												"type": ["VerifiableCredential"],
+												"id": "did:web:dev.smartproof.in",
+												"issuer": "did:web:dev.smartproof.in",
+												"issuanceDate": "2023-04-14T06:02:27.369Z",
+												"credentialSubject": {
+													"id": "did:web:dev.smartproof.in",
+													"type": "gx:LegalParticipant",
+													"gx:legalName": "Dev Smartproof",
+													"gx:legalRegistrationNumber": {
+														"gx:taxID": "0762747721"
+													},
+													"gx:headquarterAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													},
+													"gx:legalAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													},
+													"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+												},
+												"proof": {
+													"type": "JsonWebSignature2020",
+													"created": "2023-04-14T06:02:30.358Z",
+													"proofPurpose": "assertionMethod",
+													"verificationMethod": "did:web:dev.smartproof.in",
+													"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..eUBZWe1Rgd_WCRYAD9WhnSVLMdgVs3j-82Lm8pZKjpRL1DiB2dg1OhudBdcZ2zNxyVONYx4CXsoWnc9_Uu_ZBG4_G8jO9wIWI0HY4cEqVEwKmmnC85GtdipERXcvEhP2ezaqIzoTljy0faWRZOc5MJUZ7WM3Kd-PZcoULmZ234BnewWtnn7MLoWVcz2h7wAgwXAcgIHclXjLg-O3HRVkKc2gxmHjNCtNa0wf61zCDH7u_Otx9avL5dj-7xDynqyeZz67hfs6xV5xNtIpwb4uW5S-6KJ4AN1P3dPj2sQcbfF4PeuWgYC8pCVtivWJtOso7y6ZSKu1YR80exsWvbEzHg"
+												}
+											},
+											"message": "VC created successfully."
+										}
+									},
+									"ServiceOfferingVC": {
+										"summary": "ServiceOfferingVC",
+										"value": {
+											"data": {
+												"@context": ["https://www.w3.org/2018/credentials/v1"],
+												"type": ["VerifiableCredential"],
+												"id": "did:web:dev.smartproof.in",
+												"issuer": "did:web:dev.smartproof.in",
+												"issuanceDate": "2023-04-14T06:59:16.436Z",
+												"credentialSubject": {
+													"id": "did:web:dev.smartproof.in",
+													"gx-service-offering:name": "Proof Sense",
+													"gx-service-offering:producedBy": "did:web:dev.smartproof.in",
+													"gx-service-offering:copyrightOwnedBy": "did:web:dev.smartproof.in",
+													"gx-service-offering:description": "Product Carbon Footprint (PCF) calculated on the basis of biomass balance and contains PCF in raw material procurement, production, packaging and transportation ",
+													"gx-service-offering:license": "https://smartproof.in/privacy-policy/",
+													"gx-service-offering:policy": "https://smartproof.in/privacy-policy/",
+													"gx-service-offering:expiration": "2023-07-13T13:35:19.269Z",
+													"gx-service-offering:containsPII": false,
+													"gx-service-offering:articleNumber": "123",
+													"gx-service-offering:group": "abc",
+													"gx-service-offering:GTIN": "randomValue",
+													"gx-service-offering:image": "https://imageLink.in/",
+													"gx-service-offering:model": "modelXYZ",
+													"gx-service-offering:KBAnumber": "123"
+												},
+												"proof": {
+													"type": "JsonWebSignature2020",
+													"created": "2023-04-14T06:59:17.354Z",
+													"proofPurpose": "assertionMethod",
+													"verificationMethod": "did:web:dev.smartproof.in",
+													"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..N8vx15sdgCHEaHBf5Te5uCeR1VYQVaIOMsL5A5LIyELnDZ9WDB85T5DZ2667Jm7J66fGuab6pOEEu6tDMzrWJRlY0qDJ3b69cTuhP6otBANtCYjNF1osY8vDy5RHMNW3XiKecL1touTydWYQF-5CcOr7B5FogrbKvETjFrlX3kbXMSKqOBnsnX2m5eS5dyya4UuVPJlfI7yugileGnGWRQCFZAN_HBVQrmEwerqPrCu9NOM0WBnJNIyk33LvEwxvFpwWqGcFodgu1XhEPRExd2Msg1W-QeWh7CLGStCeYSefkkxcNBmSVPE6nd7jAgXq4FQ3J3D0LOPV-3G87MxtsQ"
+												}
+											},
+											"message": "VC created successfully."
+										}
+									}
 								}
 							}
 						}
@@ -152,6 +273,78 @@
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/CreateVPSchemaBody"
+							},
+							"examples": {
+								"createVPforLegalParticipant": {
+									"summary": "Verifiable Presentation of Legal Participant",
+									"value": {
+										"privateKeyUrl": "https://preSignedURL.com",
+										"holderDID": "did:web:dev.smartproof.in",
+										"claims": [
+											{
+												"@context": [
+													"https://www.w3.org/2018/credentials/v1",
+													"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+												],
+												"type": ["VerifiableCredential", "gx:LegalParticipant"],
+												"id": "did:web:dev.smartproof.in",
+												"issuer": "did:web:dev.smartproof.in",
+												"issuanceDate": "2023-04-14T05:18:33.422Z",
+												"credentialSubject": {
+													"id": "did:web:dev.smartproof.in",
+													"type": "gx:LegalParticipant",
+													"gx:legalName": "Dev Smartproof",
+													"gx:legalRegistrationNumber": {
+														"gx:taxID": "0762747721"
+													},
+													"gx:headquarterAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													},
+													"gx:legalAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													},
+													"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+												},
+												"proof": {
+													"type": "JsonWebSignature2020",
+													"created": "2023-04-14T05:18:37.328Z",
+													"proofPurpose": "assertionMethod",
+													"verificationMethod": "did:web:dev.smartproof.in",
+													"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Wh46zrwGzwUr-NfSBoO3MGHI013miETC7n63qclhiOo8Z6jTePDGdVDKi7JZEsLujcQDz3waHlVsJXbYzp_IgaHruh6Yy0nKyuIhh5sbZxYT_a16ZHghQ6tUdc0xAh13Rs8kw9qGnz7S5vqZMMw0WS65gD7Be3wNgCnev5otjoKxz966ufNS25Q6BwafBWdDGJRumcfP6vOGsy0RmPfx4llOP1lJksJmmrpAEtHeJEuZS0WN6ZExqG9rFVMmVt-TDygPvKStQFFGCH5xd_4LNlg-vtYSqgAEECIBC8X0usXgl-fNR2R6xnLC-bHoe4q1zo2rR8lcDmRwYXatq74W7Q"
+												}
+											}
+										]
+									}
+								},
+								"createVPforServiceOffering": {
+									"summary": "Verifiable Presentation of Service Offering",
+									"value": {
+										"privateKeyUrl": "https://preSignedURL.com",
+										"holderDID": "did:web:dev.smartproof.in",
+										"claims": [
+											{
+												"@context": [
+													"https://www.w3.org/2018/credentials/v1",
+													"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+												],
+												"type": ["VerifiableCredential", "gx:LegalParticipant"],
+												"id": "did:web:dev.smartproof.in",
+												"issuer": "did:web:dev.smartproof.in",
+												"issuanceDate": "2023-04-14T05:18:33.422Z",
+												"credentialSubject": {
+													"service-offering": "to be decided"
+												},
+												"proof": {
+													"type": "JsonWebSignature2020",
+													"created": "2023-04-14T05:18:37.328Z",
+													"proofPurpose": "assertionMethod",
+													"verificationMethod": "did:web:dev.smartproof.in",
+													"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Wh46zrwGzwUr-NfSBoO3MGHI013miETC7n63qclhiOo8Z6jTePDGdVDKi7JZEsLujcQDz3waHlVsJXbYzp_IgaHruh6Yy0nKyuIhh5sbZxYT_a16ZHghQ6tUdc0xAh13Rs8kw9qGnz7S5vqZMMw0WS65gD7Be3wNgCnev5otjoKxz966ufNS25Q6BwafBWdDGJRumcfP6vOGsy0RmPfx4llOP1lJksJmmrpAEtHeJEuZS0WN6ZExqG9rFVMmVt-TDygPvKStQFFGCH5xd_4LNlg-vtYSqgAEECIBC8X0usXgl-fNR2R6xnLC-bHoe4q1zo2rR8lcDmRwYXatq74W7Q"
+												}
+											}
+										]
+									}
+								}
 							}
 						}
 					}
@@ -163,6 +356,83 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								},
+								"examples": {
+									"createVPforLegalParticipant": {
+										"summary": "Legal Participant VP",
+										"value": {
+											"data": {
+												"@context": [
+													"https://www.w3.org/2018/credentials/v1",
+													"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+												],
+												"type": ["VerifiableCredential"],
+												"id": "did:web:dev.smartproof.in",
+												"issuer": "did:web:dev.smartproof.in",
+												"issuanceDate": "2023-04-14T06:02:27.369Z",
+												"credentialSubject": {
+													"id": "did:web:dev.smartproof.in",
+													"type": "gx:LegalParticipant",
+													"gx:legalName": "Dev Smartproof",
+													"gx:legalRegistrationNumber": {
+														"gx:taxID": "0762747721"
+													},
+													"gx:headquarterAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													},
+													"gx:legalAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													},
+													"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+												},
+												"proof": {
+													"type": "JsonWebSignature2020",
+													"created": "2023-04-14T06:02:30.358Z",
+													"proofPurpose": "assertionMethod",
+													"verificationMethod": "did:web:dev.smartproof.in",
+													"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..eUBZWe1Rgd_WCRYAD9WhnSVLMdgVs3j-82Lm8pZKjpRL1DiB2dg1OhudBdcZ2zNxyVONYx4CXsoWnc9_Uu_ZBG4_G8jO9wIWI0HY4cEqVEwKmmnC85GtdipERXcvEhP2ezaqIzoTljy0faWRZOc5MJUZ7WM3Kd-PZcoULmZ234BnewWtnn7MLoWVcz2h7wAgwXAcgIHclXjLg-O3HRVkKc2gxmHjNCtNa0wf61zCDH7u_Otx9avL5dj-7xDynqyeZz67hfs6xV5xNtIpwb4uW5S-6KJ4AN1P3dPj2sQcbfF4PeuWgYC8pCVtivWJtOso7y6ZSKu1YR80exsWvbEzHg"
+												}
+											},
+											"message": "VC created successfully."
+										}
+									},
+									"createVPforServiceOffering": {
+										"summary": "Service Offering VP",
+										"value": {
+											"data": {
+												"@context": ["https://www.w3.org/2018/credentials/v1"],
+												"type": ["VerifiableCredential"],
+												"id": "did:web:dev.smartproof.in",
+												"issuer": "did:web:dev.smartproof.in",
+												"issuanceDate": "2023-04-14T06:59:16.436Z",
+												"credentialSubject": {
+													"id": "did:web:dev.smartproof.in",
+													"gx-service-offering:name": "Proof Sense",
+													"gx-service-offering:producedBy": "did:web:dev.smartproof.in",
+													"gx-service-offering:copyrightOwnedBy": "did:web:dev.smartproof.in",
+													"gx-service-offering:description": "Product Carbon Footprint (PCF) calculated on the basis of biomass balance and contains PCF in raw material procurement, production, packaging and transportation ",
+													"gx-service-offering:license": "https://smartproof.in/privacy-policy/",
+													"gx-service-offering:policy": "https://smartproof.in/privacy-policy/",
+													"gx-service-offering:expiration": "2023-07-13T13:35:19.269Z",
+													"gx-service-offering:containsPII": false,
+													"gx-service-offering:articleNumber": "123",
+													"gx-service-offering:group": "abc",
+													"gx-service-offering:GTIN": "randomValue",
+													"gx-service-offering:image": "https://imageLink.in/",
+													"gx-service-offering:model": "modelXYZ",
+													"gx-service-offering:KBAnumber": "123"
+												},
+												"proof": {
+													"type": "JsonWebSignature2020",
+													"created": "2023-04-14T06:59:17.354Z",
+													"proofPurpose": "assertionMethod",
+													"verificationMethod": "did:web:dev.smartproof.in",
+													"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..N8vx15sdgCHEaHBf5Te5uCeR1VYQVaIOMsL5A5LIyELnDZ9WDB85T5DZ2667Jm7J66fGuab6pOEEu6tDMzrWJRlY0qDJ3b69cTuhP6otBANtCYjNF1osY8vDy5RHMNW3XiKecL1touTydWYQF-5CcOr7B5FogrbKvETjFrlX3kbXMSKqOBnsnX2m5eS5dyya4UuVPJlfI7yugileGnGWRQCFZAN_HBVQrmEwerqPrCu9NOM0WBnJNIyk33LvEwxvFpwWqGcFodgu1XhEPRExd2Msg1W-QeWh7CLGStCeYSefkkxcNBmSVPE6nd7jAgXq4FQ3J3D0LOPV-3G87MxtsQ"
+												}
+											},
+											"message": "VC created successfully."
+										}
+									}
 								}
 							}
 						}
@@ -200,6 +470,112 @@
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/VerifySigSchemaBody"
+							},
+							"examples": {
+								"verifyLegalParticipantVC": {
+									"summary": "VC of Legal Participant",
+									"value": {
+										"policies": {
+											"checkSignature": true
+										},
+										"credential": {
+											"@context": [
+												"https://www.w3.org/2018/credentials/v1",
+												"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+											],
+											"type": ["VerifiableCredential", "gx:LegalParticipant"],
+											"id": "did:web:dev.smartproof.in",
+											"issuer": "did:web:dev.smartproof.in",
+											"issuanceDate": "2023-04-14T05:18:33.422Z",
+											"credentialSubject": {
+												"id": "did:web:dev.smartproof.in",
+												"type": "gx:LegalParticipant",
+												"gx:legalName": "Dev Smartproof",
+												"gx:legalRegistrationNumber": {
+													"gx:taxID": "0762747721"
+												},
+												"gx:headquarterAddress": {
+													"gx:countrySubdivisionCode": "BE-BRU"
+												},
+												"gx:legalAddress": {
+													"gx:countrySubdivisionCode": "BE-BRU"
+												},
+												"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+											},
+											"proof": {
+												"type": "JsonWebSignature2020",
+												"created": "2023-04-14T05:18:37.328Z",
+												"proofPurpose": "assertionMethod",
+												"verificationMethod": "did:web:dev.smartproof.in",
+												"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Wh46zrwGzwUr-NfSBoO3MGHI013miETC7n63qclhiOo8Z6jTePDGdVDKi7JZEsLujcQDz3waHlVsJXbYzp_IgaHruh6Yy0nKyuIhh5sbZxYT_a16ZHghQ6tUdc0xAh13Rs8kw9qGnz7S5vqZMMw0WS65gD7Be3wNgCnev5otjoKxz966ufNS25Q6BwafBWdDGJRumcfP6vOGsy0RmPfx4llOP1lJksJmmrpAEtHeJEuZS0WN6ZExqG9rFVMmVt-TDygPvKStQFFGCH5xd_4LNlg-vtYSqgAEECIBC8X0usXgl-fNR2R6xnLC-bHoe4q1zo2rR8lcDmRwYXatq74W7Q"
+											}
+										}
+									}
+								},
+								"verifyLegalParticipantVP": {
+									"summary": "VP of Legal Participant",
+									"value": {
+										"policies": {
+											"checkSignature": true
+										},
+										"credential": {
+											"@context": [
+												"https://www.w3.org/2018/credentials/v1",
+												"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+											],
+											"type": ["VerifiablePresentation"],
+											"verifiableCredential": [
+												{
+													"@context": [
+														"https://www.w3.org/2018/credentials/v1",
+														"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+													],
+													"type": ["VerifiableCredential"],
+													"id": "did:web:dev.smartproof.in",
+													"issuer": "did:web:dev.smartproof.in",
+													"issuanceDate": "2023-04-14T05:18:33.422Z",
+													"credentialSubject": {
+														"id": "did:web:dev.smartproof.in",
+														"type": "gx:LegalParticipant",
+														"gx:legalName": "Dev Smartproof",
+														"gx:legalRegistrationNumber": {
+															"gx:taxID": "0762747721"
+														},
+														"gx:headquarterAddress": {
+															"gx:countrySubdivisionCode": "BE-BRU"
+														},
+														"gx:legalAddress": {
+															"gx:countrySubdivisionCode": "BE-BRU"
+														},
+														"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+													},
+													"proof": {
+														"type": "JsonWebSignature2020",
+														"created": "2023-04-14T05:18:37.328Z",
+														"proofPurpose": "assertionMethod",
+														"verificationMethod": "did:web:dev.smartproof.in",
+														"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Wh46zrwGzwUr-NfSBoO3MGHI013miETC7n63qclhiOo8Z6jTePDGdVDKi7JZEsLujcQDz3waHlVsJXbYzp_IgaHruh6Yy0nKyuIhh5sbZxYT_a16ZHghQ6tUdc0xAh13Rs8kw9qGnz7S5vqZMMw0WS65gD7Be3wNgCnev5otjoKxz966ufNS25Q6BwafBWdDGJRumcfP6vOGsy0RmPfx4llOP1lJksJmmrpAEtHeJEuZS0WN6ZExqG9rFVMmVt-TDygPvKStQFFGCH5xd_4LNlg-vtYSqgAEECIBC8X0usXgl-fNR2R6xnLC-bHoe4q1zo2rR8lcDmRwYXatq74W7Q"
+													}
+												}
+											],
+											"proof": {
+												"type": "JsonWebSignature2020",
+												"created": "2023-04-14T05:21:02.461Z",
+												"proofPurpose": "assertionMethod",
+												"verificationMethod": "did:web:dev.smartproof.in",
+												"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..NrcAV-JuIUcSV-SmFlCIXDIfMcWod7P-Lz4X4RJ2Dn4F6gqnMjcLM_FHpscQ8FY0tn47eL5sx5PK_qyZJw_weSo2bkFNr5-8IShTq1Lna0hDsAtlJdC926ZfQBJ2pU-HNocsmicX8HUC3QVfafTclbJCtBhn-29zqWR_ONJMdWqZx3TJhk-WINcXcM7BrGqW5dWuKRn_vQPx4qaGl49krtoe1kehGHe220tF72z6SgGF1Lywn8UdJsrgjWkTkfArtHtuyAmo9n2bJuySUJ9b7UXgNyxSOtBgJ_q69F4ZAniJG3Zae2k0n4MNBEkbgd3qDXewC4R6ENEcgVazlPUW1Q"
+											}
+										}
+									}
+								},
+								"verifyServiceOfferingVC": {
+									"summary": "VC of Service Offering",
+									"value": {}
+								},
+								"verifyServiceOfferingVP": {
+									"summary": "VP of Service Offering",
+									"value": {}
+								}
 							}
 						}
 					}
@@ -211,6 +587,17 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								},
+								"examples": {
+									"VC/VP": {
+										"summary": "Example response for both a VC or VP",
+										"value": {
+											"data": {
+												"checkSignature": true
+											},
+											"message": "Signature verification successful"
+										}
+									}
 								}
 							}
 						}
@@ -332,31 +719,8 @@
 						"type": "string",
 						"example": "https://example.com"
 					},
-
 					"credentialOffer": {
-						"type": "object",
-						"properties": {
-							"legalName": {
-								"type": "string",
-								"example": "Smart Proof"
-							},
-							"legalRegistrationType": {
-								"type": "string",
-								"example": "taxID"
-							},
-							"legalRegistrationNumber": {
-								"type": "string",
-								"example": "0762747721"
-							},
-							"headquarterAddress": {
-								"type": "string",
-								"example": "BE-BRU"
-							},
-							"legalAddress": {
-								"type": "string",
-								"example": "BE-BRU"
-							}
-						}
+						"type": "object"
 					}
 				}
 			},
@@ -375,18 +739,15 @@
 						"type": "array",
 						"example": [
 							{
-								"@context": [
-									"https://www.w3.org/2018/credentials/v1",
-									"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#",
-									"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#"
-								],
+								"@context": ["https://www.w3.org/2018/credentials/v1", "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"],
 								"type": ["VerifiableCredential", "gx:LegalParticipant"],
-								"id": "did:web:dev01.proofsense.in",
-								"issuer": "did:web:dev01.proofsense.in",
-								"issuanceDate": "2023-04-11T05:44:44.421Z",
+								"id": "did:web:dev.smartproof.in",
+								"issuer": "did:web:dev.smartproof.in",
+								"issuanceDate": "2023-04-14T05:18:33.422Z",
 								"credentialSubject": {
-									"id": "did:web:dev01.proofsense.in",
-									"gx:legalName": "Proof Sense",
+									"id": "did:web:dev.smartproof.in",
+									"type": "gx:LegalParticipant",
+									"gx:legalName": "Dev Smartproof",
 									"gx:legalRegistrationNumber": {
 										"gx:taxID": "0762747721"
 									},
@@ -395,14 +756,15 @@
 									},
 									"gx:legalAddress": {
 										"gx:countrySubdivisionCode": "BE-BRU"
-									}
+									},
+									"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
 								},
 								"proof": {
 									"type": "JsonWebSignature2020",
-									"created": "2023-04-11T05:44:50.619Z",
+									"created": "2023-04-14T05:18:37.328Z",
 									"proofPurpose": "assertionMethod",
-									"verificationMethod": "did:web:dev01.proofsense.in",
-									"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..PtMOEMBKg7JDBomlTaogZO38JuZPFj_ke8YAnI9IXLV3KQZMD8TUSOfsKlh8P9UGI7dKS_kMZIjgU3TxIuaiWY7PczxRnyTJpSVyWa5ckhNrtEzhKg73rfx2rrlbp3uofWDqezDnQRkukSiBKQXtiHHdqgyDnonUnfEfxdj56bJIULfsXwjQY4F_z4oXA1cGJ8SBQoqdxjDxIkp7BVuFhv2zA8BwcQF7N-p9RzB1-DTddWEiF_iCjTDC3HkGW3dkD9QjWX25Q-LYvXYzTzGhkuntlLaxtw5MC7-lopIVHAE4kYlR-4sPxbMyVBwasocs8BUIpT0OtCIrgoChsN9yCA"
+									"verificationMethod": "did:web:dev.smartproof.in",
+									"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Wh46zrwGzwUr-NfSBoO3MGHI013miETC7n63qclhiOo8Z6jTePDGdVDKi7JZEsLujcQDz3waHlVsJXbYzp_IgaHruh6Yy0nKyuIhh5sbZxYT_a16ZHghQ6tUdc0xAh13Rs8kw9qGnz7S5vqZMMw0WS65gD7Be3wNgCnev5otjoKxz966ufNS25Q6BwafBWdDGJRumcfP6vOGsy0RmPfx4llOP1lJksJmmrpAEtHeJEuZS0WN6ZExqG9rFVMmVt-TDygPvKStQFFGCH5xd_4LNlg-vtYSqgAEECIBC8X0usXgl-fNR2R6xnLC-bHoe4q1zo2rR8lcDmRwYXatq74W7Q"
 								}
 							}
 						]
@@ -421,51 +783,32 @@
 					"credential": {
 						"type": "object",
 						"example": {
-							"@context": [
-								"https://www.w3.org/2018/credentials/v1",
-								"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#",
-								"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#"
-							],
-							"type": ["VerifiablePresentation"],
-							"verifiableCredential": [
-								{
-									"@context": [
-										"https://www.w3.org/2018/credentials/v1",
-										"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#",
-										"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#"
-									],
-									"type": ["VerifiableCredential", "gx:LegalParticipant"],
-									"id": "did:web:dev.smartproof.in",
-									"issuer": "did:web:dev.smartproof.in",
-									"issuanceDate": "2023-04-13T09:18:14.453Z",
-									"credentialSubject": {
-										"id": "did:web:dev.smartproof.in",
-										"gx:legalName": "Proof Sense",
-										"gx:legalRegistrationNumber": {
-											"gx:taxID": "0762747721"
-										},
-										"gx:headquarterAddress": {
-											"gx:countrySubdivisionCode": "BE-BRU"
-										},
-										"gx:legalAddress": {
-											"gx:countrySubdivisionCode": "BE-BRU"
-										}
-									},
-									"proof": {
-										"type": "JsonWebSignature2020",
-										"created": "2023-04-13T09:18:20.136Z",
-										"proofPurpose": "assertionMethod",
-										"verificationMethod": "did:web:dev.smartproof.in",
-										"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..RovCobjqoNZuPpWgUhpDPm19pEP7pfJ2eZejYL_dS4w3fCVmVUINks9YDKzpD93mneHcmYRk-WTTIYs6tBl9D2LurI6LilCdUN7Yb84WrLBcNvtRSBwI-0E_iKx3Rbk8ZAQCy98pIByKzZ00z3a3x9jaxhp1XUyH1GmA6bsOznN6wPga_alIaF4r4y-w60z_sJyLr8B6jRCogCxyzE27tbHas8vbLhX1QiNA3rosEgnefboroiExIe_AkMdLgWmFcvjwo_m5B69JqRS0d2NLuwvVDwFvIP7QrIiHe0zHjZpVyRH32DjFxReLMGEdinIJJ6Lxv54waZAcEDmiUNR57w"
-									}
-								}
-							],
+							"@context": ["https://www.w3.org/2018/credentials/v1", "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"],
+							"type": ["VerifiableCredential", "gx:LegalParticipant"],
+							"id": "did:web:dev.smartproof.in",
+							"issuer": "did:web:dev.smartproof.in",
+							"issuanceDate": "2023-04-14T05:18:33.422Z",
+							"credentialSubject": {
+								"id": "did:web:dev.smartproof.in",
+								"type": "gx:LegalParticipant",
+								"gx:legalName": "Dev Smartproof",
+								"gx:legalRegistrationNumber": {
+									"gx:taxID": "0762747721"
+								},
+								"gx:headquarterAddress": {
+									"gx:countrySubdivisionCode": "BE-BRU"
+								},
+								"gx:legalAddress": {
+									"gx:countrySubdivisionCode": "BE-BRU"
+								},
+								"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+							},
 							"proof": {
 								"type": "JsonWebSignature2020",
-								"created": "2023-04-13T09:19:01.517Z",
+								"created": "2023-04-14T05:18:37.328Z",
 								"proofPurpose": "assertionMethod",
 								"verificationMethod": "did:web:dev.smartproof.in",
-								"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Z1Dpf3vT0bL2ZVQFN4RrDoA3RtTvXBrw3bGz_PqGMPgfIKfU4nfwDiLJZosyZDhTyMSt7r4JGZVbfMdRI4NQuAw-INspCKvCkd3K6MMLMOAvA8AFrLQ8BQbMwvLrcXGmnyloIlwhWsJid2-T6_SBDd89oz1E8h3-uMNZdGtf316u6MP2gFbcWQyvL-Cf4Ygl-RvO2donFV5bJ3zmsMg88e9pWn3fwWAU1ZbZKzmPxQqvm4vYQ3MRqVOjbL6ha6IJUZr5hbppW_splx0VbFAlXs1L3zV7HdEmjSBoZN8vTsvTOt1InjL_JrjQDBNmuxOemMifEnm359oBqndd--54Mg"
+								"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Wh46zrwGzwUr-NfSBoO3MGHI013miETC7n63qclhiOo8Z6jTePDGdVDKi7JZEsLujcQDz3waHlVsJXbYzp_IgaHruh6Yy0nKyuIhh5sbZxYT_a16ZHghQ6tUdc0xAh13Rs8kw9qGnz7S5vqZMMw0WS65gD7Be3wNgCnev5otjoKxz966ufNS25Q6BwafBWdDGJRumcfP6vOGsy0RmPfx4llOP1lJksJmmrpAEtHeJEuZS0WN6ZExqG9rFVMmVt-TDygPvKStQFFGCH5xd_4LNlg-vtYSqgAEECIBC8X0usXgl-fNR2R6xnLC-bHoe4q1zo2rR8lcDmRwYXatq74W7Q"
 							}
 						}
 					}

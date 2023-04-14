@@ -101,8 +101,13 @@ privateRoute.post(
 				const hash = Utils.sha256(crypto, canonizedSD)
 				console.log(`📈 Hashed canonized SD ${hash}`)
 
-				const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-				// const privateKey = process.env.PRIVATE_KEY as string
+				let privateKey
+				if ((process.env.ENV_PVT_KEY as string) === 'true') {
+					privateKey = process.env.PRIVATE_KEY as string
+				} else {
+					privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+				}
+
 				const proof = await Utils.createProof(jose, didId, AppConst.RSA_ALGO, hash, privateKey)
 				console.log(proof ? '🔒 SD signed successfully' : '❌ SD signing failed')
 				const x5uURL = `https://${domain}/.well-known/x509CertificateChain.pem`
@@ -221,9 +226,12 @@ privateRoute.post(
 					)
 					// create hash
 					const hash = Utils.sha256(crypto, canonizedSD)
-					// retrieve private key
-					// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-					const privateKey = process.env.PRIVATE_KEY as string
+					let privateKey
+					if ((process.env.ENV_PVT_KEY as string) === 'true') {
+						privateKey = process.env.PRIVATE_KEY as string
+					} else {
+						privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+					}
 					// create proof
 					const proof = await Utils.createProof(jose, issuerDid, AppConst.RSA_ALGO, hash, privateKey)
 					// attach proof to vc
@@ -257,15 +265,18 @@ privateRoute.post(
 					)
 
 					const hash = Utils.sha256(crypto, canonizedSD)
-					// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-					const privateKey = process.env.PRIVATE_KEY as string
+					let privateKey
+					if ((process.env.ENV_PVT_KEY as string) === 'true') {
+						privateKey = process.env.PRIVATE_KEY as string
+					} else {
+						privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+					}
 					const proof = await Utils.createProof(jose, issuerDid, AppConst.RSA_ALGO, hash, privateKey)
 					verifiableCredential.proof = proof
 
 					resCredential = verifiableCredential
 				}
 
-				// send vc as response with success message
 				res.status(200).json({
 					data: resCredential,
 					message: AppMessages.VC_SUCCESS
@@ -283,7 +294,6 @@ privateRoute.post(
 
 privateRoute.post(
 	'/createVP',
-	// check params
 	check('claims').isArray(),
 	check('privateKeyUrl').not().isEmpty().trim().escape(),
 	check('holderDID').exists().isString().trim(),
@@ -312,8 +322,13 @@ privateRoute.post(
 				}
 
 				const hash = await Utils.sha256(crypto, canonizedCredential)
-				// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-				const privateKey = process.env.PRIVATE_KEY as string
+
+				let privateKey
+				if ((process.env.ENV_PVT_KEY as string) === 'true') {
+					privateKey = process.env.PRIVATE_KEY as string
+				} else {
+					privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+				}
 				const proof = await Utils.createProof(jose, holderDID, AppConst.RSA_ALGO, hash, privateKey)
 				console.log(proof ? '🔒 VP signed successfully' : '❌ VP signing failed')
 
@@ -365,12 +380,17 @@ privateRoute.post(
 			} else {
 				const { credential, policies } = req.body
 
+				// Check if the credential is of type VerifiableCredential or VerifiablePresentation, and seperate credentialContent and proof accordingly
 				let credentialContent, proof
-				if (credential.type.includes('VerifiableCredential') && credential.type.includes('gx:LegalParticipant')) {
+				if (
+					credential.type.includes('VerifiableCredential')
+					// commented because we are not adding this type while creating VC (to be discussed)
+					// && credential.type.includes('gx:LegalParticipant')
+				) {
 					proof = credential.proof
 					delete credential.proof
 					credentialContent = credential
-					console.log('Verifying a gx:LegalParticipant Verifiable Credential...')
+					console.log('Verifying a Verifiable Credential...')
 				} else if (credential.type.includes('VerifiablePresentation')) {
 					credentialContent = credential.verifiableCredential
 					proof = credential.proof
@@ -387,7 +407,6 @@ privateRoute.post(
 				const policyToExecute = Object.keys(policies).filter((key) => {
 					return policies[key] === true
 				})
-				// check that policyToExecute is not empty
 				if (policyToExecute.length === 0) {
 					console.log(`❌ No policy to execute`)
 					res.status(400).json({
@@ -397,6 +416,7 @@ privateRoute.post(
 				}
 
 				const responseObj: any = {}
+				// execute functions based on the policies To Execute and add the result to responseObj
 				for (const policy of policyToExecute) {
 					switch (policy) {
 						case AppConst.VERIFY_POLICIES[0]: //checkSignature
@@ -417,7 +437,7 @@ privateRoute.post(
 				}
 
 				res.status(200).json({
-					data: { responseObj },
+					data: responseObj,
 					message: AppMessages.SIG_VERIFY_SUCCESS
 				})
 			}
@@ -431,7 +451,15 @@ privateRoute.post(
 	}
 )
 
+/**
+ * @dev takes the credential and proof, and verifies the signature is valid or not
+ * @param credentialContent the credential part which will be hashed for proof
+ * @param proof the proof obj
+ * @param res express response obj
+ * @returns boolean - true if the signature is verified
+ */
 async function verification(credentialContent: any, proof: any, res: Response) {
+	// check if proof is of type JsonWebSignature2020
 	if (proof.type !== 'JsonWebSignature2020') {
 		console.log(`❌ signature type: '${proof.type}' not supported`)
 		res.status(400).json({
@@ -441,6 +469,7 @@ async function verification(credentialContent: any, proof: any, res: Response) {
 		return
 	}
 
+	// get the DID Document
 	const ddo = await Utils.getDDOfromDID(proof.verificationMethod, resolver)
 	if (!ddo) {
 		console.log(`❌ DDO not found for given did: '${proof.verificationMethod}' in proof`)
@@ -450,13 +479,14 @@ async function verification(credentialContent: any, proof: any, res: Response) {
 		return
 	}
 
+	// get the public keys from the DID Document
 	const publicKeyJwk = ddo.didDocument.verificationMethod[0].publicKeyJwk
 	const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
 
-	// get the SSL certificates
+	// get the SSL certificates from x5u url
 	const certificates = (await axios.get(x5u)).data as string
 
-	// signature check against registry
+	// signature check against Gaia-x registry
 	const registryRes = await Utils.validateSslFromRegistry(certificates, axios)
 	if (!registryRes) {
 		res.status(400).json({
@@ -466,7 +496,7 @@ async function verification(credentialContent: any, proof: any, res: Response) {
 		return
 	}
 
-	//check weather the public key matches with the certificate
+	//check weather the public key from DDO(which is fetched from did) matches with the certificates of x5u(fetched from ddo)
 	const comparePubKey = await Utils.comparePubKeys(certificates, publicKeyJwk, jose)
 	if (!comparePubKey) {
 		console.log(`❌ Public Keys Mismatched`)
@@ -477,11 +507,7 @@ async function verification(credentialContent: any, proof: any, res: Response) {
 		return
 	}
 
-	/**
-	 * Signature Check Flow
-	 */
-
-	// normalize
+	// normalize/canonize the credentialContent
 	const canonizedCredential = await Utils.normalize(
 		jsonld,
 		// eslint-disable-next-line
@@ -497,10 +523,10 @@ async function verification(credentialContent: any, proof: any, res: Response) {
 
 	// TODO: explore the isValidityCheck here, to include the jws in the hash
 
-	// hash
+	// hash the normalized credential
 	const hash = await Utils.sha256(crypto, canonizedCredential)
 
-	// verify Signature
+	// verify Signature by retriving the hash and then comparing it
 	const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
 	const isVerified = verificationResult?.content === hash
 	console.log(isVerified ? `✅ ${AppMessages.SIG_VERIFY_SUCCESS}` : `❌ ${AppMessages.SIG_VERIFY_FAILED}`)
