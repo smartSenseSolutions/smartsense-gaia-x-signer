@@ -284,10 +284,10 @@ privateRoute.post(
 privateRoute.post(
 	'/verify',
 	check('policies')
-		.isObject()
+		.isArray()
 		.exists()
 		.custom((obj) => {
-			for (const policy in obj) {
+			for (const policy of obj) {
 				if (!AppConst.VERIFY_POLICIES.includes(policy)) {
 					return false
 				}
@@ -332,21 +332,9 @@ privateRoute.post(
 					return
 				}
 
-				// get the policies set to true from request
-				const policyToExecute = Object.keys(policies).filter((key) => {
-					return policies[key] === true
-				})
-				if (policyToExecute.length === 0) {
-					console.log(`❌ No policy to execute`)
-					res.status(400).json({
-						error: `No policy to execute`
-					})
-					return
-				}
-
 				const responseObj: any = {}
 				// execute functions based on the policies To Execute and add the result to responseObj
-				for (const policy of policyToExecute) {
+				for (const policy of policies) {
 					switch (policy) {
 						case AppConst.VERIFY_POLICIES[0]: //checkSignature
 							console.log(`Executing ${policy} policy...`)
