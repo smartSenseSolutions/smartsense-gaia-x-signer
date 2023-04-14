@@ -111,7 +111,7 @@ privateRoute.post(
 				const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
 				console.log(verificationResult?.content === hash ? '✅ Verification successful' : '❌ Verification failed')
 				selfDescription['verifiableCredential'][0].proof = proof
-				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string,selfDescription)).data;
+				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
 				// const complianceCredential = {
 				// 	'@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'],
 				// 	type: ['VerifiableCredential'],
@@ -219,8 +219,8 @@ privateRoute.post(
 					// create hash
 					const hash = Utils.sha256(crypto, canonizedSD)
 					// retrieve private key
-					// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-					const privateKey = process.env.PRIVATE_KEY as string
+					const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+					// const privateKey = process.env.PRIVATE_KEY as string
 					// create proof
 					const proof = await Utils.createProof(jose, issuerDid, AppConst.RSA_ALGO, hash, privateKey)
 					// attach proof to vc
@@ -273,8 +273,8 @@ privateRoute.post(
 				}
 
 				const hash = await Utils.sha256(crypto, canonizedCredential)
-				// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-				const privateKey = process.env.PRIVATE_KEY as string
+				const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+				// const privateKey = process.env.PRIVATE_KEY as string
 				const proof = await Utils.createProof(jose, holderDID, AppConst.RSA_ALGO, hash, privateKey)
 				console.log(proof ? '🔒 VP signed successfully' : '❌ VP signing failed')
 

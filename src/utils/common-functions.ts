@@ -154,9 +154,9 @@ namespace CommonFunctions {
 						.setProtectedHeader({ alg: flattenEncryptAlgorithm, enc: flattenEncryptEncoding })
 						.encrypt(publicKey)
 					// import private key
-					// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-					// const rsaPrivateKey = await jose.importPKCS8(privateKey as string, algorithm)
-					const rsaPrivateKey = await jose.importPKCS8(process.env.PRIVATE_KEY as string, algorithm)
+					const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+					const rsaPrivateKey = await jose.importPKCS8(privateKey as string, algorithm)
+					// const rsaPrivateKey = await jose.importPKCS8(process.env.PRIVATE_KEY as string, algorithm)
 					// decode the encrypted jwe using private key
 					const { plaintext } = await jose.flattenedDecrypt(jwe, rsaPrivateKey)
 					// get decoder object
