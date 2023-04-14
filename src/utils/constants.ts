@@ -1,7 +1,7 @@
 export class AppConst {
 	static readonly RSA_ALGO = 'PS256'
 	static readonly LEGAL_PARTICIPANT = 'LegalParticipant'
-	static readonly SERVICE_OFFER = 'ServiceOfferingExperimental'
+	static readonly SERVICE_OFFER = 'ServiceOffering'
 }
 
 export class AppMessages {

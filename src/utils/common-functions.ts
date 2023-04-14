@@ -60,6 +60,41 @@ namespace CommonFunctions {
 			return selfDescription
 		}
 
+		generateServiceOffer(participantURL: string, didId: string, serviceComplianceUrl: string, serviceName: string): object {
+			const selfDescription = {
+				'@context': 'https://www.w3.org/2018/credentials/v1',
+				type: ['VerifiablePresentation'],
+				verifiableCredential: [
+					{
+						'@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#'],
+						type: ['VerifiableCredential'],
+						id: didId,
+						issuer: didId,
+						issuanceDate: new Date().toISOString(),
+						credentialSubject: {
+							id: serviceComplianceUrl,
+							'gx:name': serviceName,
+							type: 'gx:ServiceOffering',
+							'gx:providedBy': {
+								id: participantURL
+							},
+							'gx:policy': '',
+							'gx:termsAndConditions': {
+								'gx:URL': 'https://smartproof.in/privacy-policy',
+								'gx:hash': '70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700'
+							},
+							'gx:dataAccountExport': {
+								'gx:requestType': 'API',
+								'gx:accessType': 'digital',
+								'gx:formatType': 'application/json'
+							}
+						}
+					}
+				]
+			}
+			return selfDescription
+		}
+
 		async generatePublicJWK(jose: any, algorithm: string, certificate: string, x5uURL: string): Promise<any> {
 			const x509 = await jose.importX509(certificate, algorithm)
 			const publicKeyJwk = await jose.exportJWK(x509)

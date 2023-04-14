@@ -58,13 +58,19 @@ privateRoute.post(
 	check('templateId').isIn([AppConst.LEGAL_PARTICIPANT, AppConst.SERVICE_OFFER]),
 	check('privateKeyUrl').not().isEmpty().trim().escape(),
 	check('data').isObject(),
-	check('data.legalName').not().isEmpty().trim().escape(),
-	check('data.legalRegistrationType').not().isEmpty().trim().escape(),
-	check('data.legalRegistrationNumber').not().isEmpty().trim().escape(),
-	check('data.headquarterAddress').not().isEmpty().trim().escape(),
-	check('data.legalAddress').not().isEmpty().trim().escape(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
+			const { domain, templateId, privateKeyUrl } = req.body
+			if (templateId === AppConst.LEGAL_PARTICIPANT) {
+				await check('data.legalName').not().isEmpty().trim().escape().run(req)
+				await check('data.legalRegistrationType').not().isEmpty().trim().escape().run(req)
+				await check('data.legalRegistrationNumber').not().isEmpty().trim().escape().run(req)
+				await check('data.headquarterAddress').not().isEmpty().trim().escape().run(req)
+				await check('data.legalAddress').not().isEmpty().trim().escape().run(req)
+			} else if (templateId === AppConst.SERVICE_OFFER) {
+				await check('data.name').not().isEmpty().trim().escape().run(req)
+				await check('data.fileName').not().isEmpty().trim().escape().run(req)
+			}
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				const errorsArr = errors.array()
@@ -73,14 +79,18 @@ privateRoute.post(
 					message: AppMessages.VP_VALIDATION
 				})
 			} else {
-				const { domain, templateId, privateKeyUrl } = req.body
-
 				const didId = `did:web:${domain}`
 				const participantURL = `https://${domain}/.well-known/participant.json`
 				let selfDescription: any = null
 				if (templateId === AppConst.LEGAL_PARTICIPANT) {
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
 					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress)
+				} else if (templateId === AppConst.SERVICE_OFFER) {
+					const { name, fileName } = req.body.data
+					const serviceComplianceUrl = `https://${domain}/.well-known/${fileName}.json`
+					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, name)
+					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
+					selfDescription.verifiableCredential.push(selfDescriptionCredential.verifiableCredential[0])
 				} else {
 					res.status(422).json({
 						error: `Type Not Supported`,
@@ -105,29 +115,7 @@ privateRoute.post(
 				const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
 				console.log(verificationResult?.content === hash ? '✅ Verification successful' : '❌ Verification failed')
 				selfDescription['verifiableCredential'][0].proof = proof
-				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string,selfDescription)).data;
-				// const complianceCredential = {
-				// 	'@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant#'],
-				// 	type: ['VerifiableCredential'],
-				// 	id: 'https://compliance.lab.gaia-x.eu//v1-0-0/credential-offers/5d1bb35f-4f6c-48e6-8b34-69cce8cd3032',
-				// 	issuer: 'did:web:compliance.lab.gaia-x.eu::v1-0-0',
-				// 	issuanceDate: '2023-03-29T13:25:19.874Z',
-				// 	expirationDate: '2023-06-27T13:25:19.874Z',
-				// 	credentialSubject: [
-				// 		{
-				// 			type: 'gx:compliance',
-				// 			id: participantURL,
-				// 			integrity: 'sha256-b797c1008627e01d61c4eae22fb847410936f48b630e341b47f82d26b7178947'
-				// 		}
-				// 	],
-				// 	proof: {
-				// 		type: 'JsonWebSignature2020',
-				// 		created: '2023-03-29T13:25:20.148Z',
-				// 		proofPurpose: 'assertionMethod',
-				// 		jws: 'eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..T8xd-jIGa1EKUviYRr8seRvvvwATkmmMfPlkv6cJU7K0S1FVTDfDQojxeWT9PVWPaQoKHhaehcMUb6wWpfbydoIN8o7J_LcRtZ5CCckQDN63tpD4L_rSgRn71g6_9GuI8SKgFQPpqecj_2CRnEk4sCnNM3rsF8JI5WLxtEtiGwC9-id-pdsZdIc-T2Tg9YsXIOb4ErlO61ZfKDuD9_XDNrVPJBMRcPYJkIfzsSkljqryAwJtVoyJTabkoj9waTYGMRzyM3S0abmzR_BHMY7egnTSW7D5UMl9kq3guDfLaoGbtf5u6kdeWpwxvOuYzBNwty1vW89WR9BxfYoIv43BLw',
-				// 		verificationMethod: 'did:web:compliance.lab.gaia-x.eu::v1-0-0'
-				// 	}
-				// }
+				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 				const completeSd = {
 					selfDescriptionCredential: selfDescription,
