@@ -619,10 +619,8 @@
 				"required": ["policies", "credential"],
 				"properties": {
 					"policies": {
-						"type": "object",
-						"example": {
-							"checkSignature": true
-						}
+						"type": "array",
+						"example": ["checkSignature"]
 					},
 					"credential": {
 						"type": "object",
