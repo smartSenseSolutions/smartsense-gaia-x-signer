@@ -292,7 +292,7 @@
 				}
 			}
 		},
-		"/verifySignature": {
+		"/verify": {
 			"post": {
 				"summary": "Verify proof of a VC or a VP",
 				"description": " Validate Signature of VC or VP ",
