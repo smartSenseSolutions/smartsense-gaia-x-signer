@@ -66,6 +66,33 @@
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/OnBoardGaiaXSchemaBody"
+							},
+							"examples": {
+								"LegalParticipant": {
+									"value":{
+										"domain": "dev.smartproof.in",
+										"templateId": "LegalParticipant",
+										"privateKeyUrl": "https://example.com",
+										"data": {
+										  "legalName": "Smart Proof",
+										  "legalRegistrationType": "taxID",
+										  "legalRegistrationNumber": "0762747721",
+										  "headquarterAddress": "BE-BRU",
+										  "legalAddress": "BE-BRU"
+										}
+									  }
+								},
+								"ServiceOffering": {
+									"value":{
+										"domain": "dev.smartproof.in",
+										"templateId": "ServiceOffering",
+										"privateKeyUrl": "https://example.com",
+										"data": {
+										  "name": "AWS S3 Service",
+										  "fileName": "s3Service"
+										}
+									  }
+								}
 							}
 						}
 					}
@@ -286,29 +313,7 @@
 						"example": "https://example.com"
 					},
 					"data": {
-						"type": "object",
-						"properties": {
-							"legalName": {
-								"type": "string",
-								"example": "Smart Proof"
-							},
-							"legalRegistrationType": {
-								"type": "string",
-								"example": "taxID"
-							},
-							"legalRegistrationNumber": {
-								"type": "string",
-								"example": "0762747721"
-							},
-							"headquarterAddress": {
-								"type": "string",
-								"example": "BE-BRU"
-							},
-							"legalAddress": {
-								"type": "string",
-								"example": "BE-BRU"
-							}
-						}
+						"type": "object"
 					}
 				}
 			},
