@@ -93,7 +93,7 @@ privateRoute.post(
 					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
 					const { name, fileName } = req.body.data
-					const serviceComplianceUrl = `https://${domain}/.well-known/${fileName}.json`
+					const serviceComplianceUrl = `https://${domain}/.well-known/${fileName}`
 					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, name)
 					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
 					selfDescription.verifiableCredential.push(selfDescriptionCredential.verifiableCredential[0])
