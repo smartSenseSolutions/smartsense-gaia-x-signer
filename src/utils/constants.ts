@@ -5,6 +5,8 @@ export class AppConst {
 	static readonly FLATTEN_ENCRYPT_ALGORITHM = 'RSA-OAEP-256'
 	static readonly FLATTEN_ENCRYPT_ENCODING = 'A256GCM'
 	static readonly VERIFY_POLICIES = ['checkSignature', 'policy2']
+	static readonly REQUEST_TYPES = ['API', 'email', 'webform', 'unregisteredLetter', 'registeredLetter', 'supportCenter']
+	static readonly ACCESS_TYPES = ['digital', 'physical']
 }
 
 export class AppMessages {

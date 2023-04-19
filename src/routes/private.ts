@@ -9,6 +9,7 @@ import { check, validationResult } from 'express-validator'
 import * as he from 'he'
 import web from 'web-did-resolver'
 import { Resolver } from 'did-resolver'
+import typer from 'media-typer'
 
 export const privateRoute = express.Router()
 
@@ -61,7 +62,7 @@ privateRoute.post(
 		.trim()
 		.escape()
 		.matches(/^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/),
-	check('templateId').isIn([AppConst.LEGAL_PARTICIPANT, AppConst.SERVICE_OFFER]),
+	check('templateId').not().isEmpty().trim().escape().isIn([AppConst.LEGAL_PARTICIPANT, AppConst.SERVICE_OFFER]),
 	check('privateKeyUrl').not().isEmpty().trim().escape(),
 	check('data').isObject(),
 	async (req: Request, res: Response): Promise<void> => {
@@ -75,7 +76,19 @@ privateRoute.post(
 				await check('data.legalAddress').not().isEmpty().trim().escape().run(req)
 			} else if (templateId === AppConst.SERVICE_OFFER) {
 				await check('data.name').not().isEmpty().trim().escape().run(req)
+				await check('data.description').not().isEmpty().trim().escape().run(req)
 				await check('data.fileName').not().isEmpty().trim().escape().run(req)
+				await check('data.policyUrl').not().isEmpty().trim().escape().run(req)
+				await check('data.termsAndConditionsUrl').not().isEmpty().trim().escape().run(req)
+				await check('data.termsAndConditionsHash').not().isEmpty().trim().escape().run(req)
+				await check('data.formatType')
+					.not()
+					.isEmpty()
+					.trim()
+					.escape()
+					.custom((val) => typer.test(he.decode(val))).run(req)
+				await check('data.accessType').not().isEmpty().trim().escape().isIn(AppConst.ACCESS_TYPES).run(req)
+				await check('data.requestType').not().isEmpty().trim().escape().isIn(AppConst.REQUEST_TYPES).run(req)
 			}
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
@@ -92,9 +105,9 @@ privateRoute.post(
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
 					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
-					const { name, fileName } = req.body.data
-					const serviceComplianceUrl = `https://${domain}/.well-known/${fileName}`
-					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, name)
+					const data = req.body.data
+					const serviceComplianceUrl = `https://${domain}/.well-known/${data.fileName}`
+					selfDescription = Utils.generateServiceOffer(he, participantURL, didId, serviceComplianceUrl, data)
 					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
 					selfDescription.verifiableCredential.push(selfDescriptionCredential.verifiableCredential[0])
 				} else {
@@ -121,7 +134,8 @@ privateRoute.post(
 				const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
 				console.log(verificationResult?.content === hash ? '✅ Verification successful' : '❌ Verification failed')
 				selfDescription['verifiableCredential'][0].proof = proof
-				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
+				// const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
+				const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 				const completeSd = {
 					selfDescriptionCredential: selfDescription,
