@@ -10,6 +10,7 @@ export class AppConst {
 }
 
 export class AppMessages {
+	static readonly CLAIM_SIG_VERIFY_FAILED = 'Claim signature verification failed'
 	static readonly DID_SUCCESS = 'DID created successfully.'
 	static readonly DID_FAILED = 'DID creation failed.'
 	static readonly DID_VALIDATION = 'DID validation failed.'

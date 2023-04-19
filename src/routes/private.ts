@@ -387,8 +387,15 @@ privateRoute.post(
 						})
 						return
 					}
-
-					await verification(credentialContent, proof, res)
+					try {
+						await verification(credentialContent, proof, res)
+					} catch (error) {
+						res.status(400).json({
+							error: (error as Error).message,
+							message: AppMessages.CLAIM_SIG_VERIFY_FAILED
+						})
+						return
+					}
 				}
 
 				res.status(200).json({
