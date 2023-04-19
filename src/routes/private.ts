@@ -134,8 +134,8 @@ privateRoute.post(
 				const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
 				console.log(verificationResult?.content === hash ? '✅ Verification successful' : '❌ Verification failed')
 				selfDescription['verifiableCredential'][0].proof = proof
-				// const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
-				const complianceCredential = {}
+				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
+				// const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 				const completeSd = {
 					selfDescriptionCredential: selfDescription,
