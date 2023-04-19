@@ -192,38 +192,40 @@
 									"summary": "Verifiable Presentation of Legal Participant",
 									"value": {
 										"privateKeyUrl": "preSigned.url",
-										"holderDID": "did:web:dev02.proofsense.in",
-										"claims": [
+										"holderDID": "did:web:dev01.proofsense.in",
+										"claims":  [
 											{
 												"@context": [
 													"https://www.w3.org/2018/credentials/v1",
-													"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#",
-													"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#"
+													"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
 												],
-												"type": ["VerifiableCredential", "gx:LegalParticipant"],
-												"id": "did:web:dev02.proofsense.in",
-												"issuer": "did:web:dev02.proofsense.in",
-												"issuanceDate": "2023-04-10T10:54:26.894Z",
+												"type": [
+													"VerifiableCredential"
+												],
+												"id": "did:web:dev01.proofsense.in",
+												"issuer": "did:web:dev01.proofsense.in",
+												"issuanceDate": "2023-04-14T13:15:23.997Z",
 												"credentialSubject": {
-													"id": "https://dev02.proofsense.in/.well-known/participant.json",
+													"id": "https://dev01.proofsense.in/.well-known/participant.json",
 													"type": "gx:LegalParticipant",
-													"gx:legalName": "smartproof02",
+													"gx:legalName": "smartproof",
 													"gx:legalRegistrationNumber": {
-														"gx:PAN": "123abc02"
+														"gx:taxID": "123abc"
 													},
 													"gx:headquarterAddress": {
-														"gx:countrySubdivisionCode": "tk-4"
+														"gx:countrySubdivisionCode": "BE-BRU"
 													},
 													"gx:legalAddress": {
-														"gx:countrySubdivisionCode": "gj-g"
-													}
+														"gx:countrySubdivisionCode": "BE-BRU"
+													},
+													"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
 												},
 												"proof": {
 													"type": "JsonWebSignature2020",
-													"created": "2023-04-10T10:54:27.853Z",
+													"created": "2023-04-14T13:15:24.468Z",
 													"proofPurpose": "assertionMethod",
-													"verificationMethod": "did:web:dev02.proofsense.in",
-													"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TuHV-i8beVLAN3fgKoxlBRB7-ME7GHGCVrf92fQwhxSC6wGvdNwG0zb98ICqkI2DCf7Oi62Mb1TcLz5sYsN6HOVrEb-8upKBNS4t4vXKoDrW2XndCV6WvdGkVtZKVS3eJ-uK_A-18opd0cG--tLyKZKFcljToHxor-KXkC3Lks1hg791iSJYEqAw2Hrn4DsSM3Z-ksZx5EFA-p_tGQ7HEqgkuLIsLdLIUVKn3rmGxcviv8DyoIu8u9SZH2EqECEQoVrGDTjLSJy0I2YF4k-37autcjyvqBS40jXnyWh-P5_23ioP5PT0ozlobM9CUyqP8tvQD9CThY2DR-mqSkfE9Q"
+													"verificationMethod": "did:web:dev01.proofsense.in",
+													"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..BqtTjMvkRRtLc5eP_KA2N3nlsAJis_36V9gnA5xvF4Eu_8eNPPEj59aI2OrcmeYRRx0liz632twATqy60BixlsV2788_1WOAF0mc8BOa2H_svJRxScefpQwEVc-4TQADoubNKP_4bVnWTKJNgku53LK0e3kJ9JcmkmxmVmPWgdMwrW8wl_RiU2MJPNvmzB4HtuSxV8N7AmVdQlEZ8Vy-PEBDchGUzKD4zyyPuKDtL2bQzF7hBkUdrTCQuTuPHS_cZU7d_JOkkt-xS5JREng-ZnDD9yJxZ2tTsi2ahJbPzTZioJuurU6IXoC1gcVBW7laZWP9TbmGlj2chX_vlC93gQ"
 												}
 											}
 										]
@@ -246,58 +248,61 @@
 										"summary": "Legal Participant VP",
 										"value": {
 											"data": {
-												"verifiablePresentation": {
+											  "verifiablePresentation": {
+												"@context": [
+												  "https://www.w3.org/2018/credentials/v1",
+												  "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+												],
+												"type": [
+												  "VerifiablePresentation"
+												],
+												"verifiableCredential": [
+												  {
 													"@context": [
-														"https://www.w3.org/2018/credentials/v1",
-														"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#",
-														"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#"
+													  "https://www.w3.org/2018/credentials/v1",
+													  "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
 													],
-													"type": ["VerifiablePresentation"],
-													"verifiableCredential": [
-														{
-															"@context": [
-																"https://www.w3.org/2018/credentials/v1",
-																"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/termsandconditions#",
-																"https://registry.lab.gaia-x.eu/main/api/trusted-shape-registry/v1/shapes/jsonld/participant#"
-															],
-															"type": ["VerifiableCredential", "gx:LegalParticipant"],
-															"id": "did:web:dev02.proofsense.in",
-															"issuer": "did:web:dev02.proofsense.in",
-															"issuanceDate": "2023-04-10T10:54:26.894Z",
-															"credentialSubject": {
-																"id": "https://dev02.proofsense.in/.well-known/participant.json",
-																"type": "gx:LegalParticipant",
-																"gx:legalName": "smartproof02",
-																"gx:legalRegistrationNumber": {
-																	"gx:PAN": "123abc02"
-																},
-																"gx:headquarterAddress": {
-																	"gx:countrySubdivisionCode": "tk-4"
-																},
-																"gx:legalAddress": {
-																	"gx:countrySubdivisionCode": "gj-g"
-																}
-															},
-															"proof": {
-																"type": "JsonWebSignature2020",
-																"created": "2023-04-10T10:54:27.853Z",
-																"proofPurpose": "assertionMethod",
-																"verificationMethod": "did:web:dev02.proofsense.in",
-																"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TuHV-i8beVLAN3fgKoxlBRB7-ME7GHGCVrf92fQwhxSC6wGvdNwG0zb98ICqkI2DCf7Oi62Mb1TcLz5sYsN6HOVrEb-8upKBNS4t4vXKoDrW2XndCV6WvdGkVtZKVS3eJ-uK_A-18opd0cG--tLyKZKFcljToHxor-KXkC3Lks1hg791iSJYEqAw2Hrn4DsSM3Z-ksZx5EFA-p_tGQ7HEqgkuLIsLdLIUVKn3rmGxcviv8DyoIu8u9SZH2EqECEQoVrGDTjLSJy0I2YF4k-37autcjyvqBS40jXnyWh-P5_23ioP5PT0ozlobM9CUyqP8tvQD9CThY2DR-mqSkfE9Q"
-															}
-														}
+													"type": [
+													  "VerifiableCredential"
 													],
+													"id": "did:web:dev01.proofsense.in",
+													"issuer": "did:web:dev01.proofsense.in",
+													"issuanceDate": "2023-04-14T13:15:23.997Z",
+													"credentialSubject": {
+													  "id": "https://dev01.proofsense.in/.well-known/participant.json",
+													  "type": "gx:LegalParticipant",
+													  "gx:legalName": "smartproof",
+													  "gx:legalRegistrationNumber": {
+														"gx:taxID": "123abc"
+													  },
+													  "gx:headquarterAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													  },
+													  "gx:legalAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													  },
+													  "gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+													},
 													"proof": {
-														"type": "JsonWebSignature2020",
-														"created": "2023-04-14T12:11:04.595Z",
-														"proofPurpose": "assertionMethod",
-														"verificationMethod": "did:web:dev02.proofsense.in",
-														"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..bN4f25MvSWCkfZUYhZqsdWmF-DFOnzy62IrBsMIl9xb4zjnU0EhqntSRIZYQqBd4s-wpNmnDgOl05gs9MruJuDYKg3dXcYrAmaK62cbF6kWpPYXkr7ODj2HfUZbjdhgGu1oqXYQ-zHseGKLC_NvPG49Axzfdft1x6McqxQxdYJumB4luBtxasXmjSzt6kDSM7H4T4cZdxMkiANj8D93pQNt0xpzzNs0U5C2EqTYip9DU_gH97s4Q1xCy6_htYgn-FoR4QFqRq35l4Uc3WXDlLAalQRF2NFd5m0AykBjPFgL8_UY9dvpOdY0pMKSTxJFygC7YYPewW5FcotbJpYoE8g"
+													  "type": "JsonWebSignature2020",
+													  "created": "2023-04-14T13:15:24.468Z",
+													  "proofPurpose": "assertionMethod",
+													  "verificationMethod": "did:web:dev01.proofsense.in",
+													  "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..BqtTjMvkRRtLc5eP_KA2N3nlsAJis_36V9gnA5xvF4Eu_8eNPPEj59aI2OrcmeYRRx0liz632twATqy60BixlsV2788_1WOAF0mc8BOa2H_svJRxScefpQwEVc-4TQADoubNKP_4bVnWTKJNgku53LK0e3kJ9JcmkmxmVmPWgdMwrW8wl_RiU2MJPNvmzB4HtuSxV8N7AmVdQlEZ8Vy-PEBDchGUzKD4zyyPuKDtL2bQzF7hBkUdrTCQuTuPHS_cZU7d_JOkkt-xS5JREng-ZnDD9yJxZ2tTsi2ahJbPzTZioJuurU6IXoC1gcVBW7laZWP9TbmGlj2chX_vlC93gQ"
 													}
+												  }
+												],
+												"proof": {
+												  "type": "JsonWebSignature2020",
+												  "created": "2023-04-19T12:10:37.486Z",
+												  "proofPurpose": "assertionMethod",
+												  "verificationMethod": "did:web:dev01.proofsense.in",
+												  "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..ZExxGj4rPRKTHR9NzO5GZNRWTaIWEhySpk-oaKgVJk5LLJCqXFD7RFOM-zBUTSYZitqWlz1KOL4bWsuX0XURG1Kgaq_g28keXzKML8678FSEedBNPtYRsEkXzpOJ87MSRV6sPeJcsg-uAhV_2qiBZre9AVUn5U9YL3vSlqW3rr_KOEqeEGDcSoiwfmOGKuX9mHx0S2rQ67cnFr_5fumOnoXwXCfrnycEz8pn_XgmNzmGzt0wa_lCdQa1R1RHvM5GrLWTjUYRLW7cJmwsu34Mokstq9aej73_hksNMIO2rs5ps1d1-AKhf1Ti76Golb7dYIT6dOexw99_njT7oHAAkA"
 												}
+											  }
 											},
 											"message": "VP created successfully."
-										}
+										  }
 									}
 								}
 							}

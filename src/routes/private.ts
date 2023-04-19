@@ -283,7 +283,15 @@ privateRoute.post(
 						})
 						return
 					}
-					await verification(credentialContent, proof, res)
+					try {
+						await verification(credentialContent, proof, res)
+					} catch (error) {
+						res.status(400).json({
+							data: 'Signature verification of claim failed',
+							message: AppMessages.CLAIM_SIG_VERIFY_FAILED
+						})
+						return
+					}
 				}
 				const generatedVp: any = Utils.createVpObj(claims)
 				const canonizedCredential = await Utils.normalize(
