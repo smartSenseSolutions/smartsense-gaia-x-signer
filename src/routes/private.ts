@@ -86,7 +86,8 @@ privateRoute.post(
 					.isEmpty()
 					.trim()
 					.escape()
-					.custom((val) => typer.test(he.decode(val))).run(req)
+					.custom((val) => typer.test(he.decode(val)))
+					.run(req)
 				await check('data.accessType').not().isEmpty().trim().escape().isIn(AppConst.ACCESS_TYPES).run(req)
 				await check('data.requestType').not().isEmpty().trim().escape().isIn(AppConst.REQUEST_TYPES).run(req)
 			}
@@ -335,8 +336,9 @@ privateRoute.post(
 					credentialContent = credential
 					console.log('Verifying a Verifiable Credential...')
 				} else if (credential.type.includes('VerifiablePresentation')) {
-					credentialContent = credential.verifiableCredential
 					proof = credential.proof
+					delete credential.proof
+					credentialContent = credential
 					console.log('Verifying a Verifiable Presentation...')
 				} else {
 					console.log(`❌ Credential Type not supported`)
@@ -365,6 +367,28 @@ privateRoute.post(
 						default:
 							break
 					}
+				}
+
+				for (const claim of credential.verifiableCredential) {
+					if (claim.type.includes('VerifiableCredential')) {
+						proof = claim.proof
+						delete claim.proof
+						credentialContent = claim
+						console.log('Verifying a Verifiable Credential claim...')
+					} else if (claim.type.includes('VerifiablePresentation')) {
+						credentialContent = claim.proof
+						delete claim.proof
+						credentialContent = claim
+						console.log('Verifying a Verifiable Presentation claim...')
+					} else {
+						console.log(`❌ Claim Credential Type not supported`)
+						res.status(400).json({
+							error: `Credential Type not supported`
+						})
+						return
+					}
+
+					await verification(credentialContent, proof, res)
 				}
 
 				res.status(200).json({
