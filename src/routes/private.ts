@@ -86,7 +86,8 @@ privateRoute.post(
 					.isEmpty()
 					.trim()
 					.escape()
-					.custom((val) => typer.test(he.decode(val))).run(req)
+					.custom((val) => typer.test(he.decode(val)))
+					.run(req)
 				await check('data.accessType').not().isEmpty().trim().escape().isIn(AppConst.ACCESS_TYPES).run(req)
 				await check('data.requestType').not().isEmpty().trim().escape().isIn(AppConst.REQUEST_TYPES).run(req)
 			}
@@ -263,6 +264,27 @@ privateRoute.post(
 
 				// TODO - check the relation between holder DID and the provided claims
 
+				for (const claim of claims) {
+					let proof, credentialContent
+					if (claim.type.includes('VerifiableCredential')) {
+						proof = claim.proof
+						credentialContent = JSON.parse(JSON.stringify(claim))
+						delete credentialContent.proof
+						console.log('Verifying a Verifiable Credential claim ...')
+					} else if (claim.type.includes('VerifiablePresentation')) {
+						proof = claim.proof
+						credentialContent = JSON.parse(JSON.stringify(claim))
+						delete credentialContent.proof
+						console.log('Verifying a Verifiable Presentation claim...')
+					} else {
+						console.log(`❌ Credential Type in claim not supported`)
+						res.status(400).json({
+							error: `Credential Type not supported`
+						})
+						return
+					}
+					await verification(credentialContent, proof, res)
+				}
 				const generatedVp: any = Utils.createVpObj(claims)
 				const canonizedCredential = await Utils.normalize(
 					jsonld,
