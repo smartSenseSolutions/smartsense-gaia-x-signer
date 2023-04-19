@@ -385,17 +385,21 @@
 												"https://www.w3.org/2018/credentials/v1",
 												"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
 											],
-											"type": ["VerifiablePresentation"],
+											"type": [
+												"VerifiablePresentation"
+											],
 											"verifiableCredential": [
 												{
 													"@context": [
 														"https://www.w3.org/2018/credentials/v1",
 														"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
 													],
-													"type": ["VerifiableCredential"],
+													"type": [
+														"VerifiableCredential"
+													],
 													"id": "did:web:dev01.proofsense.in",
 													"issuer": "did:web:dev01.proofsense.in",
-													"issuanceDate": "2023-04-14T12:29:55.056Z",
+													"issuanceDate": "2023-04-14T13:15:23.997Z",
 													"credentialSubject": {
 														"id": "https://dev01.proofsense.in/.well-known/participant.json",
 														"type": "gx:LegalParticipant",
@@ -408,23 +412,24 @@
 														},
 														"gx:legalAddress": {
 															"gx:countrySubdivisionCode": "BE-BRU"
-														}
+														},
+														"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
 													},
 													"proof": {
 														"type": "JsonWebSignature2020",
-														"created": "2023-04-14T12:29:55.740Z",
+														"created": "2023-04-14T13:15:24.468Z",
 														"proofPurpose": "assertionMethod",
 														"verificationMethod": "did:web:dev01.proofsense.in",
-														"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..h9Ru-tpZofVG7Y8py2H6iq0urpSjMXdH_WFAgxoohC0RsGcI45KbvUOADKQMB4WmS9sv686yx5RoT9pAkWWTiAxuov1rmdBbQgiOhPNpkpq_hN5yBAL3Ijcf1QSciQAy0_WYEAtdaJRw-ETIN2fm9koU-sedzF7L0w1807KvFBAv_baQZUXbmv01bR1gptOJNJbhp0nsXu9mCi__ZzqxH7YTTMXiyezSFWoNqTAazcjNg8E_xWOsiIUg3BOGsxM2q1aM4f1B7oWP4zSAwYxChRYOH6OzjM2QDDxC7bBNZpKtnnU3pqj7_j6jpSucQMgxgPwZXi3W9cURT4edUy7qiQ"
+														"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..BqtTjMvkRRtLc5eP_KA2N3nlsAJis_36V9gnA5xvF4Eu_8eNPPEj59aI2OrcmeYRRx0liz632twATqy60BixlsV2788_1WOAF0mc8BOa2H_svJRxScefpQwEVc-4TQADoubNKP_4bVnWTKJNgku53LK0e3kJ9JcmkmxmVmPWgdMwrW8wl_RiU2MJPNvmzB4HtuSxV8N7AmVdQlEZ8Vy-PEBDchGUzKD4zyyPuKDtL2bQzF7hBkUdrTCQuTuPHS_cZU7d_JOkkt-xS5JREng-ZnDD9yJxZ2tTsi2ahJbPzTZioJuurU6IXoC1gcVBW7laZWP9TbmGlj2chX_vlC93gQ"
 													}
 												}
 											],
 											"proof": {
 												"type": "JsonWebSignature2020",
-												"created": "2023-04-14T13:17:03.008Z",
+												"created": "2023-04-19T13:05:20.321Z",
 												"proofPurpose": "assertionMethod",
-												"verificationMethod": "did:web:dev02.proofsense.in",
-												"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..N_uLKX9sHKY8sq_AwJG0tb1LOhYiz0Xek3s0Fjth7iKFhIEa7K4C-Bt92W2LiplNBOxWNVn3khZVe13todzri0UXpKatst9f43Ij_kQVMVj1SAiiX-DsPMHOiiLIUJGd4IeoD_zpiA9zRDE--jO_lXNYHTVCNHXUGL8myWSoI2EJP-qKdA2Fsib1gOdbW3rAlrfCeaHJJzvtPuOdYEs0qQ3svV40PXK4PEuGdOsl89PLa1huLfOoYIEQ-wsoaaqP1Uoj78Ikk7apTFvRz9nej9HwC-21m-wEm51hbxAacD_PfxEKADv0uSEtrdd-3_tbPmTp_A4ZvhRKoHaV4fCBrA"
+												"verificationMethod": "did:web:dev01.proofsense.in",
+												"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..aEkoK7uhpVeg_msm_he7PDrS2V6j-WSeeRJfmmt1hO-TKmiz29W3coL5U2DniGlX-TkTAaPHhZwQ95HBJaJc9Qmb97sH5w4QhDfADO8q0txIqFDOCvGSjIJutygLtGCDePhdyZPCzhPOpFWs1DcEkjJKyA4kqHG3Vq-NaR0WM8X3a7UwjKYTpCpJ9RxzxzVo9fch3P8EUKCrtCqxCKyT9cQbcZY0ShDGfnLlHaHoUUyuFm0SkLjXjU8FGTKQFwzDoWQ8QJzOrrh6WvweJx0_HT0Ouw6fKHgqLJzcP67WXT6UlZ_vsXVo2nj-Gt2QLR9ioDrj8Yi2XIcAIMEiiiHRaA"
 											}
 										}
 									}

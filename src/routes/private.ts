@@ -376,7 +376,7 @@ privateRoute.post(
 						credentialContent = claim
 						console.log('Verifying a Verifiable Credential claim...')
 					} else if (claim.type.includes('VerifiablePresentation')) {
-						credentialContent = claim.proof
+						proof = claim.proof
 						delete claim.proof
 						credentialContent = claim
 						console.log('Verifying a Verifiable Presentation claim...')
