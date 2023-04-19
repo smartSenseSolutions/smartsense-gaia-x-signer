@@ -125,8 +125,8 @@ privateRoute.post(
 				const hash = Utils.sha256(crypto, canonizedSD)
 				console.log(`📈 Hashed canonized SD ${hash}`)
 
-				// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-				const privateKey = process.env.PRIVATE_KEY as string
+				const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+				// const privateKey = process.env.PRIVATE_KEY as string
 				const proof = await Utils.createProof(jose, didId, AppConst.RSA_ALGO, hash, privateKey)
 				console.log(proof ? '🔒 SD signed successfully' : '❌ SD signing failed')
 				const x5uURL = `https://${domain}/.well-known/x509CertificateChain.pem`
