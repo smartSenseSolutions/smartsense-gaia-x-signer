@@ -60,7 +60,8 @@ namespace CommonFunctions {
 			return selfDescription
 		}
 
-		generateServiceOffer(participantURL: string, didId: string, serviceComplianceUrl: string, serviceName: string): object {
+		generateServiceOffer(he: any, participantURL: string, didId: string, serviceComplianceUrl: string, data: any): object {
+			const { serviceName, description, policyUrl, termsAndConditionsUrl, termsAndConditionsHash, formatType, accessType, requestType } = data
 			const selfDescription = {
 				'@context': 'https://www.w3.org/2018/credentials/v1',
 				type: ['VerifiablePresentation'],
@@ -74,19 +75,20 @@ namespace CommonFunctions {
 						credentialSubject: {
 							id: serviceComplianceUrl,
 							'gx:name': serviceName,
+							'gx:description': description,
 							type: 'gx:ServiceOffering',
 							'gx:providedBy': {
 								id: participantURL
 							},
-							'gx:policy': '',
+							'gx:policy': he.decode(policyUrl),
 							'gx:termsAndConditions': {
-								'gx:URL': 'https://smartproof.in/privacy-policy',
-								'gx:hash': '70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700'
+								'gx:URL': he.decode(termsAndConditionsUrl),
+								'gx:hash': termsAndConditionsHash
 							},
 							'gx:dataAccountExport': {
-								'gx:requestType': 'API',
-								'gx:accessType': 'digital',
-								'gx:formatType': 'application/json'
+								'gx:requestType': requestType,
+								'gx:accessType': accessType,
+								'gx:formatType': formatType
 							}
 						}
 					}
