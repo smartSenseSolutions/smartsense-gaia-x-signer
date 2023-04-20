@@ -267,6 +267,10 @@ privateRoute.post(
 				for (const claim of claims) {
 					let proof, credentialContent
 					if (claim.type.includes('VerifiableCredential')) {
+						if (claim.credentialSubject[0].type === 'gx:compliance') {
+							console.log('skipping gx:compliance verification')
+							continue
+						}
 						proof = claim.proof
 						credentialContent = JSON.parse(JSON.stringify(claim))
 						delete credentialContent.proof
