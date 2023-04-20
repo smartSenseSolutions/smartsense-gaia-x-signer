@@ -300,8 +300,8 @@ privateRoute.post(
 					try {
 						await verification(credentialContent, proof, res)
 					} catch (error) {
-						res.status(400).json({
-							data: 'Signature verification of claim failed',
+						res.status(422).json({
+							error: 'Signature verification of provided claim failed',
 							message: AppMessages.CLAIM_SIG_VERIFY_FAILED
 						})
 						return
