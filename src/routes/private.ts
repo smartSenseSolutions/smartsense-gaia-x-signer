@@ -376,6 +376,7 @@ privateRoute.post(
 							credentialContent = claim
 							console.log('Verifying a Verifiable Credential claim...')
 						} else if (claim.type.includes('VerifiablePresentation')) {
+							// do we need to send VP's(as claims) inside a VP - to be checked
 							proof = claim.proof
 							delete claim.proof
 							credentialContent = claim
