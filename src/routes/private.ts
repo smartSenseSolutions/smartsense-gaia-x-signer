@@ -390,11 +390,11 @@ privateRoute.post(
 							credentialContent = claim
 							console.log('Verifying a Verifiable Credential claim...')
 						} else if (claim.type.includes('VerifiablePresentation')) {
-							// do we need to send VP's(as claims) inside a VP - to be checked
-							proof = claim.proof
-							delete claim.proof
-							credentialContent = claim
-							console.log('Verifying a Verifiable Presentation claim...')
+							console.log(`❌ Invalid VP structure`)
+							res.status(400).json({
+								error: `Invalid VP structure`
+							})
+							return
 						} else {
 							console.log(`❌ Claim Credential Type not supported`)
 							res.status(400).json({
