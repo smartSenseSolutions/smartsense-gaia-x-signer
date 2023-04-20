@@ -368,36 +368,36 @@ privateRoute.post(
 							break
 					}
 				}
-
-				for (const claim of credential.verifiableCredential) {
-					if (claim.type.includes('VerifiableCredential')) {
-						proof = claim.proof
-						delete claim.proof
-						credentialContent = claim
-						console.log('Verifying a Verifiable Credential claim...')
-					} else if (claim.type.includes('VerifiablePresentation')) {
-						proof = claim.proof
-						delete claim.proof
-						credentialContent = claim
-						console.log('Verifying a Verifiable Presentation claim...')
-					} else {
-						console.log(`❌ Claim Credential Type not supported`)
-						res.status(400).json({
-							error: `Credential Type not supported`
-						})
-						return
-					}
-					try {
-						await verification(credentialContent, proof, res)
-					} catch (error) {
-						res.status(400).json({
-							error: (error as Error).message,
-							message: AppMessages.CLAIM_SIG_VERIFY_FAILED
-						})
-						return
+				if (credential.type.includes('VerifiablePresentation')) {
+					for (const claim of credential.verifiableCredential) {
+						if (claim.type.includes('VerifiableCredential')) {
+							proof = claim.proof
+							delete claim.proof
+							credentialContent = claim
+							console.log('Verifying a Verifiable Credential claim...')
+						} else if (claim.type.includes('VerifiablePresentation')) {
+							proof = claim.proof
+							delete claim.proof
+							credentialContent = claim
+							console.log('Verifying a Verifiable Presentation claim...')
+						} else {
+							console.log(`❌ Claim Credential Type not supported`)
+							res.status(400).json({
+								error: `Credential Type not supported`
+							})
+							return
+						}
+						try {
+							await verification(credentialContent, proof, res)
+						} catch (error) {
+							res.status(400).json({
+								error: (error as Error).message,
+								message: AppMessages.CLAIM_SIG_VERIFY_FAILED
+							})
+							return
+						}
 					}
 				}
-
 				res.status(200).json({
 					data: responseObj,
 					message: AppMessages.SIG_VERIFY_SUCCESS
