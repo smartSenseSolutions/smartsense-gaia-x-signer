@@ -297,7 +297,7 @@ privateRoute.post(
 				const canonizedCredential = await Utils.normalize(
 					jsonld,
 					// eslint-disable-next-line
-					generatedVp.verifiableCredential
+					generatedVp
 				)
 				if (typeof canonizedCredential === 'undefined') {
 					throw new Error('canonizing failed')
