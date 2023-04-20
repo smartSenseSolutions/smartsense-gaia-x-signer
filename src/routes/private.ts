@@ -278,11 +278,41 @@ privateRoute.post(
 
 				// TODO - check the relation between holder DID and the provided claims
 
+				for (const claim of claims) {
+					let proof, credentialContent
+					if (claim.type.includes('VerifiableCredential')) {
+						proof = claim.proof
+						credentialContent = JSON.parse(JSON.stringify(claim))
+						delete credentialContent.proof
+						console.log('Verifying a Verifiable Credential claim ...')
+					} else if (claim.type.includes('VerifiablePresentation')) {
+						console.log(`❌ Cannot include VP as a claim inside of VP`)
+						res.status(400).json({
+							error: `Invalid VP structure | Cannot include VP as a claim inside of VP`
+						})
+						return
+					} else {
+						console.log(`❌ Credential Type in claim not supported`)
+						res.status(400).json({
+							error: `Credential Type not supported`
+						})
+						return
+					}
+					try {
+						await verification(credentialContent, proof, res)
+					} catch (error) {
+						res.status(422).json({
+							error: 'Signature verification of provided claim failed',
+							message: AppMessages.CLAIM_SIG_VERIFY_FAILED
+						})
+						return
+					}
+				}
 				const generatedVp: any = Utils.createVpObj(claims)
 				const canonizedCredential = await Utils.normalize(
 					jsonld,
 					// eslint-disable-next-line
-					generatedVp.verifiableCredential
+					generatedVp
 				)
 				if (typeof canonizedCredential === 'undefined') {
 					throw new Error('canonizing failed')
