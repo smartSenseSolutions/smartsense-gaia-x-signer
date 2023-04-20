@@ -60,7 +60,7 @@ namespace CommonFunctions {
 			return selfDescription
 		}
 
-		generateServiceOffer(he: any, participantURL: string, didId: string, serviceComplianceUrl: string, data: any): object {
+		generateServiceOffer(participantURL: string, didId: string, serviceComplianceUrl: string, data: any): object {
 			const { serviceName, description, policyUrl, termsAndConditionsUrl, termsAndConditionsHash, formatType, accessType, requestType } = data
 			const selfDescription = {
 				'@context': 'https://www.w3.org/2018/credentials/v1',
@@ -80,9 +80,9 @@ namespace CommonFunctions {
 							'gx:providedBy': {
 								id: participantURL
 							},
-							'gx:policy': he.decode(policyUrl),
+							'gx:policy': policyUrl,
 							'gx:termsAndConditions': {
-								'gx:URL': he.decode(termsAndConditionsUrl),
+								'gx:URL': termsAndConditionsUrl,
 								'gx:hash': termsAndConditionsHash
 							},
 							'gx:dataAccountExport': {

@@ -106,9 +106,9 @@ privateRoute.post(
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
 					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
-					const data = req.body.data
+					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
 					const serviceComplianceUrl = `https://${domain}/.well-known/${data.fileName}`
-					selfDescription = Utils.generateServiceOffer(he, participantURL, didId, serviceComplianceUrl, data)
+					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data)
 					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
 					selfDescription.verifiableCredential.push(selfDescriptionCredential.verifiableCredential[0])
 				} else {
@@ -148,10 +148,24 @@ privateRoute.post(
 					message: AppMessages.VP_SUCCESS
 				})
 			}
-		} catch (e) {
-			console.log(e)
+		} catch (error: any) {
+			if (error.response) {
+				// The request was made and the server responded with a status code
+				// that falls out of the range of 2xx
+				console.log(error.response.data)
+				console.log(error.response.status)
+				console.log(error.response.headers)
+			} else if (error.request) {
+				// The request was made but no response was received
+				// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+				// http.ClientRequest in node.js
+				console.log(error.request)
+			} else {
+				// Something happened in setting up the request that triggered an Error
+				console.log('Error', error.message)
+			}
 			res.status(500).json({
-				error: (e as Error).message,
+				error: (error as Error).message,
 				message: AppMessages.VP_FAILED
 			})
 		}
