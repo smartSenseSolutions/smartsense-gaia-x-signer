@@ -193,7 +193,7 @@
 									"value": {
 										"privateKeyUrl": "preSigned.url",
 										"holderDID": "did:web:dev01.proofsense.in",
-										"claims":  [
+										"claims":   [
 											{
 												"@context": [
 													"https://www.w3.org/2018/credentials/v1",
@@ -248,58 +248,58 @@
 										"summary": "Legal Participant VP",
 										"value": {
 											"data": {
-											  "verifiablePresentation": {
+											  "verifiablePresentation":  {
 												"@context": [
-												  "https://www.w3.org/2018/credentials/v1",
-												  "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+													"https://www.w3.org/2018/credentials/v1",
+													"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
 												],
 												"type": [
-												  "VerifiablePresentation"
+													"VerifiablePresentation"
 												],
 												"verifiableCredential": [
-												  {
-													"@context": [
-													  "https://www.w3.org/2018/credentials/v1",
-													  "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
-													],
-													"type": [
-													  "VerifiableCredential"
-													],
-													"id": "did:web:dev01.proofsense.in",
-													"issuer": "did:web:dev01.proofsense.in",
-													"issuanceDate": "2023-04-14T13:15:23.997Z",
-													"credentialSubject": {
-													  "id": "https://dev01.proofsense.in/.well-known/participant.json",
-													  "type": "gx:LegalParticipant",
-													  "gx:legalName": "smartproof",
-													  "gx:legalRegistrationNumber": {
-														"gx:taxID": "123abc"
-													  },
-													  "gx:headquarterAddress": {
-														"gx:countrySubdivisionCode": "BE-BRU"
-													  },
-													  "gx:legalAddress": {
-														"gx:countrySubdivisionCode": "BE-BRU"
-													  },
-													  "gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
-													},
-													"proof": {
-													  "type": "JsonWebSignature2020",
-													  "created": "2023-04-14T13:15:24.468Z",
-													  "proofPurpose": "assertionMethod",
-													  "verificationMethod": "did:web:dev01.proofsense.in",
-													  "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..BqtTjMvkRRtLc5eP_KA2N3nlsAJis_36V9gnA5xvF4Eu_8eNPPEj59aI2OrcmeYRRx0liz632twATqy60BixlsV2788_1WOAF0mc8BOa2H_svJRxScefpQwEVc-4TQADoubNKP_4bVnWTKJNgku53LK0e3kJ9JcmkmxmVmPWgdMwrW8wl_RiU2MJPNvmzB4HtuSxV8N7AmVdQlEZ8Vy-PEBDchGUzKD4zyyPuKDtL2bQzF7hBkUdrTCQuTuPHS_cZU7d_JOkkt-xS5JREng-ZnDD9yJxZ2tTsi2ahJbPzTZioJuurU6IXoC1gcVBW7laZWP9TbmGlj2chX_vlC93gQ"
+													{
+														"@context": [
+															"https://www.w3.org/2018/credentials/v1",
+															"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+														],
+														"type": [
+															"VerifiableCredential"
+														],
+														"id": "did:web:dev01.proofsense.in",
+														"issuer": "did:web:dev01.proofsense.in",
+														"issuanceDate": "2023-04-14T13:15:23.997Z",
+														"credentialSubject": {
+															"id": "https://dev01.proofsense.in/.well-known/participant.json",
+															"type": "gx:LegalParticipant",
+															"gx:legalName": "smartproof",
+															"gx:legalRegistrationNumber": {
+																"gx:taxID": "123abc"
+															},
+															"gx:headquarterAddress": {
+																"gx:countrySubdivisionCode": "BE-BRU"
+															},
+															"gx:legalAddress": {
+																"gx:countrySubdivisionCode": "BE-BRU"
+															},
+															"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+														},
+														"proof": {
+															"type": "JsonWebSignature2020",
+															"created": "2023-04-14T13:15:24.468Z",
+															"proofPurpose": "assertionMethod",
+															"verificationMethod": "did:web:dev01.proofsense.in",
+															"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..BqtTjMvkRRtLc5eP_KA2N3nlsAJis_36V9gnA5xvF4Eu_8eNPPEj59aI2OrcmeYRRx0liz632twATqy60BixlsV2788_1WOAF0mc8BOa2H_svJRxScefpQwEVc-4TQADoubNKP_4bVnWTKJNgku53LK0e3kJ9JcmkmxmVmPWgdMwrW8wl_RiU2MJPNvmzB4HtuSxV8N7AmVdQlEZ8Vy-PEBDchGUzKD4zyyPuKDtL2bQzF7hBkUdrTCQuTuPHS_cZU7d_JOkkt-xS5JREng-ZnDD9yJxZ2tTsi2ahJbPzTZioJuurU6IXoC1gcVBW7laZWP9TbmGlj2chX_vlC93gQ"
+														}
 													}
-												  }
 												],
 												"proof": {
-												  "type": "JsonWebSignature2020",
-												  "created": "2023-04-19T12:10:37.486Z",
-												  "proofPurpose": "assertionMethod",
-												  "verificationMethod": "did:web:dev01.proofsense.in",
-												  "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..ZExxGj4rPRKTHR9NzO5GZNRWTaIWEhySpk-oaKgVJk5LLJCqXFD7RFOM-zBUTSYZitqWlz1KOL4bWsuX0XURG1Kgaq_g28keXzKML8678FSEedBNPtYRsEkXzpOJ87MSRV6sPeJcsg-uAhV_2qiBZre9AVUn5U9YL3vSlqW3rr_KOEqeEGDcSoiwfmOGKuX9mHx0S2rQ67cnFr_5fumOnoXwXCfrnycEz8pn_XgmNzmGzt0wa_lCdQa1R1RHvM5GrLWTjUYRLW7cJmwsu34Mokstq9aej73_hksNMIO2rs5ps1d1-AKhf1Ti76Golb7dYIT6dOexw99_njT7oHAAkA"
+													"type": "JsonWebSignature2020",
+													"created": "2023-04-20T09:06:52.855Z",
+													"proofPurpose": "assertionMethod",
+													"verificationMethod": "did:web:dev01.proofsense.in",
+													"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..naqd59ApWkqtnh0T1NgDAwS_Mg5jYJ_GH5hiOYoChwCPsBYt55RrhM0wj5fV75MyHyy44k0q0KhBnhzh6MbAMshha178Q_mUYm50a42ztF6DT5QV-10jlgjUVJqMpqyBSfAQumzlciG6xj8X-LUhA-aTaI46t7MBRJ-uvyLJ3l5TK4gUbmr3r6_dIRf_dqWKXSo1tWkTNitwkG4_H6_Rgdzu_ahNvdqTCIdo3ztY67m8ZAvoNWCd4Fzadnm7VjkyNDFVetCsheg-2BiOzLtOme5Fq9WiyjyQn3ZhaqE71sjdTAFx24RcSmpna1u29CYUx7uK4q_RzEqDS-DI16YhNA"
 												}
-											  }
+											}
 											},
 											"message": "VP created successfully."
 										  }
