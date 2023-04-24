@@ -11,6 +11,16 @@ This MVP covers below use cases:
 4. Create a Verifiable presentation
 5. Verify a Verifiable credentials and Verifiable presentations
 
+## Run application
+
+change node version 16.13.1
+
+```bash
+mv env-example .env
+npm ci
+npm run dev
+```
+
 ## Tools and Technologies
 
 1. NodeJS
@@ -21,9 +31,19 @@ This MVP covers below use cases:
 
 ### Create a Web DID
 
+- First you will need a domain setup for whihc you want to create a did.
+- You will also need a ssl certificate setup for the same domain.
+- You certificate chain should be accessible at "https://${your-domain}/.well-known/x509CertificateChain.pem"
+- The create did api will make a did.json for the provided domain name.
+- You will have to host this did.json on "https://${your-domain}/.well-known/did.json"
+
 ![Create Web DID Flow](docs/create-did.png?raw=true)
 
 ### onBoardToGaiax
+
+- We have two templateId supported to make Gaia-x compliant credentials (LegalParticipant & ServiceOffering)
+- You can request for either of this credentials
+- The tool will make these credentials and also fetch Gaia-x compliance credentials for the same.
 
 ![onBoardToGaiax](docs/onBoardToGaiax.png?raw=true)
 
@@ -54,13 +74,3 @@ This MVP covers below use cases:
 ## Known issue or improvement
 
 1. Only allowed templates are available for VC and VP.
-
-## Run application
-
-change node version 16.13.1
-
-```Bash
-mv env-example .env
-npm ci
-npm run dev
-```
