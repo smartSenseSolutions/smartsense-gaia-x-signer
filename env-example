@@ -1,0 +1,2 @@
+PORT=8000
+COMPLIANCE_SERVICE="https://compliance.lab.gaia-x.eu/development/api/credential-offers"
