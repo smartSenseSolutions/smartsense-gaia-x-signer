@@ -10,6 +10,7 @@ import * as he from 'he'
 import web from 'web-did-resolver'
 import { Resolver } from 'did-resolver'
 import typer from 'media-typer'
+import { createHash } from 'crypto'
 
 export const privateRoute = express.Router()
 
@@ -385,7 +386,6 @@ privateRoute.post(
 							console.log(`Executing ${policy} policy...`)
 							let checkSignature = await verification(credentialContent, proof, res, false)
 							let gxComplianceCheck = await verifyGxCompliance(credentialContent, res)
-							// specific function call for policy
 							responseObj.gxCompliance = checkSignature && gxComplianceCheck
 							break
 
@@ -530,9 +530,20 @@ async function verifyGxCompliance(credentialContent: any, res: Response) {
 
 	const compCred = participantJson.data.complianceCredential
 
-	let gxProof = compCred.proof
+	const gxProof = compCred.proof
 	delete compCred.proof
-	let gxCred = compCred
+	const gxCred = compCred
 
-	return await verification(gxCred, gxProof, res, false)
+	// verify signature
+	const signVerify = await verification(gxCred, gxProof, res, false)
+
+	// verify integrity hash
+	const vcToHash = participantJson.data.selfDescriptionCredential.verifiableCredential[0]
+	const integrityHash = `sha256-${createHash('sha256').update(JSON.stringify(vcToHash)).digest('hex')}`
+
+	// compare hashes
+	const credIntegrityHash = participantJson.data.complianceCredential.credentialSubject[0].integrity
+	const integrityCheck = integrityHash === credIntegrityHash
+
+	return signVerify && integrityCheck
 }
