@@ -278,7 +278,7 @@ privateRoute.post(
 						return
 					}
 					try {
-						await verification(credentialContent, proof, res)
+						await verification(credentialContent, proof, res, true)
 					} catch (error) {
 						res.status(422).json({
 							error: 'Signature verification of provided claim failed',
@@ -377,14 +377,16 @@ privateRoute.post(
 					switch (policy) {
 						case AppConst.VERIFY_POLICIES[0]: //checkSignature
 							console.log(`Executing ${policy} policy...`)
-							responseObj.checkSignature = await verification(credentialContent, proof, res)
+							responseObj.checkSignature = await verification(credentialContent, proof, res, true)
 							if (typeof responseObj.checkSignature !== 'boolean') return
 							break
 
 						case AppConst.VERIFY_POLICIES[1]: //policy2
 							console.log(`Executing ${policy} policy...`)
+							let checkSignature = await verification(credentialContent, proof, res, false)
+							let gxComplianceCheck = await verifyGxCompliance(credentialContent, res)
 							// specific function call for policy
-							responseObj.policy2 = true
+							responseObj.gxCompliance = checkSignature && gxComplianceCheck
 							break
 
 						default:
@@ -412,7 +414,7 @@ privateRoute.post(
 							return
 						}
 						try {
-							await verification(credentialContent, proof, res)
+							await verification(credentialContent, proof, res, true)
 						} catch (error) {
 							res.status(400).json({
 								error: (error as Error).message,
@@ -444,7 +446,7 @@ privateRoute.post(
  * @param res express response obj
  * @returns boolean - true if the signature is verified
  */
-async function verification(credentialContent: any, proof: any, res: Response) {
+async function verification(credentialContent: any, proof: any, res: Response, checkSSLwithRegistry: boolean) {
 	// check if proof is of type JsonWebSignature2020
 	if (proof.type !== 'JsonWebSignature2020') {
 		console.log(`❌ signature type: '${proof.type}' not supported`)
@@ -468,17 +470,21 @@ async function verification(credentialContent: any, proof: any, res: Response) {
 	// get the public keys from the DID Document
 	const publicKeyJwk = ddo.didDocument.verificationMethod[0].publicKeyJwk
 	const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
+
 	// get the SSL certificates from x5u url
 	const certificates = (await axios.get(x5u)).data as string
-	// signature check against Gaia-x registry
-	const registryRes = await Utils.validateSslFromRegistry(certificates, axios)
-	if (!registryRes) {
-		res.status(400).json({
-			error: `Certificates validation Failed`,
-			message: AppMessages.CERT_VALIDATION_FAILED
-		})
-		return
+	if (checkSSLwithRegistry) {
+		// signature check against Gaia-x registry
+		const registryRes = await Utils.validateSslFromRegistry(certificates, axios)
+		if (!registryRes) {
+			res.status(400).json({
+				error: `Certificates validation Failed`,
+				message: AppMessages.CERT_VALIDATION_FAILED
+			})
+			return
+		}
 	}
+
 	//check weather the public key from DDO(which is fetched from did) matches with the certificates of x5u(fetched from ddo)
 	const comparePubKey = await Utils.comparePubKeys(certificates, publicKeyJwk, jose)
 	if (!comparePubKey) {
@@ -515,4 +521,18 @@ async function verification(credentialContent: any, proof: any, res: Response) {
 	console.log(isVerified ? `✅ ${AppMessages.SIG_VERIFY_SUCCESS}` : `❌ ${AppMessages.SIG_VERIFY_FAILED}`)
 
 	return isVerified
+}
+
+async function verifyGxCompliance(credentialContent: any, res: Response) {
+	const url = credentialContent.credentialSubject.id
+
+	const participantJson = await axios.get(url)
+
+	const compCred = participantJson.data.complianceCredential
+
+	let gxProof = compCred.proof
+	delete compCred.proof
+	let gxCred = compCred
+
+	return await verification(gxCred, gxProof, res, false)
 }
