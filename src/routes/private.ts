@@ -384,9 +384,8 @@ privateRoute.post(
 
 						case AppConst.VERIFY_POLICIES[1]: //policy2
 							console.log(`Executing ${policy} policy...`)
-							let checkSignature = await verification(credentialContent, proof, res, false)
 							let gxComplianceCheck = await verifyGxCompliance(credentialContent, res)
-							responseObj.gxCompliance = checkSignature && gxComplianceCheck
+							responseObj.gxCompliance = gxComplianceCheck
 							break
 
 						default:
@@ -524,12 +523,15 @@ async function verification(credentialContent: any, proof: any, res: Response, c
 }
 
 async function verifyGxCompliance(credentialContent: any, res: Response) {
-	const url = credentialContent.credentialSubject.id
+	let url
+	if (credentialContent.type.includes('VerifiablePresentation')) {
+		url = credentialContent.verifiableCredential[0].credentialSubject.id
+	} else {
+		url = credentialContent.credentialSubject.id
+	}
 
 	const participantJson = await axios.get(url)
-
 	const compCred = participantJson.data.complianceCredential
-
 	const gxProof = compCred.proof
 	delete compCred.proof
 	const gxCred = compCred
