@@ -31,6 +31,7 @@
     "he": "^1.2.0",
     "jose": "^4.13.1",
     "jsonld": "^5.2.0",
+    "kafkajs": "^2.2.4",
     "media-typer": "^1.1.0",
     "swagger-ui-express": "^4.6.2",
     "web-did-resolver": "^2.0.23"

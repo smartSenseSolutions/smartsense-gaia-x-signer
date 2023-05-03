@@ -11,11 +11,13 @@ import web from 'web-did-resolver'
 import { Resolver } from 'did-resolver'
 import typer from 'media-typer'
 import { createHash } from 'crypto'
+import { PublisherService } from '../utils/service/publisher.service'
 
 export const privateRoute = express.Router()
 
 const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
+const publisherService = new PublisherService()
 
 privateRoute.post(
 	'/createWebDID',
@@ -141,6 +143,7 @@ privateRoute.post(
 				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
 				// const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
+				await publisherService.publishVP(complianceCredential);
 				const completeSd = {
 					selfDescriptionCredential: selfDescription,
 					complianceCredential: complianceCredential
