@@ -31,7 +31,7 @@ npm run dev
 
 ### Create a Web DID
 
-- First you will need a domain setup for whihc you want to create a did.
+- First you will need a domain setup for which you want to create a did.
 - You will also need a ssl certificate setup for the same domain.
 - You certificate chain should be accessible at "https://${your-domain}/.well-known/x509CertificateChain.pem"
 - The create did api will make a did.json for the provided domain name.
