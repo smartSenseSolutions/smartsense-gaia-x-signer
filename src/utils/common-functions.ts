@@ -151,7 +151,8 @@ namespace CommonFunctions {
 					content: new TextDecoder().decode(result.payload)
 				}
 			} catch (error) {
-				throw new Error(`Signature Verification Failed | error: ${error}`)
+				console.log(`❌ Signature Verification Failed | error: ${error}`)
+				return false
 			}
 		}
 
