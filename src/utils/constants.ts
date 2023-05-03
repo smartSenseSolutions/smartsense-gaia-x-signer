@@ -7,6 +7,7 @@ export class AppConst {
 	static readonly VERIFY_POLICIES = ['checkSignature', 'gxCompliance']
 	static readonly REQUEST_TYPES = ['API', 'email', 'webform', 'unregisteredLetter', 'registeredLetter', 'supportCenter']
 	static readonly ACCESS_TYPES = ['digital', 'physical']
+	static readonly checkSSLwithRegistry = true
 }
 
 export class AppMessages {
@@ -27,4 +28,6 @@ export class AppMessages {
 	static readonly CERT_VALIDATION_FAILED = 'Certificates verification failed against the Gaia-x Registry'
 	static readonly PUB_KEY_MISMATCH = 'Public Key from did and SSL certificates do not match'
 	static readonly ONLY_JWS2020 = 'Only JsonWebSignature2020 is supported'
+	static readonly X5U_FETCH_FAILED = 'x5u Url invalid'
+	static readonly X5U_VALIDATION_FAILED = 'x5u certificate invalid format'
 }
