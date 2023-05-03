@@ -142,14 +142,13 @@ namespace CommonFunctions {
 			return jws
 		}
 
-		async verify(jose: any, jws: string, algorithm: string, publicKeyJwk: string) {
+		async verify(jose: any, jws: string, algorithm: string, publicKeyJwk: string, hash: string) {
 			try {
 				const pubkey = await jose.importJWK(publicKeyJwk, algorithm)
 				const result = await jose.compactVerify(jws, pubkey)
-				return {
-					protectedHeader: result.protectedHeader,
-					content: new TextDecoder().decode(result.payload)
-				}
+				// const protectedHeader = result.protectedHeader
+				const content = new TextDecoder().decode(result.payload)
+				return content === hash
 			} catch (error) {
 				console.log(`❌ Signature Verification Failed | error: ${error}`)
 				return false

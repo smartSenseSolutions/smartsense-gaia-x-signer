@@ -134,12 +134,8 @@ privateRoute.post(
 				const certificate = (await axios.get(x5uURL)).data as string
 				const publicKeyJwk = await Utils.generatePublicJWK(jose, AppConst.RSA_ALGO, certificate, x5uURL)
 
-				const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
-				if (verificationResult) {
-					console.log(verificationResult?.content === hash ? '✅ Verification successful' : '❌ Verification failed')
-				} else {
-					console.log('❌ Verification failed')
-				}
+				const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk, hash)
+				console.log(verificationResult ? '✅ Verification successful' : '❌ Verification failed')
 
 				selfDescription['verifiableCredential'][0].proof = proof
 				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
@@ -521,13 +517,9 @@ async function verification(credentialContent: any, proof: any, res: Response, c
 	const hash = await Utils.sha256(crypto, canonizedCredential)
 
 	// verify Signature by retriving the hash and then comparing it
-	const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk)
-	let isVerified = false
-	if (verificationResult) {
-		isVerified = verificationResult?.content === hash
-	}
-	console.log(isVerified ? `✅ ${AppMessages.SIG_VERIFY_SUCCESS}` : `❌ ${AppMessages.SIG_VERIFY_FAILED}`)
-	return isVerified
+	const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk, hash)
+	console.log(verificationResult ? `✅ ${AppMessages.SIG_VERIFY_SUCCESS}` : `❌ ${AppMessages.SIG_VERIFY_FAILED}`)
+	return verificationResult
 }
 
 async function verifyGxCompliance(credentialContent: any, res: Response) {
