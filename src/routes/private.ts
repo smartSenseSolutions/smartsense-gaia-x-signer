@@ -471,8 +471,7 @@ async function verification(credentialContent: any, proof: any, res: Response, c
 	}
 
 	// get the public keys from the DID Document
-	if (!ddo.didDocument.verificationMethod[0].publicKeyJwk || ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u) {
-		console.log(`❌ Compliance credential structure invalid`)
+	if (!ddo.didDocument.verificationMethod[0].publicKeyJwk || !ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u) {
 		res.status(400).json({
 			error: `Compliance credential structure invalid`
 		})

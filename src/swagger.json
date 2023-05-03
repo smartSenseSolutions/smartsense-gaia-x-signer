@@ -707,6 +707,110 @@
 											}
 										}
 									}
+								},
+								"verifyLegalParticipantVCGaiaXCompliant":{
+									"summary":"Verify Compliance Credential of Legal Participant VC",
+									"value":{
+										"policies": [
+										   "gxCompliance"
+										],
+									   
+										"credential": {
+											"@context": [
+												"https://www.w3.org/2018/credentials/v1",
+												"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+											],
+											"type": [
+												"VerifiableCredential"
+											],
+											"id": "did:web:spb2.proofsense.in",
+											"issuer": "did:web:spb2.proofsense.in",
+											"issuanceDate": "2023-05-01T08:43:36.651Z",
+											"credentialSubject": {
+												"id": "https://spb2.proofsense.in/.well-known/participant.json",
+												"type": "gx:LegalParticipant",
+												"gx:legalName": "Espanōl bank 2",
+												"gx:legalRegistrationNumber": {
+													"gx:vatID": "VAT1235"
+												},
+												"gx:headquarterAddress": {
+													"gx:countrySubdivisionCode": "BE-BRU"
+												},
+												"gx:legalAddress": {
+													"gx:countrySubdivisionCode": "BE-BRU"
+												},
+												"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+											},
+											"proof": {
+												"type": "JsonWebSignature2020",
+												"created": "2023-05-01T08:43:37.185Z",
+												"proofPurpose": "assertionMethod",
+												"verificationMethod": "did:web:spb2.proofsense.in",
+												"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..hZG-EqC2uzJueRFqMOvfpWdi-sF5K1Ii3CVVFA8avqofzlVFt3m4qoWFihIOs5t6aB6X0EIpBS_0mwBEP1lvLS991PyZP7HJ62iBmZz-7Nqwg1m3RsNkeZvwCNp_eaegV3o-38IryABM4Yrgp5lFT5iNg3OqgUCkWvurMj2ab2LVMzxZfApRvMZhqDDjG1q1XB7bfxCecdLBtN0o7dyI1aHYLW0Nm1JgyCnW14X9Ku8Zd8ftkUv3X3wBQW_D5oWIdU8XRiCqltnJ4ZVX43dPSq08Y6641pCeNGZHYKT_A3uKDRUbrORUub6g0TMGAPLnTcGKTDbNhtu9x9jpoARzHw"
+											}
+										}
+									}
+								},
+								"verifyLegalParticipantVPGaiaXCompliant":{
+									"summary":"Verify Compliance Credential of Legal Participant VP",
+									"value":{
+										"policies": [
+										   "gxCompliance"
+										],
+									   
+										"credential": {
+											"@context": [
+												"https://www.w3.org/2018/credentials/v1",
+												"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+											],
+											"type": [
+												"VerifiablePresentation"
+											],
+											"verifiableCredential": [
+												{
+													"@context": [
+														"https://www.w3.org/2018/credentials/v1",
+														"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+													],
+													"type": [
+														"VerifiableCredential"
+													],
+													"id": "did:web:spb2.proofsense.in",
+													"issuer": "did:web:spb2.proofsense.in",
+													"issuanceDate": "2023-05-01T08:43:36.651Z",
+													"credentialSubject": {
+														"id": "https://spb2.proofsense.in/.well-known/participant.json",
+														"type": "gx:LegalParticipant",
+														"gx:legalName": "Espanōl bank 2",
+														"gx:legalRegistrationNumber": {
+															"gx:vatID": "VAT1235"
+														},
+														"gx:headquarterAddress": {
+															"gx:countrySubdivisionCode": "BE-BRU"
+														},
+														"gx:legalAddress": {
+															"gx:countrySubdivisionCode": "BE-BRU"
+														},
+														"gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+													},
+													"proof": {
+														"type": "JsonWebSignature2020",
+														"created": "2023-05-01T08:43:37.185Z",
+														"proofPurpose": "assertionMethod",
+														"verificationMethod": "did:web:spb2.proofsense.in",
+														"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..hZG-EqC2uzJueRFqMOvfpWdi-sF5K1Ii3CVVFA8avqofzlVFt3m4qoWFihIOs5t6aB6X0EIpBS_0mwBEP1lvLS991PyZP7HJ62iBmZz-7Nqwg1m3RsNkeZvwCNp_eaegV3o-38IryABM4Yrgp5lFT5iNg3OqgUCkWvurMj2ab2LVMzxZfApRvMZhqDDjG1q1XB7bfxCecdLBtN0o7dyI1aHYLW0Nm1JgyCnW14X9Ku8Zd8ftkUv3X3wBQW_D5oWIdU8XRiCqltnJ4ZVX43dPSq08Y6641pCeNGZHYKT_A3uKDRUbrORUub6g0TMGAPLnTcGKTDbNhtu9x9jpoARzHw"
+													}
+												}
+											],
+											"proof": {
+												"type": "JsonWebSignature2020",
+												"created": "2023-05-03T05:46:17.229Z",
+												"proofPurpose": "assertionMethod",
+												"verificationMethod": "did:web:spb2.proofsense.in",
+												"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..X_phpTvLvAtm4tnXlxb4RFpqbCiY9InG8ybLAU3jNS-FgOqdHcpQNdQLchCryPEfl2TnFNkbbQcgvhJ_TX9T-Mru3DSR7bTOqPZxQxs9_S8XrccPSAN8cS8QGVlK7F2V2XGqhzUT_2uveZeEbdYdGpr0J6AkemHPXkxp6GG4OFcUM3KrfM2lGiVC0yvsrEOVqy2pQV2oCICjNB2bpO2yoLh4QrpxBerZQTxh1gv-o5TZgtpsb22ypPVqNBsWi5nN4xZw2hO-71b9duNzfLJICaLmJ1vxUnaPN1uZt9da-CPl9OvCsHfS047YM4l3_4RJfGlssPyznMdUbGSC2vY1nQ"
+											}
+										}
+									}
 								}
 							}
 						}
@@ -729,6 +833,15 @@
 											},
 											"message": "Signature verification successful"
 										}
+									},
+									"GaiaXCompliant":{
+										"summary":"Example response for compliance credential verification for both VC and VP",
+										"value":{
+											"data": {
+												"gxCompliance": true
+											},
+											"message": "Signature verification successful"
+										  }
 									}
 								}
 							}
