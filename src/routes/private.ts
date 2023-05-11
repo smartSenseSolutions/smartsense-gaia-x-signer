@@ -140,8 +140,8 @@ privateRoute.post(
 				console.log(verificationResult ? '✅ Verification successful' : '❌ Verification failed')
 
 				selfDescription['verifiableCredential'][0].proof = proof
-				// const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
-				const complianceCredential = {}
+				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
+				// const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 				// await publisherService.publishVP(complianceCredential);
 				const completeSd = {
