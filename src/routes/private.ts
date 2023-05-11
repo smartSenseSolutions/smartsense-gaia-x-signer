@@ -11,13 +11,13 @@ import web from 'web-did-resolver'
 import { Resolver } from 'did-resolver'
 import typer from 'media-typer'
 import { createHash } from 'crypto'
-import { PublisherService } from '../utils/service/publisher.service'
+// import { PublisherService } from '../utils/service/publisher.service'
 
 export const privateRoute = express.Router()
 
 const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
-const publisherService = new PublisherService()
+// const publisherService = new PublisherService()
 
 privateRoute.post(
 	'/createWebDID',
@@ -37,9 +37,9 @@ privateRoute.post(
 					message: AppMessages.DID_VALIDATION
 				})
 			} else {
-				const { domain } = req.body
-				const didId = `did:web:${domain}`
-				const x5uURL = `https://${domain}/.well-known/x509CertificateChain.pem`
+				const { domain, tenant } = req.body
+				const didId = tenant ? `did:web:${domain}:${tenant}` : `did:web:${domain}`
+				const x5uURL = tenant ? `https://${domain}/${tenant}/x509CertificateChain.pem` : `https://${domain}/.well-known/x509CertificateChain.pem`
 				const certificate = (await axios.get(x5uURL)).data as string
 				const publicKeyJwk = await Utils.generatePublicJWK(jose, AppConst.RSA_ALGO, certificate, x5uURL)
 				const did = Utils.generateDID(didId, publicKeyJwk)
@@ -70,7 +70,7 @@ privateRoute.post(
 	check('data').isObject(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			const { domain, templateId, privateKeyUrl } = req.body
+			const { domain, tenant, templateId, privateKeyUrl } = req.body
 			if (templateId === AppConst.LEGAL_PARTICIPANT) {
 				await check('data.legalName').not().isEmpty().trim().escape().run(req)
 				await check('data.legalRegistrationType').not().isEmpty().trim().escape().run(req)
@@ -102,15 +102,15 @@ privateRoute.post(
 					message: AppMessages.VP_VALIDATION
 				})
 			} else {
-				const didId = `did:web:${domain}`
-				const participantURL = `https://${domain}/.well-known/participant.json`
+				const didId = tenant ? `did:web:${domain}:${tenant}` : `did:web:${domain}`
+				const participantURL = tenant ? `https://${domain}/${tenant}/participant.json` : `https://${domain}/.well-known/participant.json`
 				let selfDescription: any = null
 				if (templateId === AppConst.LEGAL_PARTICIPANT) {
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
 					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
 					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
-					const serviceComplianceUrl = `https://${domain}/.well-known/${data.fileName}`
+					const serviceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${data.fileName}`
 					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data)
 					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
 					selfDescription.verifiableCredential.push(selfDescriptionCredential.verifiableCredential[0])
@@ -132,7 +132,7 @@ privateRoute.post(
 				// const privateKey = process.env.PRIVATE_KEY as string
 				const proof = await Utils.createProof(jose, didId, AppConst.RSA_ALGO, hash, privateKey)
 				console.log(proof ? '🔒 SD signed successfully' : '❌ SD signing failed')
-				const x5uURL = `https://${domain}/.well-known/x509CertificateChain.pem`
+				const x5uURL = tenant ? `https://${domain}/${tenant}/x509CertificateChain.pem` : `https://${domain}/.well-known/x509CertificateChain.pem`
 				const certificate = (await axios.get(x5uURL)).data as string
 				const publicKeyJwk = await Utils.generatePublicJWK(jose, AppConst.RSA_ALGO, certificate, x5uURL)
 
@@ -140,10 +140,10 @@ privateRoute.post(
 				console.log(verificationResult ? '✅ Verification successful' : '❌ Verification failed')
 
 				selfDescription['verifiableCredential'][0].proof = proof
-				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
-				// const complianceCredential = {}
+				// const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
+				const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
-				await publisherService.publishVP(complianceCredential);
+				// await publisherService.publishVP(complianceCredential);
 				const completeSd = {
 					selfDescriptionCredential: selfDescription,
 					complianceCredential: complianceCredential
