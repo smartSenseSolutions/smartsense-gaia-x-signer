@@ -22,7 +22,7 @@ namespace CommonFunctions {
 						did['service'] = []
 					}
 					const service = services[index]
-					service['id'] = `${didId}#${services[0].type.toLocaleLowerCase()}`
+					service['id'] = `${didId}#${services[index].type.toLocaleLowerCase()}`
 					did.service?.push(service)
 				}
 			}
