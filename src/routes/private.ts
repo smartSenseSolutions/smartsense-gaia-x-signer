@@ -29,6 +29,14 @@ privateRoute.post(
 		.matches(/^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
+			const { domain, tenant, services } = req.body
+			if (services) {
+				await check('services').isArray().run(req)
+				for (let index = 0; index < services.length; index++) {
+					await check(`services[${index}].type`).not().isEmpty().trim().escape().run(req)
+					await check(`services[${index}].serviceEndpoint`).isURL().run(req)
+				}
+			}
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				const errorsArr = errors.array()
@@ -37,12 +45,11 @@ privateRoute.post(
 					message: AppMessages.DID_VALIDATION
 				})
 			} else {
-				const { domain, tenant } = req.body
 				const didId = tenant ? `did:web:${domain}:${tenant}` : `did:web:${domain}`
 				const x5uURL = tenant ? `https://${domain}/${tenant}/x509CertificateChain.pem` : `https://${domain}/.well-known/x509CertificateChain.pem`
 				const certificate = (await axios.get(x5uURL)).data as string
 				const publicKeyJwk = await Utils.generatePublicJWK(jose, AppConst.RSA_ALGO, certificate, x5uURL)
-				const did = Utils.generateDID(didId, publicKeyJwk)
+				const did = Utils.generateDID(didId, publicKeyJwk, services)
 				res.status(200).json({
 					data: { did },
 					message: AppMessages.DID_SUCCESS
