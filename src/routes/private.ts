@@ -1,16 +1,19 @@
-import express, { Request, Response } from 'express'
-import * as jose from 'jose'
-import jsonld from 'jsonld'
-import crypto from 'crypto'
+/* eslint-disable no-case-declarations */
 import axios from 'axios'
-import { Utils } from '../utils/common-functions'
-import { AppConst, AppMessages } from '../utils/constants'
+import crypto, { X509Certificate } from 'crypto'
+import { createHash } from 'crypto'
+import { Resolver } from 'did-resolver'
+import express, { Request, Response } from 'express'
 import { check, validationResult } from 'express-validator'
 import * as he from 'he'
-import web from 'web-did-resolver'
-import { Resolver } from 'did-resolver'
+import * as jose from 'jose'
+import jsonld from 'jsonld'
 import typer from 'media-typer'
-import { createHash } from 'crypto'
+import web from 'web-did-resolver'
+
+import { Utils } from '../utils/common-functions'
+import { AppConst, AppMessages } from '../utils/constants'
+
 // import { PublisherService } from '../utils/service/publisher.service'
 
 export const privateRoute = express.Router()
@@ -389,7 +392,7 @@ privateRoute.post(
 
 						case AppConst.VERIFY_POLICIES[1]: //policy2
 							console.log(`Executing ${policy} policy...`)
-							let gxComplianceCheck = await verifyGxCompliance(credentialContent, res)
+							const gxComplianceCheck = await verifyGxCompliance(credentialContent, res)
 							responseObj.gxCompliance = gxComplianceCheck
 							break
 
@@ -551,4 +554,153 @@ async function verifyGxCompliance(credentialContent: any, res: Response) {
 	const integrityCheck = integrityHash === credIntegrityHash
 
 	return signVerify && integrityCheck
+}
+
+privateRoute.post(
+	'/get/trust-index',
+	check('participant_json_url').not().isEmpty().trim(),
+	check('so_json_url').not().isEmpty().trim(),
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const { participant_json_url: participantUrl, so_json_url: soUrl } = req.body
+			let veracityResult
+			try {
+				veracityResult = await calcVeracity(participantUrl)
+			} catch (error) {
+				res.status(500).json({
+					error: 'Error',
+					message: AppMessages.PARTICIPANT_DID_FETCH_FAILED
+				})
+				return
+			}
+			const { veracity, certificateDetails } = veracityResult
+			let transparency = 1
+			try {
+				transparency = await calcTansperency(soUrl)
+				console.log('transparency :-', transparency)
+			} catch (error) {
+				res.status(500).json({
+					error: 'Error',
+					message: AppMessages.SO_SD_FETCH_FAILED
+				})
+				return
+			}
+
+			const trustIndex = calcTrustIndex(veracity, transparency)
+			console.log('trustIndex :-', trustIndex)
+
+			res.status(200).json({
+				message: 'Success',
+				data: {
+					veracity,
+					transparency,
+					trustIndex,
+					certificateDetails
+				}
+			})
+		} catch (error) {
+			console.log(error)
+			res.status(500).json({
+				error: (error as Error).message,
+				message: AppMessages.PARTICIPANT_VC_FOUND_FAILED
+			})
+		}
+	}
+)
+
+const calcVeracity = async (participantUrl: any) => {
+	// get the json document of participant
+	try {
+		const participantJson = (await axios.get(participantUrl)).data
+		if (participantJson && participantJson.verifiableCredential.length) {
+			const participantVC = participantJson.verifiableCredential[0]
+			const {
+				id: holderDID,
+				proof: { participantVM }
+			} = participantVC
+			console.log('holderDID :-', holderDID, participantVM)
+			const ddo = await Utils.getDDOfromDID(holderDID, resolver)
+			if (!ddo) {
+				console.log(`❌ DDO not found for given did: '${holderDID}' in proof`)
+				return { veracity: 1, certificateDetails: null }
+			}
+			// const {
+			// 	didDocument: { verificationMethod: verificationMethodArray }
+			// } = ddo
+
+			// for (let i = 0; i < verificationMethodArray.length; i++) {
+			// 	if (verificationMethodArray[i].id === participantVM && verificationMethodArray[i].id === 'JsonWebKey2020') {
+			const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
+
+			// get the SSL certificates from x5u url
+			const certificates = (await axios.get(x5u)).data as string
+			// console.log('certificates :- ', certificates)
+
+			const certArray = certificates.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g)
+			let keypairDepth = 1
+			if (certArray?.length) {
+				keypairDepth = certArray?.length
+			}
+
+			// getting object of a PEM encoded X509 Certificate.
+			const certificate = new X509Certificate(certificates)
+
+			const certificateDetails = {
+				issuer: certificate.issuer,
+				validFrom: certificate.validFrom,
+				validTo: certificate.validTo,
+				subject: certificate.subject
+			}
+
+			const veracity = +(1 / keypairDepth).toFixed(2) //veracity = 1 / sum(len(keychain))
+			return { veracity, certificateDetails }
+			// 	}
+			// }
+			// return 0
+		} else {
+			console.log(`❌ Verifiable Credential array not found in participant vc`)
+			return { veracity: 1, certificateDetails: null }
+		}
+	} catch (error) {
+		console.log(`❌ Invalid participant vc url`)
+		return { veracity: 1, certificateDetails: null }
+	}
+}
+
+/*
+	Formula: count(properties) / count(mandatoryproperties)
+	Provided By 			Mandatory	(gx-service-offering:providedBy)
+	Aggregation Of	 		Mandatory	(gx-service-offering:aggreationOf)
+	Terms and Conditions 	Mandatory	(gx-service-offering:termsAndConditions)
+	Policy	 				Mandatory	(gx-service-offering:policy)
+	Data Account Export 	Mandatory	(gx-service-offering:dataExport)
+	Name 					Optional	(gx-service-offering:name)
+	Depends On	 			Optional  	(gx-service-offering:dependsOn)
+	Data Protection Regime	Optional	(gx-service-offering:dataProtectionRegime)
+*/
+async function calcTansperency(soUrl: any) {
+	const optionalProps = ['gx-service-offering:name', 'gx-service-offering:dependsOn', 'gx-service-offering:dataProtectionRegime']
+	const totalMandatoryProps = 5
+	let availOptProps = 0
+	try {
+		// get the json document of service offering
+		const {
+			selfDescriptionCredential: { credentialSubject }
+		} = (await axios.get(soUrl)).data
+
+		for (let index = 0; index < optionalProps.length; index++) {
+			if (credentialSubject[optionalProps[index]]) {
+				availOptProps++
+			}
+		}
+		const tansperency = (totalMandatoryProps + availOptProps) / totalMandatoryProps
+		return tansperency
+	} catch (error) {
+		return 0
+	}
+}
+
+function calcTrustIndex(veracity: number, transparency: number) {
+	const trustIndex = (veracity + transparency) / 2
+	return trustIndex
 }

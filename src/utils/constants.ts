@@ -27,4 +27,7 @@ export class AppMessages {
 	static readonly CERT_VALIDATION_FAILED = 'Certificates verification failed against the Gaia-x Registry'
 	static readonly PUB_KEY_MISMATCH = 'Public Key from did and SSL certificates do not match'
 	static readonly ONLY_JWS2020 = 'Only JsonWebSignature2020 is supported'
+	static readonly PARTICIPANT_DID_FETCH_FAILED = 'Participant DID fetching failed'
+	static readonly PARTICIPANT_VC_FOUND_FAILED = 'Participant VC not found'
+	static readonly SO_SD_FETCH_FAILED = 'Service offering self description fetching failed'
 }
