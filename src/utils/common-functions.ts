@@ -1,7 +1,8 @@
+import { Service, DidDocument } from '../interface/interface'
 namespace CommonFunctions {
 	export class Utils {
-		generateDID(didId: string, publicKeyJwk: any): unknown {
-			const did = {
+		generateDID(didId: string, publicKeyJwk: any, services: Service[]): unknown {
+			const did: DidDocument = {
 				'@context': ['https://www.w3.org/ns/did/v1'],
 				id: didId,
 				verificationMethod: [
@@ -15,7 +16,16 @@ namespace CommonFunctions {
 				],
 				assertionMethod: [`${didId}#JWK2020-RSA`]
 			}
-
+			if (services) {
+				for (let index = 0; index < services.length; index++) {
+					if (!did.hasOwnProperty('service')) {
+						did['service'] = []
+					}
+					const service = services[index]
+					service['id'] = `${didId}#${services[index].type.toLocaleLowerCase()}`
+					did.service?.push(service)
+				}
+			}
 			// const data = JSON.stringify(did, null, 2);
 			return did
 		}
