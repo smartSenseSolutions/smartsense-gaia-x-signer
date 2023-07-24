@@ -1,5 +1,5 @@
-/* eslint-disable no-case-declarations */
 import axios from 'axios'
+/* eslint-disable no-case-declarations */
 import crypto, { X509Certificate } from 'crypto'
 import { createHash } from 'crypto'
 import { Resolver } from 'did-resolver'
@@ -558,11 +558,12 @@ async function verifyGxCompliance(credentialContent: any, res: Response) {
 
 privateRoute.post(
 	'/get/trust-index',
-	check('participant_json_url').not().isEmpty().trim(),
-	check('so_json_url').not().isEmpty().trim(),
+	check('participantVC').not().isEmpty().trim(),
+	check('serviceOfferingVC').not().isEmpty().trim(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			const { participant_json_url: participantUrl, so_json_url: soUrl } = req.body
+			const participantUrl: string = req.body.participantVC
+			const soUrl: string = req.body.serviceOfferingVC
 			let veracityResult
 			try {
 				veracityResult = await calcVeracity(participantUrl)
@@ -586,7 +587,7 @@ privateRoute.post(
 				return
 			}
 
-			const trustIndex = calcTrustIndex(veracity, transparency)
+			const trustIndex: number = calcTrustIndex(veracity, transparency)
 			console.log('trustIndex :-', trustIndex)
 
 			res.status(200).json({
@@ -611,6 +612,7 @@ privateRoute.post(
 const calcVeracity = async (participantUrl: any) => {
 	// get the json document of participant
 	let veracity = 1
+	let keypairDepth = 1
 	let certificateDetails = null
 	try {
 		const participantJson = (await axios.get(participantUrl)).data
@@ -632,28 +634,27 @@ const calcVeracity = async (participantUrl: any) => {
 			} = ddo
 
 			for (const verificationMethod of verificationMethodArray) {
-				if (verificationMethod.id === participantVM && verificationMethod.type === 'JsonWebKey2020') {
-					const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
+				// if (verificationMethod.id === participantVM && verificationMethod.type === 'JsonWebKey2020') {
+				const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
 
-					// get the SSL certificates from x5u url
-					const certificates = (await axios.get(x5u)).data as string
-					// console.log('certificates :- ', certificates)
+				// get the SSL certificates from x5u url
+				const certificates = (await axios.get(x5u)).data as string
+				// console.log('certificates :- ', certificates)
 
-					const certArray = certificates.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g)
-					let keypairDepth = 1
-					if (certArray?.length) {
-						keypairDepth = certArray?.length
-					}
-
-					// getting object of a PEM encoded X509 Certificate.
-					const certificate = new X509Certificate(certificates)
-					certificateDetails = parseCertificate(certificate)
-
-					veracity = +(1 / keypairDepth).toFixed(2) //veracity = 1 / sum(len(keychain))
-					break
+				const certArray = certificates.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g)
+				if (certArray?.length) {
+					keypairDepth += certArray?.length // sum(len(keychain)
 				}
-				console.log(`❌ Participant proof verification method and did verification method id not matched`)
+
+				// getting object of a PEM encoded X509 Certificate.
+				const certificate = new X509Certificate(certificates)
+				certificateDetails = parseCertificate(certificate)
+
+				// break
+				// }
+				// console.log(`❌ Participant proof verification method and did verification method id not matched`)
 			}
+			veracity = +(1 / keypairDepth).toFixed(2) //1 / sum(len(keychain))
 		} else {
 			console.log(`❌ Verifiable Credential array not found in participant vc`)
 		}
@@ -697,24 +698,25 @@ const calcTansperency = async (soUrl: any) => {
 }
 
 const calcTrustIndex = (veracity: number, transparency: number) => {
-	const trustIndex = (veracity + transparency) / 2
+	const trustIndex: number = (veracity + transparency) / 2
 	return trustIndex
 }
 
 const parseCertificate = (certificate: X509Certificate) => {
-	const issuerFieldsString = certificate.issuer
-	const issuerFieldsArray = issuerFieldsString.split('\n')
+	const issuerFieldsString: string = certificate.issuer
+	const issuerFieldsArray: string[] = issuerFieldsString.split('\n')
 
 	const extractFieldValue = (fieldArray: string[], fieldName: string) => {
-		const field = fieldArray.find((line: any) => line.startsWith(`${fieldName}=`))
+		const field: string | undefined = fieldArray.find((line: any) => line.startsWith(`${fieldName}=`))
 		if (field) {
 			return field.slice(fieldName.length + 1)
 		}
 		return null
 	}
 	// Extract individual fields from the subject string
-	const subjectFieldsString = certificate.subject
-	const subjectFieldsArray = subjectFieldsString.split('\n')
+	const subjectFieldsString: string = certificate.subject
+	const subjectFieldsArray: string[] = subjectFieldsString.split('\n')
+
 	const certificateDetails = {
 		validFrom: certificate.validFrom,
 		validTo: certificate.validTo,
@@ -739,5 +741,6 @@ const parseCertificate = (certificate: X509Certificate) => {
 			country: extractFieldValue(issuerFieldsArray, 'C')
 		}
 	}
+
 	return certificateDetails
 }

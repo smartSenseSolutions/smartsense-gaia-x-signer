@@ -55,7 +55,6 @@
 				}
 			}
 		},
-
 		"/onBoardToGaiaX": {
 			"post": {
 				"summary": "On board to Gaia-X",
@@ -732,6 +731,91 @@
 					}
 				}
 			}
+		},
+		"/get/trust-index": {
+			"post": {
+				"summary": "Calculation of Trust index, Veracity & Transperency",
+				"description": "Calculates Trust index, Veracity & Transperency using holder VC and self description of service offering",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GetTrustIndexSchemaBody"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								},
+								"examples": {
+									"trustIndex": {
+										"summary": "Trust index, Veracity & Transperency of service offering",
+										"value": {
+											"data": {
+												"veracity": 0.25,
+												"transparency": 1.4,
+												"trustIndex": 0.825,
+												"certificateDetails": {
+													"validFrom": "Apr 21 00:00:00 2023 GMT",
+													"validTo": "Apr 20 23:59:59 2024 GMT",
+													"subject": {
+														"jurisdictionCountry": "DE",
+														"jurisdictionSate": "Hamburg",
+														"jurisdictionLocality": "Hamburg",
+														"businessCategory": "Private Organization",
+														"serialNumber": "HRB 170364",
+														"country": "DE",
+														"state": "Hamburg",
+														"locality": "Hamburg",
+														"organization": "deltaDAO AG",
+														"commonName": "www.delta-dao.com"
+													},
+													"issuer": {
+														"commonName": "DigiCert EV RSA CA G2",
+														"organization": "DigiCert Inc",
+														"organizationalUnit": null,
+														"locality": null,
+														"state": null,
+														"country": "US"
+													}
+												}
+											},
+											"message": "VP created successfully."
+										}
+									}
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"components": {
@@ -947,6 +1031,19 @@
 								"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Z1Dpf3vT0bL2ZVQFN4RrDoA3RtTvXBrw3bGz_PqGMPgfIKfU4nfwDiLJZosyZDhTyMSt7r4JGZVbfMdRI4NQuAw-INspCKvCkd3K6MMLMOAvA8AFrLQ8BQbMwvLrcXGmnyloIlwhWsJid2-T6_SBDd89oz1E8h3-uMNZdGtf316u6MP2gFbcWQyvL-Cf4Ygl-RvO2donFV5bJ3zmsMg88e9pWn3fwWAU1ZbZKzmPxQqvm4vYQ3MRqVOjbL6ha6IJUZr5hbppW_splx0VbFAlXs1L3zV7HdEmjSBoZN8vTsvTOt1InjL_JrjQDBNmuxOemMifEnm359oBqndd--54Mg"
 							}
 						}
+					}
+				}
+			},
+			"GetTrustIndexSchemaBody": {
+				"required": ["participantVC", "serviceOfferingVC"],
+				"properties": {
+					"participantVC": {
+						"type": "string",
+						"example": "https://www.delta-dao.com/.well-known/participant.json"
+					},
+					"serviceOfferingVC": {
+						"type": "string",
+						"example": "https://delta-dao.com/.well-known/serviceGaiaxDLTNetwork.json"
 					}
 				}
 			}
