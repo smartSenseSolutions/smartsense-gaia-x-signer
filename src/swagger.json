@@ -850,6 +850,22 @@
 					"tenant": {
 						"type": "string",
 						"example": "smart"
+					},
+					"services": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"type": {
+									"type": "string",
+									"example": "CredentialRegistry"
+								},
+								"serviceEndpoint": {
+									"type": "string",
+									"example": "https://ssi.eecc.de/api/registry/vcs"
+								}
+							}
+						}
 					}
 				}
 			},
