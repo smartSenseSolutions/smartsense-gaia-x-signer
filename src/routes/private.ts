@@ -645,9 +645,13 @@ const calcVeracity = async (
 				didDocument: { verificationMethod: verificationMethodArray }
 			} = ddo
 
+			// There can be multiple verification methods in the did document but we have to find the one which has signed the holder vc
+			// So verificationMethod mentioned in the proof of holder VC should have to be equal to the id filed in the verification method
+			// participantVC.json >> proof >> verificationMethod === did.json >> verificationMethodArray >> verificationMethodObject >> id
+
 			for (const verificationMethod of verificationMethodArray) {
-				if (verificationMethod.id === participantVM) {
-					const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
+				if (verificationMethod.id === participantVM && verificationMethod.publicKeyJwk) {
+					const { x5u } = verificationMethod.publicKeyJwk
 
 					// get the SSL certificates from x5u url
 					const certificates = (await axios.get(x5u)).data as string
@@ -666,7 +670,9 @@ const calcVeracity = async (
 				}
 			}
 			if (certificateDetails) {
-				veracity = +(1 / keypairDepth).toFixed(2) //1 / sum(len(keychain))
+				// As per formula(1 / len(keychain)), veracity will be 1 divided by number of signing
+				// keypairs found in the certificate
+				veracity = +(1 / keypairDepth).toFixed(2) //1 / len(keychain)
 				return { veracity, certificateDetails }
 			}
 			console.log(`❌ Participant proof verification method and did verification method id not matched`)
