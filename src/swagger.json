@@ -758,6 +758,7 @@
 									"trustIndex": {
 										"summary": "Trust index, Veracity & Transperency of service offering",
 										"value": {
+											"message": "Success",
 											"data": {
 												"veracity": 0.25,
 												"transparency": 1.4,
@@ -780,14 +781,10 @@
 													"issuer": {
 														"commonName": "DigiCert EV RSA CA G2",
 														"organization": "DigiCert Inc",
-														"organizationalUnit": null,
-														"locality": null,
-														"state": null,
 														"country": "US"
 													}
 												}
-											},
-											"message": "VP created successfully."
+											}
 										}
 									}
 								}
