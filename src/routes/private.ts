@@ -574,24 +574,10 @@ privateRoute.post(
 			const soUrl: string = req.body.serviceOfferingSD
 
 			const veracityResult = await calcVeracity(participantUrl)
-			if (veracityResult == undefined) {
-				res.status(500).json({
-					error: 'Error',
-					message: AppMessages.BAD_DATA
-				})
-				return
-			}
 			const { veracity, certificateDetails } = veracityResult
 
 			const transparency = await calcTransparency(soUrl)
 			console.log('transparency :-', transparency)
-			if (transparency == undefined) {
-				res.status(500).json({
-					error: 'Error',
-					message: AppMessages.BAD_DATA
-				})
-				return
-			}
 
 			const trustIndex: number = calcTrustIndex(veracity, transparency)
 			console.log('trustIndex :-', trustIndex)
@@ -606,7 +592,7 @@ privateRoute.post(
 				}
 			})
 		} catch (error) {
-			console.log(`❌ Calculating trust index failed`)
+			console.log(`❌ ${AppMessages.TRUST_INDEX_CALC_FAILED}`)
 			res.status(500).json({
 				error: (error as Error).message,
 				message: AppMessages.TRUST_INDEX_CALC_FAILED
@@ -635,7 +621,6 @@ const calcVeracity = async (
 			veracity: number
 			certificateDetails: X509CertificateDetail
 	  }
-	| undefined
 > => {
 	try {
 		let veracity = 1
@@ -654,7 +639,7 @@ const calcVeracity = async (
 			if (!ddo) {
 				// Bad Data
 				console.error(`❌ DDO not found for given did: '${holderDID}' in proof`)
-				return undefined
+				throw new Error(`DDO not found for given did: '${holderDID}' in proof`)
 			}
 			const {
 				didDocument: { verificationMethod: verificationMethodArray }
@@ -685,13 +670,13 @@ const calcVeracity = async (
 				return { veracity, certificateDetails }
 			}
 			console.log(`❌ Participant proof verification method and did verification method id not matched`)
-			return undefined
+			throw new Error('Participant proof verification method and did verification method id not matched')
 		}
 		console.error(`❌ Verifiable credential array not found in participant vc`)
-		return undefined
+		throw new Error('Verifiable credential array not found in participant vc')
 	} catch (error) {
 		console.error(`❌ Invalid participant vc url :- error \n`, error)
-		return undefined
+		throw new Error('Invalid participant vc url')
 	}
 }
 
@@ -710,7 +695,7 @@ const calcVeracity = async (
  * @returns Number | undefined - undefined if bad data else returns the transparency value
  */
 
-const calcTransparency = async (soUrl: any): Promise<number | undefined> => {
+const calcTransparency = async (soUrl: any): Promise<number> => {
 	const optionalProps: string[] = ['gx-service-offering:name', 'gx-service-offering:dependsOn', 'gx-service-offering:dataProtectionRegime']
 	const totalMandatoryProps = 5
 	let availOptProps = 0
@@ -728,8 +713,8 @@ const calcTransparency = async (soUrl: any): Promise<number | undefined> => {
 		const transparency: number = (totalMandatoryProps + availOptProps) / totalMandatoryProps
 		return transparency
 	} catch (error) {
-		console.error(`❌ Invalid service offering self description url :- error \n`, error)
-		return undefined
+		console.error(`❌ Invalid service offering self description url :- error \n`)
+		throw error
 	}
 }
 
