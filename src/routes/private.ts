@@ -11,9 +11,9 @@ import jsonld from 'jsonld'
 import typer from 'media-typer'
 import web from 'web-did-resolver'
 
+import { X509CertificateDetail } from '../interface/interface'
 import { Utils } from '../utils/common-functions'
 import { AppConst, AppMessages } from '../utils/constants'
-import { X509CertificateDetail } from '../interface/interface'
 
 // import { PublisherService } from '../utils/service/publisher.service'
 
@@ -224,7 +224,7 @@ privateRoute.post(
 						credentialOffer?.legalAddress
 					)
 				}
-				// normalise
+				// normalize
 				const canonizedSD = await Utils.normalize(
 					jsonld,
 					// eslint-disable-next-line
@@ -368,7 +368,7 @@ privateRoute.post(
 			} else {
 				const { credential, policies } = req.body
 
-				// Check if the credential is of type VerifiableCredential or VerifiablePresentation, and seperate credentialContent and proof accordingly
+				// Check if the credential is of type VerifiableCredential or VerifiablePresentation, and separate credentialContent and proof accordingly
 				let credentialContent, proof
 				if (credential.type.includes('VerifiableCredential')) {
 					proof = credential.proof
@@ -530,7 +530,7 @@ async function verification(credentialContent: any, proof: any, res: Response, c
 	// hash the normalized credential
 	const hash = await Utils.sha256(crypto, canonizedCredential)
 
-	// verify Signature by retriving the hash and then comparing it
+	// verify Signature by retrieving the hash and then comparing it
 	const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk, hash)
 	console.log(verificationResult ? `✅ ${AppMessages.SIG_VERIFY_SUCCESS}` : `❌ ${AppMessages.SIG_VERIFY_FAILED}`)
 	return verificationResult
@@ -567,11 +567,11 @@ async function verifyGxCompliance(credentialContent: any, res: Response) {
 privateRoute.post(
 	'/get/trust-index',
 	check('participantVC').not().isEmpty().trim(),
-	check('serviceOfferingVC').not().isEmpty().trim(),
+	check('serviceOfferingSD').not().isEmpty().trim(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
 			const participantUrl: string = req.body.participantVC
-			const soUrl: string = req.body.serviceOfferingVC
+			const soUrl: string = req.body.serviceOfferingSD
 
 			const veracityResult = await calcVeracity(participantUrl)
 			if (veracityResult == undefined) {
@@ -583,7 +583,7 @@ privateRoute.post(
 			}
 			const { veracity, certificateDetails } = veracityResult
 
-			const transparency = await calcTansperency(soUrl)
+			const transparency = await calcTransparency(soUrl)
 			console.log('transparency :-', transparency)
 			if (transparency == undefined) {
 				res.status(500).json({
@@ -621,7 +621,7 @@ privateRoute.post(
  * VC which has verification method pointing to a particular key https://www.w3.org/TR/vc-data-model/#example-a-simple-example-of-a-verifiable-credential
  * @dev Takes holder vc url as input and calculate veracity
  * @param participantUrl Holder VC url
- * @returns Object | underfined - undefined if bad data else return the veracity value and its certificate details
+ * @returns Object | undefined - undefined if bad data else return the veracity value and its certificate details
  */
 
 const calcVeracity = async (
@@ -698,19 +698,19 @@ const calcVeracity = async (
 /**
  *	@Formula count(properties) / count(mandatoryproperties)
  *	Provided By 			Mandatory	(gx-service-offering:providedBy)
- *	Aggregation Of	 		Mandatory	(gx-service-offering:aggreationOf)
+ *	Aggregation Of	 		Mandatory	(gx-service-offering:aggregationOf)
  *	Terms and Conditions 	Mandatory	(gx-service-offering:termsAndConditions)
  *	Policy	 				Mandatory	(gx-service-offering:policy)
  *	Data Account Export 	Mandatory	(gx-service-offering:dataExport)
  *	Name 					Optional	(gx-service-offering:name)
  *	Depends On	 			Optional  	(gx-service-offering:dependsOn)
  *	Data Protection Regime	Optional	(gx-service-offering:dataProtectionRegime)
- * @dev Takes service offering self description as input and calculates tansperency
+ * @dev Takes service offering self description as input and calculates transparency
  * @param soUrl service offering self description url
- * @returns Number | underfined - undefined if bad data else returns the tansperency value
+ * @returns Number | undefined - undefined if bad data else returns the transparency value
  */
 
-const calcTansperency = async (soUrl: any): Promise<number | undefined> => {
+const calcTransparency = async (soUrl: any): Promise<number | undefined> => {
 	const optionalProps: string[] = ['gx-service-offering:name', 'gx-service-offering:dependsOn', 'gx-service-offering:dataProtectionRegime']
 	const totalMandatoryProps = 5
 	let availOptProps = 0
@@ -725,8 +725,8 @@ const calcTansperency = async (soUrl: any): Promise<number | undefined> => {
 				availOptProps++
 			}
 		}
-		const tansperency: number = (totalMandatoryProps + availOptProps) / totalMandatoryProps
-		return tansperency
+		const transparency: number = (totalMandatoryProps + availOptProps) / totalMandatoryProps
+		return transparency
 	} catch (error) {
 		console.error(`❌ Invalid service offering self description url :- error \n`, error)
 		return undefined
