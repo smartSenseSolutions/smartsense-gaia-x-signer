@@ -291,7 +291,7 @@ privateRoute.post(
 						return
 					}
 					try {
-						await verification(credentialContent, proof, res, true)
+						await verification(credentialContent, proof, res, AppConst.checkSSLwithRegistry)
 					} catch (error) {
 						res.status(422).json({
 							error: 'Signature verification of provided claim failed',
@@ -390,14 +390,15 @@ privateRoute.post(
 					switch (policy) {
 						case AppConst.VERIFY_POLICIES[0]: //checkSignature
 							console.log(`Executing ${policy} policy...`)
-							responseObj.checkSignature = await verification(credentialContent, proof, res, true)
+							responseObj.checkSignature = await verification(credentialContent, proof, res, AppConst.checkSSLwithRegistry)
 							if (typeof responseObj.checkSignature !== 'boolean') return
 							break
 
-						case AppConst.VERIFY_POLICIES[1]: //policy2
+						case AppConst.VERIFY_POLICIES[1]: //gx-Compliance
 							console.log(`Executing ${policy} policy...`)
 							let gxComplianceCheck = await verifyGxCompliance(credentialContent, res)
 							responseObj.gxCompliance = gxComplianceCheck
+							if (typeof responseObj.gxCompliance !== 'boolean') return
 							break
 
 						default:
@@ -425,7 +426,7 @@ privateRoute.post(
 							return
 						}
 						try {
-							await verification(credentialContent, proof, res, true)
+							await verification(credentialContent, proof, res, AppConst.checkSSLwithRegistry)
 						} catch (error) {
 							res.status(400).json({
 								error: (error as Error).message,
@@ -455,9 +456,10 @@ privateRoute.post(
  * @param credentialContent the credential part which will be hashed for proof
  * @param proof the proof obj
  * @param res express response obj
+ * @param checkSSLwithRegistry perform ssl validation with gaiax registry or not
  * @returns boolean - true if the signature is verified
  */
-async function verification(credentialContent: any, proof: any, res: Response, checkSSLwithRegistry: boolean) {
+async function verification(credentialContent: any, proof: any, res: Response, checkSSLwithRegistry: boolean = false) {
 	// check if proof is of type JsonWebSignature2020
 	if (proof.type !== 'JsonWebSignature2020') {
 		console.log(`❌ signature type: '${proof.type}' not supported`)
@@ -479,15 +481,40 @@ async function verification(credentialContent: any, proof: any, res: Response, c
 	}
 
 	// get the public keys from the DID Document
+	if (!ddo.didDocument.verificationMethod[0].publicKeyJwk || !ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u) {
+		res.status(400).json({
+			error: `Compliance credential structure invalid`
+		})
+		return
+	}
 	const publicKeyJwk = ddo.didDocument.verificationMethod[0].publicKeyJwk
 	const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
-
+	let certificates
 	// get the SSL certificates from x5u url
-	const certificates = (await axios.get(x5u)).data as string
+	try {
+		certificates = (await axios.get(x5u)).data as string
+	} catch (e) {
+		console.log(`❌ Couldn't fetch x5u certificate`)
+		res.status(400).json({
+			error: `Couldn't fetch x5u certificate`,
+			message: AppMessages.X5U_FETCH_FAILED
+		})
+		return
+	}
+	if (!certificates.includes('-----BEGIN CERTIFICATE-----') || !certificates.includes('-----END CERTIFICATE-----')) {
+		console.log(`❌ x5u certificate invalid`)
+
+		res.status(400).json({
+			error: `x5u certificate invalid`,
+			message: AppMessages.X5U_VALIDATION_FAILED
+		})
+		return
+	}
 	if (checkSSLwithRegistry) {
 		// signature check against Gaia-x registry
 		const registryRes = await Utils.validateSslFromRegistry(certificates, axios)
 		if (!registryRes) {
+			console.log(`❌ Certificates validation Failed`)
 			res.status(400).json({
 				error: `Certificates validation Failed`,
 				message: AppMessages.CERT_VALIDATION_FAILED
@@ -532,22 +559,68 @@ async function verification(credentialContent: any, proof: any, res: Response, c
 	return verificationResult
 }
 
+/**
+ * @dev Verify if a given credentialContent is compliant with GX standards, and if it's signature is valid.
+ * @param {any} credentialContent - The content of the credential to be verified.
+ * @param {Response} res - The Response object of the request.
+ * @returns {boolean} - Validation status
+ */
 async function verifyGxCompliance(credentialContent: any, res: Response) {
 	let url
+	// get id from compliance credential
 	if (credentialContent.type.includes('VerifiablePresentation')) {
+		if (!credentialContent.verifiableCredential[0].credentialSubject.id) {
+			console.log(`❌ Verifiable Presentation invalid structure`)
+
+			res.status(400).json({
+				error: `Verifiable Presentation invalid structure`
+			})
+			return
+		}
 		url = credentialContent.verifiableCredential[0].credentialSubject.id
 	} else {
+		if (!credentialContent.credentialSubject.id) {
+			console.log(`❌ Verifiable Credential invalid structure`)
+			res.status(400).json({
+				error: `Verifiable Credential invalid structure`
+			})
+			return
+		}
 		url = credentialContent.credentialSubject.id
 	}
+	let participantJson
+	// fetch compliance credential from the id
+	try {
+		participantJson = await axios.get(url)
+	} catch (e) {
+		console.log(`❌ Invalid id in credential subject`)
 
-	const participantJson = await axios.get(url)
+		res.status(400).json({
+			error: `Invalid id in credential subject`
+		})
+		return
+	}
+	// checking compliance credential has no missing values
+	if (
+		!participantJson.data.complianceCredential ||
+		!participantJson.data.complianceCredential.proof ||
+		!participantJson.data.selfDescriptionCredential.verifiableCredential[0] ||
+		!participantJson.data.complianceCredential.credentialSubject[0].integrity
+	) {
+		console.log(`❌ Compliance Credential Structure Invalid`)
+
+		res.status(400).json({
+			error: `Compliance Credential Structure Invalid`
+		})
+		return
+	}
 	const compCred = participantJson.data.complianceCredential
 	const gxProof = compCred.proof
 	delete compCred.proof
 	const gxCred = compCred
 
 	// verify signature
-	const signVerify = await verification(gxCred, gxProof, res, false)
+	const signVerify = await verification(gxCred, gxProof, res)
 
 	// verify integrity hash
 	const vcToHash = participantJson.data.selfDescriptionCredential.verifiableCredential[0]
