@@ -1,5 +1,5 @@
-/* eslint-disable no-case-declarations */
 import axios from 'axios'
+/* eslint-disable no-case-declarations */
 import crypto, { X509Certificate } from 'crypto'
 import { createHash } from 'crypto'
 import { Resolver } from 'did-resolver'
@@ -11,6 +11,7 @@ import jsonld from 'jsonld'
 import typer from 'media-typer'
 import web from 'web-did-resolver'
 
+import { X509CertificateDetail } from '../interface/interface'
 import { Utils } from '../utils/common-functions'
 import { AppConst, AppMessages } from '../utils/constants'
 
@@ -217,7 +218,7 @@ privateRoute.post(
 						''
 					)
 				}
-				// normalise
+				// normalize
 				const canonizedSD = await Utils.normalize(
 					jsonld,
 					// eslint-disable-next-line
@@ -361,7 +362,7 @@ privateRoute.post(
 			} else {
 				const { credential, policies } = req.body
 
-				// Check if the credential is of type VerifiableCredential or VerifiablePresentation, and seperate credentialContent and proof accordingly
+				// Check if the credential is of type VerifiableCredential or VerifiablePresentation, and separate credentialContent and proof accordingly
 				let credentialContent, proof
 				if (credential.type.includes('VerifiableCredential')) {
 					proof = credential.proof
@@ -523,7 +524,7 @@ async function verification(credentialContent: any, proof: any, res: Response, c
 	// hash the normalized credential
 	const hash = await Utils.sha256(crypto, canonizedCredential)
 
-	// verify Signature by retriving the hash and then comparing it
+	// verify Signature by retrieving the hash and then comparing it
 	const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk, hash)
 	console.log(verificationResult ? `✅ ${AppMessages.SIG_VERIFY_SUCCESS}` : `❌ ${AppMessages.SIG_VERIFY_FAILED}`)
 	return verificationResult
@@ -559,35 +560,27 @@ async function verifyGxCompliance(credentialContent: any, res: Response) {
 
 privateRoute.post(
 	'/get/trust-index',
-	check('participant_json_url').not().isEmpty().trim(),
-	check('so_json_url').not().isEmpty().trim(),
+	check('participantSD').not().isEmpty().trim(),
+	check('serviceOfferingSD').not().isEmpty().trim(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			const { participant_json_url: participantUrl, so_json_url: soUrl } = req.body
-			let veracityResult
-			try {
-				veracityResult = await calcVeracity(participantUrl)
-			} catch (error) {
-				res.status(500).json({
-					error: 'Error',
-					message: AppMessages.PARTICIPANT_DID_FETCH_FAILED
-				})
-				return
+			const { participantSD, serviceOfferingSD } = req.body
+			if (!Utils.IsValidURL(participantSD)) {
+				console.error(`❌ Invalid participant self description url format`)
+				throw new Error('Invalid participant self description url format')
 			}
-			const { veracity, certificateDetails } = veracityResult
-			let transparency = 1
-			try {
-				transparency = await calcTansperency(soUrl)
-				console.log('transparency :-', transparency)
-			} catch (error) {
-				res.status(500).json({
-					error: 'Error',
-					message: AppMessages.SO_SD_FETCH_FAILED
-				})
-				return
+			if (!Utils.IsValidURL(serviceOfferingSD)) {
+				console.error(`❌ Invalid service offering self description url format`)
+				throw new Error('Invalid service offering self description url format')
 			}
 
-			const trustIndex = calcTrustIndex(veracity, transparency)
+			const veracityResult = await calcVeracity(participantSD)
+			const { veracity, certificateDetails } = veracityResult
+
+			const transparency: number = await calcTransparency(serviceOfferingSD)
+			console.log('transparency :-', transparency)
+
+			const trustIndex: number = calcTrustIndex(veracity, transparency)
 			console.log('trustIndex :-', trustIndex)
 
 			res.status(200).json({
@@ -600,83 +593,116 @@ privateRoute.post(
 				}
 			})
 		} catch (error) {
-			console.log(error)
+			console.error(`❌ ${AppMessages.TRUST_INDEX_CALC_FAILED} : ${error}`)
 			res.status(500).json({
 				error: (error as Error).message,
-				message: AppMessages.PARTICIPANT_VC_FOUND_FAILED
+				message: AppMessages.TRUST_INDEX_CALC_FAILED
 			})
 		}
 	}
 )
 
-const calcVeracity = async (participantUrl: any) => {
-	// get the json document of participant
-	let veracity = 1
-	let certificateDetails = null
+/**
+ * @RefLinks
+ * DID web with multiple keys https://www.w3.org/TR/did-core/#example-did-document-with-many-different-key-types
+ * VC which has verification method pointing to a particular key https://www.w3.org/TR/vc-data-model/#example-a-simple-example-of-a-verifiable-credential
+ * @dev Takes holder self description url as input and calculate veracity
+ * @param participantUrl Holder self description url
+ * @returns Object | undefined - undefined if bad data else return the veracity value and its certificate details
+ */
+
+const calcVeracity = async (
+	participantUrl: any
+): Promise<
+	| {
+			veracity: number
+			certificateDetails: null
+	  }
+	| {
+			veracity: number
+			certificateDetails: X509CertificateDetail
+	  }
+> => {
 	try {
+		let veracity = 1
+		let keypairDepth = 1
+		let certificateDetails = null
 		const participantJson = (await axios.get(participantUrl)).data
 		if (participantJson && participantJson.verifiableCredential.length) {
-			const participantVC = participantJson.verifiableCredential[0]
+			const participantSD = participantJson.verifiableCredential[0]
 			const {
 				id: holderDID,
 				proof: { verificationMethod: participantVM }
-			} = participantVC
+			} = participantSD
 			console.log(`holderDID :-${holderDID}  holderDID :- ${participantVM}`)
 
 			const ddo = await Utils.getDDOfromDID(holderDID, resolver)
 			if (!ddo) {
-				console.log(`❌ DDO not found for given did: '${holderDID}' in proof`)
-				return { veracity, certificateDetails }
+				// Bad Data
+				console.error(`❌ DDO not found for given did: '${holderDID}' in proof`)
+				throw new Error(`DDO not found for given did: '${holderDID}' in proof`)
 			}
 			const {
 				didDocument: { verificationMethod: verificationMethodArray }
 			} = ddo
 
+			// There can be multiple verification methods in the did document but we have to find the one which has signed the holder vc
+			// So verificationMethod mentioned in the proof of holder SD should have to be equal to the id filed in the verification method
+			// participantSD.json >> proof >> verificationMethod === did.json >> verificationMethodArray >> verificationMethodObject >> id
+
 			for (const verificationMethod of verificationMethodArray) {
-				if (verificationMethod.id === participantVM && verificationMethod.type === 'JsonWebKey2020') {
-					const x5u = ddo.didDocument.verificationMethod[0].publicKeyJwk.x5u
+				if (verificationMethod.id === participantVM && verificationMethod.publicKeyJwk) {
+					const { x5u } = verificationMethod.publicKeyJwk
 
 					// get the SSL certificates from x5u url
 					const certificates = (await axios.get(x5u)).data as string
 					// console.log('certificates :- ', certificates)
 
 					const certArray = certificates.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g)
-					let keypairDepth = 1
 					if (certArray?.length) {
-						keypairDepth = certArray?.length
+						keypairDepth += certArray?.length // sum(len(keychain)
 					}
 
 					// getting object of a PEM encoded X509 Certificate.
 					const certificate = new X509Certificate(certificates)
 					certificateDetails = parseCertificate(certificate)
 
-					veracity = +(1 / keypairDepth).toFixed(2) //veracity = 1 / sum(len(keychain))
 					break
 				}
-				console.log(`❌ Participant proof verification method and did verification method id not matched`)
 			}
-		} else {
-			console.log(`❌ Verifiable Credential array not found in participant vc`)
+			if (certificateDetails) {
+				// As per formula(1 / len(keychain)), veracity will be 1 divided by number of signing
+				// keypairs found in the certificate
+				veracity = +(1 / keypairDepth).toFixed(2) //1 / len(keychain)
+				return { veracity, certificateDetails }
+			}
+			console.error(`❌ Participant proof verification method and did verification method id not matched`)
+			throw new Error('Participant proof verification method and did verification method id not matched')
 		}
+		console.error(`❌ Verifiable credential array not found in participant self description`)
+		throw new Error('Verifiable credential array not found in participant self description')
 	} catch (error) {
-		console.error(`❌ Invalid participant vc url :- error \n`, error)
+		console.error(error)
+		throw error
 	}
-	return { veracity, certificateDetails }
 }
 
-/*
-	Formula: count(properties) / count(mandatoryproperties)
-	Provided By 			Mandatory	(gx-service-offering:providedBy)
-	Aggregation Of	 		Mandatory	(gx-service-offering:aggreationOf)
-	Terms and Conditions 	Mandatory	(gx-service-offering:termsAndConditions)
-	Policy	 				Mandatory	(gx-service-offering:policy)
-	Data Account Export 	Mandatory	(gx-service-offering:dataExport)
-	Name 					Optional	(gx-service-offering:name)
-	Depends On	 			Optional  	(gx-service-offering:dependsOn)
-	Data Protection Regime	Optional	(gx-service-offering:dataProtectionRegime)
-*/
-const calcTansperency = async (soUrl: any) => {
-	const optionalProps = ['gx-service-offering:name', 'gx-service-offering:dependsOn', 'gx-service-offering:dataProtectionRegime']
+/**
+ *	@Formula count(properties) / count(mandatoryproperties)
+ *	Provided By 			Mandatory	(gx-service-offering:providedBy)
+ *	Aggregation Of	 		Mandatory	(gx-service-offering:aggregationOf)
+ *	Terms and Conditions 	Mandatory	(gx-service-offering:termsAndConditions)
+ *	Policy	 				Mandatory	(gx-service-offering:policy)
+ *	Data Account Export 	Mandatory	(gx-service-offering:dataExport)
+ *	Name 					Optional	(gx-service-offering:name)
+ *	Depends On	 			Optional  	(gx-service-offering:dependsOn)
+ *	Data Protection Regime	Optional	(gx-service-offering:dataProtectionRegime)
+ * @dev Takes service offering self description as input and calculates transparency
+ * @param soUrl service offering self description url
+ * @returns Number | undefined - undefined if bad data else returns the transparency value
+ */
+const calcTransparency = async (soUrl: any): Promise<number> => {
+	const optionalProps: string[] = ['gx-service-offering:name', 'gx-service-offering:dependsOn', 'gx-service-offering:dataProtectionRegime']
 	const totalMandatoryProps = 5
 	let availOptProps = 0
 	try {
@@ -690,33 +716,47 @@ const calcTansperency = async (soUrl: any) => {
 				availOptProps++
 			}
 		}
-		const tansperency = (totalMandatoryProps + availOptProps) / totalMandatoryProps
-		return tansperency
+		const transparency: number = (totalMandatoryProps + availOptProps) / totalMandatoryProps
+		return transparency
 	} catch (error) {
-		return 0
+		console.error(`❌ Invalid service offering self description url :- error \n`)
+		throw error
 	}
 }
 
-const calcTrustIndex = (veracity: number, transparency: number) => {
-	const trustIndex = (veracity + transparency) / 2
+/**
+ * @formula trust_index = mean(veracity, transparency)
+ * @dev takes the veracity and transparency as input and calculates trust index
+ * @param veracity Veracity value
+ * @param transparency Transparency value
+ * @returns number - Trust index value
+ */
+const calcTrustIndex = (veracity: number, transparency: number): number => {
+	const trustIndex: number = (veracity + transparency) / 2
 	return trustIndex
 }
 
-const parseCertificate = (certificate: X509Certificate) => {
-	const issuerFieldsString = certificate.issuer
-	const issuerFieldsArray = issuerFieldsString.split('\n')
+/**
+ * @dev Helps to parse and format x509Certificate data to return in response
+ * @param certificate X509Certificate object
+ * @returns X509CertificateDetail - Formatted X509Certificate object
+ */
+const parseCertificate = (certificate: X509Certificate): X509CertificateDetail => {
+	const issuerFieldsString: string = certificate.issuer
+	const issuerFieldsArray: string[] = issuerFieldsString.split('\n')
 
 	const extractFieldValue = (fieldArray: string[], fieldName: string) => {
-		const field = fieldArray.find((line: any) => line.startsWith(`${fieldName}=`))
+		const field: string | undefined = fieldArray.find((line: any) => line.startsWith(`${fieldName}=`))
 		if (field) {
 			return field.slice(fieldName.length + 1)
 		}
 		return null
 	}
 	// Extract individual fields from the subject string
-	const subjectFieldsString = certificate.subject
-	const subjectFieldsArray = subjectFieldsString.split('\n')
-	const certificateDetails = {
+	const subjectFieldsString: string = certificate.subject
+	const subjectFieldsArray: string[] = subjectFieldsString.split('\n')
+
+	const certificateDetails: X509CertificateDetail = {
 		validFrom: certificate.validFrom,
 		validTo: certificate.validTo,
 		subject: {
@@ -734,11 +774,9 @@ const parseCertificate = (certificate: X509Certificate) => {
 		issuer: {
 			commonName: extractFieldValue(issuerFieldsArray, 'CN'),
 			organization: extractFieldValue(issuerFieldsArray, 'O'),
-			organizationalUnit: extractFieldValue(issuerFieldsArray, 'OU'),
-			locality: extractFieldValue(issuerFieldsArray, 'L'),
-			state: extractFieldValue(issuerFieldsArray, 'ST'),
 			country: extractFieldValue(issuerFieldsArray, 'C')
 		}
 	}
+
 	return certificateDetails
 }

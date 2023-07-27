@@ -30,4 +30,6 @@ export class AppMessages {
 	static readonly PARTICIPANT_DID_FETCH_FAILED = 'Participant DID fetching failed'
 	static readonly PARTICIPANT_VC_FOUND_FAILED = 'Participant VC not found'
 	static readonly SO_SD_FETCH_FAILED = 'Service offering self description fetching failed'
+	static readonly BAD_DATA = 'Bad data'
+	static readonly TRUST_INDEX_CALC_FAILED = 'Trust index calculation failed'
 }
