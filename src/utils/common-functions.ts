@@ -98,31 +98,8 @@ namespace CommonFunctions {
 				}
 				console.log(request)
 				const regVC = await axios.post(`${process.env.REGISTRATION_SERVICE as string}?vcid=${legalRegistrationNumberVCUrl}`, request)
-				console.log(JSON.stringify(regVC.data))
+				// console.log(JSON.stringify(regVC.data))
 				return regVC.data
-
-				// const regVC = {
-				// 	'@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/security/suites/jws-2020/v1'],
-				// 	type: 'VerifiableCredential',
-				// 	id: didId,
-				// 	issuer: didId,
-				// 	issuanceDate: new Date().toISOString(),
-				// 	credentialSubject: {
-				// 		'@context': 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#',
-				// 		type: 'gx:legalRegistrationNumber',
-				// 		id: legalRegistrationNumberVCUrl,
-				// 		[`gx:${legalRegistrationType}`]: legalRegistrationNumber,
-				// 		'gx:vatID-countryCode': 'BE'
-				// 	},
-				// 	evidence: [
-				// 		{
-				// 			'gx:evidenceURL': 'http://ec.europa.eu/taxation_customs/vies/services/checkVatService',
-				// 			'gx:executionDate': new Date().toISOString(),
-				// 			'gx:evidenceOf': 'gx:vatID'
-				// 		}
-				// 	]
-				// }
-				// return regVC
 			} catch (error) {
 				console.log(`❌ RegistrationNumber failed | Error: ${error}`)
 				return null
@@ -187,8 +164,8 @@ namespace CommonFunctions {
 			const hash = this.sha256(crypto, canonizedSD)
 			console.log(`📈 Hashed canonized SD ${hash}`)
 
-			// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-			const privateKey = process.env.PRIVATE_KEY as string
+			const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+			// const privateKey = process.env.PRIVATE_KEY as string
 			const proof = await this.createProof(jose, didId, rsaAlso, hash, privateKey)
 			console.log(proof ? '🔒 SD signed successfully' : '❌ SD signing failed')
 			const x5uURL = tenant ? `https://${domain}/${tenant}/x509CertificateChain.pem` : `https://${domain}/.well-known/x509CertificateChain.pem`
