@@ -30,7 +30,7 @@ namespace CommonFunctions {
 			return did
 		}
 
-		generateLegalPerson(participantURL: string, didId: string, legalName: string, headquarterAddress: string, legalAddress: string): object {
+		generateLegalPerson(participantURL: string, didId: string, legalName: string, headquarterAddress: string, legalAddress: string,legalRegistrationNumberVCUrl:string): object {
 			const selfDescription = {
 				'@context': 'https://www.w3.org/2018/credentials/v1',
 				type: ['VerifiablePresentation'],
@@ -50,7 +50,7 @@ namespace CommonFunctions {
 							type: 'gx:LegalParticipant',
 							'gx:legalName': legalName,
 							'gx:legalRegistrationNumber': {
-								id: 'https://gaia-x.eu/legalRegistrationNumberVC.json'
+								id: legalRegistrationNumberVCUrl
 							},
 							'gx:headquarterAddress': {
 								'gx:countrySubdivisionCode': headquarterAddress
@@ -65,7 +65,7 @@ namespace CommonFunctions {
 			return selfDescription
 		}
 
-		async generateTermsAndConditions(axios: any, didId: string) {
+		async generateTermsAndConditions(axios: any, didId: string,tandcsURL:string) {
 			// const { text } = (await axios.get(`${process.env.REGISTRY_TRUST_ANCHOR_URL as string}/termsAndConditions`)).data
 			const verifiableCredential = {
 				'@context': [
@@ -80,7 +80,7 @@ namespace CommonFunctions {
 					type: 'gx:GaiaXTermsAndConditions',
 					// 'gx:termsAndConditions': text,
 					'gx:termsAndConditions': "The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD).",
-					id: didId
+					id: tandcsURL
 				},
 				issuer: didId,
 				id: didId
@@ -88,39 +88,41 @@ namespace CommonFunctions {
 			return verifiableCredential
 		}
 
-		async generateRegistrationNumber(axios: any, didId: string, legalRegistrationType: string, legalRegistrationNumber: string) {
+		async generateRegistrationNumber(axios: any, didId: string, legalRegistrationType: string, legalRegistrationNumber: string,legalRegistrationNumberVCUrl:string) {
 			try {
-				// const request = {
-				// 	'@context': ['https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant'],
-				// 	type: 'gx:legalRegistrationNumber',
-				// 	id: 'https://gaia-x.eu/legalRegistrationNumberVC.json',
-				// 	[`gx:${legalRegistrationType}`]: legalRegistrationNumber
-				// }
-				// const regVC = await axios.post(`${process.env.REGISTRATION_SERVICE as string}`, request)
-				// return regVC.data
-
-				const regVC = {
-					'@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/security/suites/jws-2020/v1'],
-					type: 'VerifiableCredential',
-					id: 'https://gaia-x.eu/legalRegistrationNumberVC.json',
-					issuer: didId,
-					issuanceDate: new Date().toISOString(),
-					credentialSubject: {
-						'@context': 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#',
-						type: 'gx:legalRegistrationNumber',
-						id: 'https://gaia-x.eu/legalRegistrationNumberVC.json',
-						[`gx:${legalRegistrationType}`]: legalRegistrationNumber,
-						'gx:vatID-countryCode': 'BE'
-					},
-					evidence: [
-						{
-							'gx:evidenceURL': 'http://ec.europa.eu/taxation_customs/vies/services/checkVatService',
-							'gx:executionDate': new Date().toISOString(),
-							'gx:evidenceOf': 'gx:vatID'
-						}
-					]
+				const request = {
+					'@context': ['https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant'],
+					type: 'gx:legalRegistrationNumber',
+					id: legalRegistrationNumberVCUrl,
+					[`gx:${legalRegistrationType}`]: legalRegistrationNumber
 				}
-				return regVC
+				console.log(request)
+				const regVC = await axios.post(`${process.env.REGISTRATION_SERVICE as string}?vcid=${legalRegistrationNumberVCUrl}`, request)
+				console.log(JSON.stringify(regVC.data))
+				return regVC.data
+
+				// const regVC = {
+				// 	'@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/security/suites/jws-2020/v1'],
+				// 	type: 'VerifiableCredential',
+				// 	id: didId,
+				// 	issuer: didId,
+				// 	issuanceDate: new Date().toISOString(),
+				// 	credentialSubject: {
+				// 		'@context': 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#',
+				// 		type: 'gx:legalRegistrationNumber',
+				// 		id: legalRegistrationNumberVCUrl,
+				// 		[`gx:${legalRegistrationType}`]: legalRegistrationNumber,
+				// 		'gx:vatID-countryCode': 'BE'
+				// 	},
+				// 	evidence: [
+				// 		{
+				// 			'gx:evidenceURL': 'http://ec.europa.eu/taxation_customs/vies/services/checkVatService',
+				// 			'gx:executionDate': new Date().toISOString(),
+				// 			'gx:evidenceOf': 'gx:vatID'
+				// 		}
+				// 	]
+				// }
+				// return regVC
 			} catch (error) {
 				console.log(`❌ RegistrationNumber failed | Error: ${error}`)
 				return null

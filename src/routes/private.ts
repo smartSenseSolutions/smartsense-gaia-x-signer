@@ -117,9 +117,11 @@ privateRoute.post(
 				let selfDescription: any = null
 				if (templateId === AppConst.LEGAL_PARTICIPANT) {
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
-					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, headquarterAddress, legalAddress)
-					const regVC = (await Utils.generateRegistrationNumber(axios, didId, legalRegistrationType, legalRegistrationNumber))
-					const termsVC = await Utils.generateTermsAndConditions(axios, didId)
+					const legalRegistrationNumberVCUrl = tenant ? `https://${domain}/${tenant}/legalRegistrationNumberVC.json` : `https://${domain}/.well-known/legalRegistrationNumberVC.json`
+					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, headquarterAddress, legalAddress,legalRegistrationNumberVCUrl)
+					const regVC = (await Utils.generateRegistrationNumber(axios, didId, legalRegistrationType, legalRegistrationNumber,legalRegistrationNumberVCUrl))
+					const tandcsURL = tenant ? `https://${domain}/${tenant}/tandcs.json` : `https://${domain}/.well-known/tandcs.json`
+					const termsVC = await Utils.generateTermsAndConditions(axios, didId,tandcsURL)
 					selfDescription['verifiableCredential'].push(regVC, termsVC)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
 					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
@@ -138,11 +140,10 @@ privateRoute.post(
 				}
 				for (let index = 0; index < selfDescription['verifiableCredential'].length; index++) {
 					const vc = selfDescription['verifiableCredential'][index]
-					delete selfDescription['verifiableCredential'][index].proof
-					// if (!selfDescription['verifiableCredential'][index].hasOwnProperty('proof')) {
+					if (!selfDescription['verifiableCredential'][index].hasOwnProperty('proof')) {
 						const proof = await Utils.generateProof(jsonld, he, axios, jose,crypto, vc, privateKeyUrl, didId, domain, tenant, AppConst.RSA_ALGO)
 						selfDescription['verifiableCredential'][index].proof = proof
-					// }
+					}
 				}
 				console.log(JSON.stringify(selfDescription))
 				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
@@ -213,7 +214,8 @@ privateRoute.post(
 						issuerDid,
 						credentialOffer?.legalName,
 						credentialOffer?.headquarterAddress,
-						credentialOffer?.legalAddress
+						credentialOffer?.legalAddress,
+						''
 					)
 				}
 				// normalise
