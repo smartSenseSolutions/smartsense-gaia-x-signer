@@ -117,39 +117,35 @@ privateRoute.post(
 				let selfDescription: any = null
 				if (templateId === AppConst.LEGAL_PARTICIPANT) {
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
-					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress)
+					const legalRegistrationNumberVCUrl = tenant ? `https://${domain}/${tenant}/legalRegistrationNumberVC.json` : `https://${domain}/.well-known/legalRegistrationNumberVC.json`
+					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, headquarterAddress, legalAddress,legalRegistrationNumberVCUrl)
+					const regVC = (await Utils.generateRegistrationNumber(axios, didId, legalRegistrationType, legalRegistrationNumber,legalRegistrationNumberVCUrl))
+					const tandcsURL = tenant ? `https://${domain}/${tenant}/tandcs.json` : `https://${domain}/.well-known/tandcs.json`
+					const termsVC = await Utils.generateTermsAndConditions(axios, didId,tandcsURL)
+					selfDescription['verifiableCredential'].push(regVC, termsVC)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
 					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
 					const serviceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${data.fileName}`
 					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data)
 					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
-					selfDescription.verifiableCredential.push(selfDescriptionCredential.verifiableCredential[0])
+					for (let index = 0; index < selfDescriptionCredential.verifiableCredential.length; index++) {
+						const vc = selfDescriptionCredential.verifiableCredential[index];
+						selfDescription.verifiableCredential.push(vc)	
+					}
 				} else {
 					res.status(422).json({
 						error: `Type Not Supported`,
 						message: AppMessages.DID_VALIDATION
 					})
 				}
-				const canonizedSD = await Utils.normalize(
-					jsonld,
-					// eslint-disable-next-line
-					selfDescription['verifiableCredential'][0]
-				)
-				const hash = Utils.sha256(crypto, canonizedSD)
-				console.log(`📈 Hashed canonized SD ${hash}`)
-
-				const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-				// const privateKey = process.env.PRIVATE_KEY as string
-				const proof = await Utils.createProof(jose, didId, AppConst.RSA_ALGO, hash, privateKey)
-				console.log(proof ? '🔒 SD signed successfully' : '❌ SD signing failed')
-				const x5uURL = tenant ? `https://${domain}/${tenant}/x509CertificateChain.pem` : `https://${domain}/.well-known/x509CertificateChain.pem`
-				const certificate = (await axios.get(x5uURL)).data as string
-				const publicKeyJwk = await Utils.generatePublicJWK(jose, AppConst.RSA_ALGO, certificate, x5uURL)
-
-				const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk, hash)
-				console.log(verificationResult ? '✅ Verification successful' : '❌ Verification failed')
-
-				selfDescription['verifiableCredential'][0].proof = proof
+				for (let index = 0; index < selfDescription['verifiableCredential'].length; index++) {
+					const vc = selfDescription['verifiableCredential'][index]
+					if (!selfDescription['verifiableCredential'][index].hasOwnProperty('proof')) {
+						const proof = await Utils.generateProof(jsonld, he, axios, jose,crypto, vc, privateKeyUrl, didId, domain, tenant, AppConst.RSA_ALGO)
+						selfDescription['verifiableCredential'][index].proof = proof
+					}
+				}
+				console.log(JSON.stringify(selfDescription))
 				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
 				// const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
@@ -168,7 +164,7 @@ privateRoute.post(
 			if (error.response) {
 				// The request was made and the server responded with a status code
 				// that falls out of the range of 2xx
-				console.log(error.response.data)
+				console.log(JSON.stringify(error.response.data))
 				console.log(error.response.status)
 				console.log(error.response.headers)
 			} else if (error.request) {
@@ -217,10 +213,9 @@ privateRoute.post(
 						subjectDid,
 						issuerDid,
 						credentialOffer?.legalName,
-						credentialOffer?.legalRegistrationType,
-						credentialOffer?.legalRegistrationNumber,
 						credentialOffer?.headquarterAddress,
-						credentialOffer?.legalAddress
+						credentialOffer?.legalAddress,
+						''
 					)
 				}
 				// normalise

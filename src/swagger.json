@@ -4,7 +4,6 @@
 		"title": "REST API for SmartSense Gaia-X Signer Tool",
 		"version": "1.0.0"
 	},
-	"schemes": ["http"],
 	"servers": [{ "url": "http://localhost:8000/" }],
 	"paths": {
 		"/createWebDID": {
@@ -70,17 +69,132 @@
 							"examples": {
 								"LegalParticipant": {
 									"value": {
-										"domain": "dev.smartproof.in",
-										"tenant": "smart",
+										"domain": "greenworld.proofsense.in",
 										"templateId": "LegalParticipant",
 										"privateKeyUrl": "https://example.com",
 										"data": {
-											"legalName": "Smart Proof",
-											"legalRegistrationType": "taxID",
-											"legalRegistrationNumber": "0762747721",
+											"legalName": "Green World",
+											"legalRegistrationType": "vatID",
+											"legalRegistrationNumber": "FR79537407926",
 											"headquarterAddress": "BE-BRU",
 											"legalAddress": "BE-BRU"
 										}
+									}
+								},
+								"ServiceOffering": {
+									"value": {
+										"domain": "dev.smartproof.in",
+										"tenant": "smart",
+										"templateId": "ServiceOffering",
+										"privateKeyUrl": "https://example.com",
+										"data": {
+											"name": "AWS S3 Service",
+											"fileName": "s3Service.json",
+											"description": "Amazon S3 bucket is a public cloud storage resource.",
+											"policyUrl": "https://aws.amazon.com/privacy/?nc1=f_pr",
+											"termsAndConditionsUrl": "https://aws.amazon.com/service-terms/",
+											"termsAndConditionsHash": "4f598faf41fb29a44d63ec413730d55fabd2d249f1976fee1c8eec8003d7f539",
+											"requestType": "API",
+											"accessType": "digital",
+											"formatType": "application/json"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+
+		"/v1/onBoardToGaiaX": {
+			"post": {
+				"summary": "On board to Gaia-X v1",
+				"description": "Generate Legal Person and Service Offer Credentials",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/OnBoardGaiaXSchemaBody"
+							},
+							"examples": {
+								"LegalParticipant": {
+									"value": {
+										"templateId": "LegalParticipant",
+										"privateKeyUrl": "https://example.com",
+										"vcs": [
+											{
+												"@context": ["https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant"],
+												"type": "gx:legalRegistrationNumber",
+												"id": "did:web:gaia-x.eu:legalRegistrationNumber.json",
+												"gx:vatID": "FR79537407926"
+											},
+											{
+												"@context": [
+													"https://www.w3.org/2018/credentials/v1",
+													"https://w3id.org/security/suites/jws-2020/v1",
+													"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+												],
+												"type": ["VerifiableCredential"],
+												"id": "did:web:dev.smartproof.in",
+												"issuer": "did:web:dev.smartproof.in",
+												"issuanceDate": "2023-07-12T08:58:07.859Z",
+												"credentialSubject": {
+													"type": "gx:LegalParticipant",
+													"gx:legalName": "Gaia-X European Association for Data and Cloud AISBL",
+													"gx:legalRegistrationNumber": {
+														"id": "https://gaia-x.eu/legalRegistrationNumberVC.json"
+													},
+													"gx:headquarterAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													},
+													"gx:legalAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													},
+													"id": "https://dev.smartproof.in/.well-known/participant.json"
+												}
+											},
+											{
+												"@context": [
+													"https://www.w3.org/2018/credentials/v1",
+													"https://w3id.org/security/suites/jws-2020/v1",
+													"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+												],
+												"type": ["VerifiableCredential"],
+												"id": "did:web:dev.smartproof.in",
+												"issuer": "did:web:dev.smartproof.in",
+												"issuanceDate": "2023-07-12T09:11:30.604Z",
+												"credentialSubject": {
+													"@context": "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#",
+													"type": "gx:GaiaXTermsAndConditions",
+													"id": "https://dev.smartproof.in/.well-known/did.json",
+													"gx:termsAndConditions": "The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD)."
+												}
+											}
+										]
 									}
 								},
 								"ServiceOffering": {
@@ -461,9 +575,9 @@
 														"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..IIhb0E7Zhnh6bj9vuBaKoX2UaR9ZB248HwBPq-1RilmJmHzUQR19556b6XdosXl4WNJ8f0GBnACbUSETYsUOVcEe91YAhqQSF7RYl7-flGmtDsbpKtWR8XXCW7WCBQCQ2-LY0l7bvOy1_92YqiL60JQeo-6HAGb7xXwaREfLI2DD5kRLb7dCd3_UXtIRo9_qTawH4BWCxWT8QjUKcBregNd0derLvyaxGEokJacpQs3jUsFMlqfbpxYhmBpBYP6A3I_Wyzu5CtQNSM7FkKbsR8dsbd0jAU1MuMp4JO4TAIdZ1AgjbyF5vQr6ZSsvISRG1V_GVkNlqhaZVpiHwEQGBw"
 													}
 												}
-											}
-										},
-										"message": "VP created successfully."
+											},
+											"message": "VP created successfully."
+										}
 									}
 								}
 							}
@@ -790,11 +904,11 @@
 				"properties": {
 					"domain": {
 						"type": "string",
-						"example": "dev.smartproof.in"
+						"example": "gaiaxapi.proofsense.in"
 					},
 					"tenant": {
 						"type": "string",
-						"example": "smart"
+						"example": "Hella"
 					},
 					"templateId": {
 						"type": "string",
@@ -814,11 +928,11 @@
 				"properties": {
 					"issuerDid": {
 						"type": "string",
-						"example": "did:web:dev.smartproof.in"
+						"example": "did:web:gaiaxapi.proofsense.in:Hella"
 					},
 					"subjectDid": {
 						"type": "string",
-						"example": "did:web:dev.smartproof.in"
+						"example": "did:web:gaiaxapi.proofsense.in:Hella"
 					},
 
 					"templateId": {
@@ -835,15 +949,15 @@
 						"properties": {
 							"legalName": {
 								"type": "string",
-								"example": "Smart Proof"
+								"example": "Hella"
 							},
 							"legalRegistrationType": {
 								"type": "string",
-								"example": "taxID"
+								"example": "vatID"
 							},
 							"legalRegistrationNumber": {
 								"type": "string",
-								"example": "0762747721"
+								"example": "FR79537407926"
 							},
 							"headquarterAddress": {
 								"type": "string",
