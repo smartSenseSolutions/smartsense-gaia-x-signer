@@ -566,17 +566,24 @@ async function verifyGxCompliance(credentialContent: any, res: Response) {
 
 privateRoute.post(
 	'/get/trust-index',
-	check('participantVC').not().isEmpty().trim(),
+	check('participantSD').not().isEmpty().trim(),
 	check('serviceOfferingSD').not().isEmpty().trim(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			const participantUrl: string = req.body.participantVC
-			const soUrl: string = req.body.serviceOfferingSD
+			const { participantSD, serviceOfferingSD } = req.body
+			if (!Utils.IsValidURL(participantSD)) {
+				console.error(`❌ Invalid participant self description url format`)
+				throw new Error('Invalid participant self description url format')
+			}
+			if (!Utils.IsValidURL(serviceOfferingSD)) {
+				console.error(`❌ Invalid service offering self description url format`)
+				throw new Error('Invalid service offering self description url format')
+			}
 
-			const veracityResult = await calcVeracity(participantUrl)
+			const veracityResult = await calcVeracity(participantSD)
 			const { veracity, certificateDetails } = veracityResult
 
-			const transparency = await calcTransparency(soUrl)
+			const transparency: number = await calcTransparency(serviceOfferingSD)
 			console.log('transparency :-', transparency)
 
 			const trustIndex: number = calcTrustIndex(veracity, transparency)
@@ -592,7 +599,7 @@ privateRoute.post(
 				}
 			})
 		} catch (error) {
-			console.log(`❌ ${AppMessages.TRUST_INDEX_CALC_FAILED}`)
+			console.error(`❌ ${AppMessages.TRUST_INDEX_CALC_FAILED} : ${error}`)
 			res.status(500).json({
 				error: (error as Error).message,
 				message: AppMessages.TRUST_INDEX_CALC_FAILED
@@ -605,8 +612,8 @@ privateRoute.post(
  * @RefLinks
  * DID web with multiple keys https://www.w3.org/TR/did-core/#example-did-document-with-many-different-key-types
  * VC which has verification method pointing to a particular key https://www.w3.org/TR/vc-data-model/#example-a-simple-example-of-a-verifiable-credential
- * @dev Takes holder vc url as input and calculate veracity
- * @param participantUrl Holder VC url
+ * @dev Takes holder self description url as input and calculate veracity
+ * @param participantUrl Holder self description url
  * @returns Object | undefined - undefined if bad data else return the veracity value and its certificate details
  */
 
@@ -628,11 +635,11 @@ const calcVeracity = async (
 		let certificateDetails = null
 		const participantJson = (await axios.get(participantUrl)).data
 		if (participantJson && participantJson.verifiableCredential.length) {
-			const participantVC = participantJson.verifiableCredential[0]
+			const participantSD = participantJson.verifiableCredential[0]
 			const {
 				id: holderDID,
 				proof: { verificationMethod: participantVM }
-			} = participantVC
+			} = participantSD
 			console.log(`holderDID :-${holderDID}  holderDID :- ${participantVM}`)
 
 			const ddo = await Utils.getDDOfromDID(holderDID, resolver)
@@ -646,8 +653,8 @@ const calcVeracity = async (
 			} = ddo
 
 			// There can be multiple verification methods in the did document but we have to find the one which has signed the holder vc
-			// So verificationMethod mentioned in the proof of holder VC should have to be equal to the id filed in the verification method
-			// participantVC.json >> proof >> verificationMethod === did.json >> verificationMethodArray >> verificationMethodObject >> id
+			// So verificationMethod mentioned in the proof of holder SD should have to be equal to the id filed in the verification method
+			// participantSD.json >> proof >> verificationMethod === did.json >> verificationMethodArray >> verificationMethodObject >> id
 
 			for (const verificationMethod of verificationMethodArray) {
 				if (verificationMethod.id === participantVM && verificationMethod.publicKeyJwk) {
@@ -675,14 +682,14 @@ const calcVeracity = async (
 				veracity = +(1 / keypairDepth).toFixed(2) //1 / len(keychain)
 				return { veracity, certificateDetails }
 			}
-			console.log(`❌ Participant proof verification method and did verification method id not matched`)
+			console.error(`❌ Participant proof verification method and did verification method id not matched`)
 			throw new Error('Participant proof verification method and did verification method id not matched')
 		}
-		console.error(`❌ Verifiable credential array not found in participant vc`)
-		throw new Error('Verifiable credential array not found in participant vc')
+		console.error(`❌ Verifiable credential array not found in participant self description`)
+		throw new Error('Verifiable credential array not found in participant self description')
 	} catch (error) {
-		console.error(`❌ Invalid participant vc url :- error \n`, error)
-		throw new Error('Invalid participant vc url')
+		console.error(error)
+		throw error
 	}
 }
 
@@ -700,7 +707,6 @@ const calcVeracity = async (
  * @param soUrl service offering self description url
  * @returns Number | undefined - undefined if bad data else returns the transparency value
  */
-
 const calcTransparency = async (soUrl: any): Promise<number> => {
 	const optionalProps: string[] = ['gx-service-offering:name', 'gx-service-offering:dependsOn', 'gx-service-offering:dataProtectionRegime']
 	const totalMandatoryProps = 5

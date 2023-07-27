@@ -1048,13 +1048,13 @@
 				}
 			},
 			"GetTrustIndexSchemaBody": {
-				"required": ["participantVC", "serviceOfferingVC"],
+				"required": ["participantSD", "serviceOfferingSD"],
 				"properties": {
-					"participantVC": {
+					"participantSD": {
 						"type": "string",
 						"example": "https://www.delta-dao.com/.well-known/participant.json"
 					},
-					"serviceOfferingVC": {
+					"serviceOfferingSD": {
 						"type": "string",
 						"example": "https://delta-dao.com/.well-known/serviceGaiaxDLTNetwork.json"
 					}
