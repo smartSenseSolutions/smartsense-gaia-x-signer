@@ -145,7 +145,6 @@ privateRoute.post(
 						selfDescription['verifiableCredential'][index].proof = proof
 					}
 				}
-				console.log(JSON.stringify(selfDescription))
 				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
 				// const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
