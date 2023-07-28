@@ -118,11 +118,9 @@ privateRoute.post(
 				let selfDescription: any = null
 				if (templateId === AppConst.LEGAL_PARTICIPANT) {
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
-					const legalRegistrationNumberVCUrl = tenant ? `https://${domain}/${tenant}/legalRegistrationNumberVC.json` : `https://${domain}/.well-known/legalRegistrationNumberVC.json`
-					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, headquarterAddress, legalAddress,legalRegistrationNumberVCUrl)
-					const regVC = (await Utils.generateRegistrationNumber(axios, didId, legalRegistrationType, legalRegistrationNumber,legalRegistrationNumberVCUrl))
-					const tandcsURL = tenant ? `https://${domain}/${tenant}/tandcs.json` : `https://${domain}/.well-known/tandcs.json`
-					const termsVC = await Utils.generateTermsAndConditions(axios, didId,tandcsURL)
+					selfDescription = Utils.generateLegalPerson(`${participantURL}#0`, didId, legalName, headquarterAddress, legalAddress,`${participantURL}#1`)
+					const regVC = (await Utils.generateRegistrationNumber(axios, didId, legalRegistrationType, legalRegistrationNumber,`${participantURL}%231`))
+					const termsVC = await Utils.generateTermsAndConditions(axios, didId,`${participantURL}#2`)
 					selfDescription['verifiableCredential'].push(regVC, termsVC)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
 					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))

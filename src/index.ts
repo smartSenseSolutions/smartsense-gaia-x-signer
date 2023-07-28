@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 import swaggerUi from 'swagger-ui-express'
 import { routes } from './routes'
+import { routesV1 } from './routesV1'
 
 
 const app: Express = express()
@@ -18,6 +19,7 @@ app.use(bodyParser.json({ limit: '50mb', type: 'application/json' }))
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
 // routes
+app.use('/v1', routesV1)
 app.use('/', routes)
 
 app.listen(port, () => {

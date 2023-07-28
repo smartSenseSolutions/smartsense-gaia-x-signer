@@ -33,3 +33,29 @@ export interface X509CertificateDetail {
 		country: string | null
 	}
 }
+
+export interface LegalRegistrationNumberDto {
+	'@context': string[] | any
+	id: string
+	type: string
+	[key: string]: string
+}
+
+export interface VerifiableCredentialDto {
+	'@context': string[] | any
+	type: string | string[]
+	id?: string
+	credentialSubject: any
+	issuer: string
+	expirationDate?: string
+	issuanceDate: string
+	proof: SignatureDto
+}
+
+export interface SignatureDto {
+	type: string
+	created: string
+	proofPurpose: string
+	jws: string
+	verificationMethod: string
+}
