@@ -165,8 +165,8 @@ namespace CommonFunctions {
 			const hash = this.sha256(crypto, canonizedSD)
 			console.log(`📈 Hashed canonized SD ${hash}`)
 
-			const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-			// const privateKey = process.env.PRIVATE_KEY as string
+			// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+			const privateKey = process.env.PRIVATE_KEY as string
 			const proof = await this.createProof(jose, didId, rsaAlso, hash, privateKey)
 			console.log(proof ? '🔒 SD signed successfully' : '❌ SD signing failed')
 			const x5uURL = tenant ? `https://${domain}/${tenant}/x509CertificateChain.pem` : `https://${domain}/.well-known/x509CertificateChain.pem`
