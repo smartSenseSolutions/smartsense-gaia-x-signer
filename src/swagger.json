@@ -128,10 +128,10 @@
 			}
 		},
 
-		"/v1/onBoardToGaiaX": {
+		"/v1/LegalParticipantOnGaiaX": {
 			"post": {
-				"summary": "On board to Gaia-X v1",
-				"description": "Generate Legal Person and Service Offer Credentials",
+				"summary": "LegalParticipant On GaiaX",
+				"description": "LegalParticipant On GaiaX",
 				"requestBody": {
 					"required": true,
 					"content": {
@@ -198,25 +198,6 @@
 										  "id": "did:web:greenworld.proofsense.in"
 										}
 									  }
-								},
-								"ServiceOffering": {
-									"value": {
-										"domain": "dev.smartproof.in",
-										"tenant": "smart",
-										"templateId": "ServiceOffering",
-										"privateKeyUrl": "https://example.com",
-										"data": {
-											"name": "AWS S3 Service",
-											"fileName": "s3Service.json",
-											"description": "Amazon S3 bucket is a public cloud storage resource.",
-											"policyUrl": "https://aws.amazon.com/privacy/?nc1=f_pr",
-											"termsAndConditionsUrl": "https://aws.amazon.com/service-terms/",
-											"termsAndConditionsHash": "4f598faf41fb29a44d63ec413730d55fabd2d249f1976fee1c8eec8003d7f539",
-											"requestType": "API",
-											"accessType": "digital",
-											"formatType": "application/json"
-										}
-									}
 								}
 							}
 						}
