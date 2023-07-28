@@ -97,13 +97,13 @@ namespace CommonFunctions {
 					id: legalRegistrationNumberVCUrl,
 					[`gx:${legalRegistrationType}`]: legalRegistrationNumber
 				}
-				console.log(request)
-				const regVC = await axios.post(`${process.env.REGISTRATION_SERVICE as string}?vcid=${legalRegistrationNumberVCUrl}`, request)
-				// console.log(JSON.stringify(regVC.data))
+				const url = `${process.env.REGISTRATION_SERVICE as string}?vcid=${legalRegistrationNumberVCUrl}`;
+				const regVC = await axios.post(url, request)
+				// console.log(regVC.data)
 				return regVC.data
 			} catch (error) {
 				console.log(`❌ RegistrationNumber failed | Error: ${error}`)
-				return null
+				throw new Error(`❌ RegistrationNumber failed | Error: ${error}`)
 			}
 		}
 
