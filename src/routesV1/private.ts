@@ -19,12 +19,14 @@ privateRoute.post(
 	check('issuer').not().isEmpty().trim().escape(),
 	check('verificationMethod').not().isEmpty().trim().escape(),
 	check('privateKey').not().isEmpty().trim().escape(),
-	check('legalParticipant').isObject(),
-	check('legalRegistrationNumber').isObject(),
-	check('gaiaXTermsAndConditions').isObject(),
+	check('vcs.legalParticipant').isObject(),
+	check('vcs.legalRegistrationNumber').isObject(),
+	check('vcs.gaiaXTermsAndConditions').isObject(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			let { issuer, verificationMethod, privateKey, legalParticipant, legalRegistrationNumber, gaiaXTermsAndConditions } = req.body
+			const { issuer, verificationMethod, vcs } = req.body
+			let { privateKey } = req.body
+			let { legalParticipant, legalRegistrationNumber, gaiaXTermsAndConditions } = vcs
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				const errorsArr = errors.array()

@@ -142,64 +142,60 @@
 							"examples": {
 								"LegalParticipant": {
 									"value": {
-										"privateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
-										"issuer":"did:web:greenworld.proofsense.in",
-										"verificationMethod":"did:web:greenworld.proofsense.in",
-										"legalParticipant": {
-										  "@context": [
-											"https://www.w3.org/2018/credentials/v1",
-											"https://w3id.org/security/suites/jws-2020/v1",
-											"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
-										  ],
-										  "type": [
-											"VerifiableCredential"
-										  ],
-										  "id": "did:web:greenworld.proofsense.in",
-										  "issuer": "did:web:greenworld.proofsense.in",
-										  "issuanceDate": "2023-07-28T11:13:53.734Z",
-										  "credentialSubject": {
-											"id": "https://greenworld.proofsense.in/.well-known/participant.json#0",
-											"type": "gx:LegalParticipant",
-											"gx:legalName": "Green World",
-											"gx:legalRegistrationNumber": {
-											  "id": "https://greenworld.proofsense.in/.well-known/participant.json#1"
+										"privateKey": "Base64 Encoded -----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
+										"issuer": "did:web:greenworld.proofsense.in",
+										"verificationMethod": "did:web:greenworld.proofsense.in",
+										"vcs": {
+											"legalParticipant": {
+												"@context": [
+													"https://www.w3.org/2018/credentials/v1",
+													"https://w3id.org/security/suites/jws-2020/v1",
+													"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+												],
+												"type": ["VerifiableCredential"],
+												"id": "did:web:greenworld.proofsense.in",
+												"issuer": "did:web:greenworld.proofsense.in",
+												"issuanceDate": "2023-07-28T11:13:53.734Z",
+												"credentialSubject": {
+													"id": "https://greenworld.proofsense.in/.well-known/participant.json#0",
+													"type": "gx:LegalParticipant",
+													"gx:legalName": "Green World",
+													"gx:legalRegistrationNumber": {
+														"id": "https://greenworld.proofsense.in/.well-known/participant.json#1"
+													},
+													"gx:headquarterAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													},
+													"gx:legalAddress": {
+														"gx:countrySubdivisionCode": "BE-BRU"
+													}
+												}
 											},
-											"gx:headquarterAddress": {
-											  "gx:countrySubdivisionCode": "BE-BRU"
+											"legalRegistrationNumber": {
+												"@context": ["https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant"],
+												"type": "gx:legalRegistrationNumber",
+												"id": "https://greenworld.proofsense.in/.well-known/participant.json#1",
+												"gx:leiCode": "9695007586GCAKPYJ703"
 											},
-											"gx:legalAddress": {
-											  "gx:countrySubdivisionCode": "BE-BRU"
+											"gaiaXTermsAndConditions": {
+												"@context": [
+													"https://www.w3.org/2018/credentials/v1",
+													"https://w3id.org/security/suites/jws-2020/v1",
+													"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+												],
+												"type": ["VerifiableCredential"],
+												"issuanceDate": "2023-07-28T11:13:56.533Z",
+												"credentialSubject": {
+													"@context": "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#",
+													"type": "gx:GaiaXTermsAndConditions",
+													"gx:termsAndConditions": "The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD).",
+													"id": "https://greenworld.proofsense.in/.well-known/participant.json#2"
+												},
+												"issuer": "did:web:greenworld.proofsense.in",
+												"id": "did:web:greenworld.proofsense.in"
 											}
-										  }
-										},
-										"legalRegistrationNumber": {
-										  "@context": [
-											"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant"
-										  ],
-										  "type": "gx:legalRegistrationNumber",
-										  "id": "https://greenworld.proofsense.in/.well-known/participant.json#1",
-										  "gx:leiCode": "9695007586GCAKPYJ703"
-										},
-										"gaiaXTermsAndConditions": {
-										  "@context": [
-											"https://www.w3.org/2018/credentials/v1",
-											"https://w3id.org/security/suites/jws-2020/v1",
-											"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
-										  ],
-										  "type": [
-											"VerifiableCredential"
-										  ],
-										  "issuanceDate": "2023-07-28T11:13:56.533Z",
-										  "credentialSubject": {
-											"@context": "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#",
-											"type": "gx:GaiaXTermsAndConditions",
-											"gx:termsAndConditions": "The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD).",
-											"id": "https://greenworld.proofsense.in/.well-known/participant.json#2"
-										  },
-										  "issuer": "did:web:greenworld.proofsense.in",
-										  "id": "did:web:greenworld.proofsense.in"
 										}
-									  }
+									}
 								}
 							}
 						}
