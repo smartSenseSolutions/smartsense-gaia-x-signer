@@ -143,6 +143,8 @@
 								"LegalParticipant": {
 									"value": {
 										"privateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
+										"issuer":"did:web:greenworld.proofsense.in",
+										"verificationMethod":"did:web:greenworld.proofsense.in",
 										"legalParticipant": {
 										  "@context": [
 											"https://www.w3.org/2018/credentials/v1",

@@ -34,4 +34,5 @@ export class AppMessages {
 	static readonly TRUST_INDEX_CALC_FAILED = 'Trust index calculation failed'
 	static readonly SD_SIGN_SUCCESS = 'Service offering SD signed successfully'
 	static readonly SD_SIGN_FAILED = 'Service offering SD signing failed'
+	static readonly SD_SIGN_VALIDATION_FAILED = 'Service offering SD validation failed'
 }

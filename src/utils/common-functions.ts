@@ -1,4 +1,4 @@
-import { DidDocument, Service } from '../interface/interface'
+import { DidDocument, Service, LegalRegistrationNumberDto, VerifiableCredentialDto } from '../interface/interface'
 
 namespace CommonFunctions {
 	export class Utils {
@@ -31,7 +31,7 @@ namespace CommonFunctions {
 			return did
 		}
 
-		generateLegalPerson(participantURL: string, didId: string, legalName: string, headquarterAddress: string, legalAddress: string,legalRegistrationNumberVCUrl:string): object {
+		generateLegalPerson(participantURL: string, didId: string, legalName: string, headquarterAddress: string, legalAddress: string, legalRegistrationNumberVCUrl: string): object {
 			const selfDescription = {
 				'@context': 'https://www.w3.org/2018/credentials/v1',
 				type: ['VerifiablePresentation'],
@@ -66,7 +66,7 @@ namespace CommonFunctions {
 			return selfDescription
 		}
 
-		async generateTermsAndConditions(axios: any, didId: string,tandcsURL:string) {
+		async generateTermsAndConditions(axios: any, didId: string, tandcsURL: string) {
 			// const { text } = (await axios.get(`${process.env.REGISTRY_TRUST_ANCHOR_URL as string}/termsAndConditions`)).data
 			const verifiableCredential = {
 				'@context': [
@@ -80,7 +80,8 @@ namespace CommonFunctions {
 					'@context': 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#',
 					type: 'gx:GaiaXTermsAndConditions',
 					// 'gx:termsAndConditions': text,
-					'gx:termsAndConditions': "The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD).",
+					'gx:termsAndConditions':
+						'The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD).',
 					id: tandcsURL
 				},
 				issuer: didId,
@@ -89,7 +90,7 @@ namespace CommonFunctions {
 			return verifiableCredential
 		}
 
-		async generateRegistrationNumber(axios: any, didId: string, legalRegistrationType: string, legalRegistrationNumber: string,legalRegistrationNumberVCUrl:string) {
+		async generateRegistrationNumber(axios: any, didId: string, legalRegistrationType: string, legalRegistrationNumber: string, legalRegistrationNumberVCUrl: string) {
 			try {
 				const request = {
 					'@context': ['https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant'],
@@ -97,7 +98,7 @@ namespace CommonFunctions {
 					id: legalRegistrationNumberVCUrl,
 					[`gx:${legalRegistrationType}`]: legalRegistrationNumber
 				}
-				const url = `${process.env.REGISTRATION_SERVICE as string}?vcid=${legalRegistrationNumberVCUrl}`;
+				const url = `${process.env.REGISTRATION_SERVICE as string}?vcid=${legalRegistrationNumberVCUrl}`
 				const regVC = await axios.post(url, request)
 				// console.log(regVC.data)
 				return regVC.data
@@ -165,8 +166,8 @@ namespace CommonFunctions {
 			const hash = this.sha256(crypto, canonizedSD)
 			console.log(`📈 Hashed canonized SD ${hash}`)
 
-			// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-			const privateKey = process.env.PRIVATE_KEY as string
+			const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+			// const privateKey = process.env.PRIVATE_KEY as string
 			const proof = await this.createProof(jose, didId, rsaAlso, hash, privateKey)
 			console.log(proof ? '🔒 SD signed successfully' : '❌ SD signing failed')
 			const x5uURL = tenant ? `https://${domain}/${tenant}/x509CertificateChain.pem` : `https://${domain}/.well-known/x509CertificateChain.pem`
@@ -205,12 +206,12 @@ namespace CommonFunctions {
 			return crypto.createHash('sha256').update(input).digest('hex')
 		}
 
-		async createProof(jose: any, didId: string, algorithm: string, hash: string, privateKey: string) {
+		async createProof(jose: any, verificationMethod: string, algorithm: string, hash: string, privateKey: string) {
 			const proof = {
 				type: 'JsonWebSignature2020',
 				created: new Date().toISOString(),
 				proofPurpose: 'assertionMethod',
-				verificationMethod: didId,
+				verificationMethod: verificationMethod,
 				jws: await this.sign(jose, algorithm, hash, privateKey)
 			}
 
@@ -300,8 +301,75 @@ namespace CommonFunctions {
 				'^(?!mailto:)(?:(?:http|https|ftp)://)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(/|\\?|#)[^\\s]*)?$'
 			const url = new RegExp(urlRegex, 'i')
 			const result = str.length < 2083 && url.test(str)
-			console.log(result)
+			// console.log(result)
 			return result
+		}
+
+		async issueRegistrationNumberVC(axios: any, request: LegalRegistrationNumberDto) {
+			try {
+				request.id = request.id.replace("#", "%23")
+				// console.log(request)
+				// console.log(JSON.stringify(request))
+				const url = `${process.env.REGISTRATION_SERVICE as string}?vcid=${request.id}`
+				const regVC = await axios.post(url, request)
+				// console.log(regVC.data)
+				return regVC.data
+			} catch (error) {
+				console.log(`❌ RegistrationNumber failed | Error: ${error}`)
+				throw new Error(`❌ RegistrationNumber failed | Error: ${error}`)
+			}
+		}
+
+		async addProof(
+			jsonld: any,
+			axios: any,
+			jose: any,
+			crypto: any,
+			verifiableCredential: VerifiableCredentialDto,
+			privateKey: string,
+			verificationMethod: string,
+			rsaAlso: string,
+			x5uURL: string
+		) {
+			const canonizedSD = await this.normalize(
+				jsonld,
+				// eslint-disable-next-line
+				verifiableCredential
+			)
+			const hash = this.sha256(crypto, canonizedSD)
+			console.log(`📈 Hashed canonized SD ${hash}`)
+
+			const proof = await this.createProof(jose, verificationMethod, rsaAlso, hash, privateKey)
+			console.log(proof ? '🔒 SD signed successfully' : '❌ SD signing failed')
+
+			const certificate = (await axios.get(x5uURL)).data as string
+			const publicKeyJwk = await this.generatePublicJWK(jose, rsaAlso, certificate, x5uURL)
+
+			const verificationResult = await this.verify(jose, proof.jws.replace('..', `.${hash}.`), rsaAlso, publicKeyJwk, hash)
+			console.log(verificationResult ? '✅ Verification successful' : '❌ Verification failed')
+			return proof
+		}
+
+		async getPublicKeys(ddo: any) {
+			const { verificationMethod, id } = ddo
+			const jwk = verificationMethod.find((method: any) => method.id.startsWith(id))
+			if (!jwk) throw new Error(`verificationMethod ${verificationMethod} not found in did document`)
+
+			const { publicKeyJwk } = jwk
+			if (!publicKeyJwk) throw new Error(`Could not load JWK for ${verificationMethod}`)
+
+			const { x5u } = publicKeyJwk
+			if (!publicKeyJwk.x5u) throw new Error(`The x5u parameter is expected to be set in the JWK for ${verificationMethod}`)
+
+			return { x5u, publicKeyJwk }
+		}
+
+		createVP(vcs: any) {
+			return {
+				'@context': 'https://www.w3.org/2018/credentials/v1',
+				type: ['VerifiablePresentation'],
+				verifiableCredential: vcs
+			}
 		}
 	}
 }
