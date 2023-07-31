@@ -8,7 +8,6 @@ import { check, validationResult } from 'express-validator'
 import * as jose from 'jose'
 import jsonld from 'jsonld'
 import web from 'web-did-resolver'
-
 const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
 export const privateRoute = express.Router()
@@ -82,7 +81,9 @@ privateRoute.post(
 privateRoute.post(
 	'/service-offering/gx',
 	check('privateKey').not().isEmpty().trim().escape(),
-	check('legalParticipant')
+	check('issuer').not().isEmpty().trim().escape(),
+	check('verificationMethod').not().isEmpty().trim().escape(),
+	check('legalParticipantURL')
 		.not()
 		.isEmpty()
 		.trim()
@@ -97,7 +98,9 @@ privateRoute.post(
 		try {
 			let { privateKey } = req.body
 			const {
-				legalParticipantSD,
+				legalParticipantURL,
+				verificationMethod,
+				issuer,
 				vcs: { serviceOffering }
 			} = req.body
 			const errors = validationResult(req)
@@ -108,11 +111,38 @@ privateRoute.post(
 					message: AppMessages.SD_SIGN_VALIDATION_FAILED
 				})
 			} else {
-				const legalParticipant = (await axios.get(legalParticipantSD)).data
-				const vcs = {}
+				const legalParticipant = (await axios.get(legalParticipantURL)).data
+				// const legalParticipant = require('./../../legalParticipant.json')
+				const {
+					verifiableCredential: {
+						selfDescriptionCredential: { verifiableCredential }
+					}
+				} = legalParticipant
+
+				const ddo = await Utils.getDDOfromDID(issuer, resolver)
+				if (!ddo) {
+					console.log(`❌ DDO not found for given did: '${issuer}' in proof`)
+					res.status(400).json({
+						error: `DDO not found for given did: '${issuer}' in proof`
+					})
+					return
+				}
+				const { x5u } = await Utils.getPublicKeys(ddo.didDocument)
 				privateKey = Buffer.from(privateKey, 'base64').toString('ascii')
+
+				const proof = await Utils.addProof(jsonld, axios, jose, crypto, serviceOffering, privateKey, verificationMethod, AppConst.RSA_ALGO, x5u)
+				serviceOffering.proof = proof
+				verifiableCredential.push(serviceOffering)
+
+				const serviceOfferingSD = Utils.createVP(verifiableCredential)
+
+				const endpoint = process.env.COMPLIANCE_SERVICE as string
+
+				const complianceCredential = (await axios.post(endpoint, serviceOfferingSD)).data
+				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
+
 				res.status(200).json({
-					data: { serviceOffering },
+					data: complianceCredential,
 					message: AppMessages.SD_SIGN_SUCCESS
 				})
 			}
