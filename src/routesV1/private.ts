@@ -1,3 +1,5 @@
+import { Utils } from '../utils/common-functions'
+import { AppConst, AppMessages } from '../utils/constants'
 import axios from 'axios'
 import crypto from 'crypto'
 import { Resolver } from 'did-resolver'
@@ -6,9 +8,6 @@ import { check, validationResult } from 'express-validator'
 import * as jose from 'jose'
 import jsonld from 'jsonld'
 import web from 'web-did-resolver'
-
-import { Utils } from '../utils/common-functions'
-import { AppConst, AppMessages } from '../utils/constants'
 
 const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
@@ -83,7 +82,7 @@ privateRoute.post(
 privateRoute.post(
 	'/service-offering/gx',
 	check('privateKey').not().isEmpty().trim().escape(),
-	check('legalParticipantSD')
+	check('legalParticipant')
 		.not()
 		.isEmpty()
 		.trim()
@@ -96,8 +95,8 @@ privateRoute.post(
 	check('vcs.serviceOffering').isObject(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
+			let { privateKey } = req.body
 			const {
-				privateKey,
 				legalParticipantSD,
 				vcs: { serviceOffering }
 			} = req.body
@@ -109,6 +108,9 @@ privateRoute.post(
 					message: AppMessages.SD_SIGN_VALIDATION_FAILED
 				})
 			} else {
+				const legalParticipant = (await axios.get(legalParticipantSD)).data
+				const vcs = {}
+				privateKey = Buffer.from(privateKey, 'base64').toString('ascii')
 				res.status(200).json({
 					data: { serviceOffering },
 					message: AppMessages.SD_SIGN_SUCCESS
