@@ -1,13 +1,15 @@
 import axios from 'axios'
-import express, { Request, Response } from 'express'
-import { check, validationResult } from 'express-validator'
 import crypto from 'crypto'
 import { Resolver } from 'did-resolver'
-import { Utils } from '../utils/common-functions'
-import web from 'web-did-resolver'
+import express, { Request, Response } from 'express'
+import { check, validationResult } from 'express-validator'
 import * as jose from 'jose'
 import jsonld from 'jsonld'
+import web from 'web-did-resolver'
+
+import { Utils } from '../utils/common-functions'
 import { AppConst, AppMessages } from '../utils/constants'
+
 const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
 export const privateRoute = express.Router()
@@ -17,12 +19,14 @@ privateRoute.post(
 	check('issuer').not().isEmpty().trim().escape(),
 	check('verificationMethod').not().isEmpty().trim().escape(),
 	check('privateKey').not().isEmpty().trim().escape(),
-	check('legalParticipant').isObject(),
-	check('legalRegistrationNumber').isObject(),
-	check('gaiaXTermsAndConditions').isObject(),
+	check('vcs.legalParticipant').isObject(),
+	check('vcs.legalRegistrationNumber').isObject(),
+	check('vcs.gaiaXTermsAndConditions').isObject(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			let { issuer, verificationMethod, privateKey, legalParticipant, legalRegistrationNumber, gaiaXTermsAndConditions } = req.body
+			const { issuer, verificationMethod, vcs } = req.body
+			let { privateKey } = req.body
+			let { legalParticipant, legalRegistrationNumber, gaiaXTermsAndConditions } = vcs
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				const errorsArr = errors.array()
