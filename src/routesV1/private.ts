@@ -93,10 +93,14 @@ privateRoute.post(
 				throw new Error('Invalid legal participant self description url format')
 			}
 		}),
-	check('serviceOfferingSD').isObject(),
+	check('vcs.serviceOffering').isObject(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			const { privateKey, legalParticipantSD, serviceOfferingSD } = req.body
+			const {
+				privateKey,
+				legalParticipantSD,
+				vcs: { serviceOffering }
+			} = req.body
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				const errorsArr = errors.array()
@@ -106,7 +110,7 @@ privateRoute.post(
 				})
 			} else {
 				res.status(200).json({
-					data: { serviceOfferingSD },
+					data: { serviceOffering },
 					message: AppMessages.SD_SIGN_SUCCESS
 				})
 			}
