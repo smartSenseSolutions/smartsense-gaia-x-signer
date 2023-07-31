@@ -32,4 +32,6 @@ export class AppMessages {
 	static readonly SO_SD_FETCH_FAILED = 'Service offering self description fetching failed'
 	static readonly BAD_DATA = 'Bad data'
 	static readonly TRUST_INDEX_CALC_FAILED = 'Trust index calculation failed'
+	static readonly SD_SIGN_SUCCESS = 'Service offering SD signed successfully'
+	static readonly SD_SIGN_FAILED = 'Service offering SD signing failed'
 }
