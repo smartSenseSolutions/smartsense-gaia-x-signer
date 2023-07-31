@@ -1,3 +1,5 @@
+import { Utils } from '../utils/common-functions'
+import { AppConst, AppMessages } from '../utils/constants'
 import axios from 'axios'
 import crypto from 'crypto'
 import { Resolver } from 'did-resolver'
@@ -6,9 +8,6 @@ import { check, validationResult } from 'express-validator'
 import * as jose from 'jose'
 import jsonld from 'jsonld'
 import web from 'web-did-resolver'
-
-import { Utils } from '../utils/common-functions'
-import { AppConst, AppMessages } from '../utils/constants'
 
 const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
@@ -75,6 +74,52 @@ privateRoute.post(
 			res.status(500).json({
 				error: (e as Error).message,
 				message: AppMessages.VP_FAILED
+			})
+		}
+	}
+)
+
+privateRoute.post(
+	'/service-offering/gx',
+	check('privateKey').not().isEmpty().trim().escape(),
+	check('legalParticipant')
+		.not()
+		.isEmpty()
+		.trim()
+		.custom(async (value) => {
+			if (!Utils.IsValidURL(value)) {
+				console.error(`❌ Invalid legal participant self description url format`)
+				throw new Error('Invalid legal participant self description url format')
+			}
+		}),
+	check('vcs.serviceOffering').isObject(),
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			let { privateKey } = req.body
+			const {
+				legalParticipantSD,
+				vcs: { serviceOffering }
+			} = req.body
+			const errors = validationResult(req)
+			if (!errors.isEmpty()) {
+				const errorsArr = errors.array()
+				res.status(422).json({
+					error: `${errorsArr[0].msg} for param '${errorsArr[0].param}'`,
+					message: AppMessages.SD_SIGN_VALIDATION_FAILED
+				})
+			} else {
+				const legalParticipant = (await axios.get(legalParticipantSD)).data
+				const vcs = {}
+				privateKey = Buffer.from(privateKey, 'base64').toString('ascii')
+				res.status(200).json({
+					data: { serviceOffering },
+					message: AppMessages.SD_SIGN_SUCCESS
+				})
+			}
+		} catch (e) {
+			res.status(500).json({
+				error: (e as Error).message,
+				message: AppMessages.SD_SIGN_FAILED
 			})
 		}
 	}

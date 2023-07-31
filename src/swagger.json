@@ -127,7 +127,6 @@
 				}
 			}
 		},
-
 		"/v1/LegalParticipantOnGaiaX": {
 			"post": {
 				"summary": "LegalParticipant On GaiaX",
@@ -909,6 +908,63 @@
 					}
 				}
 			}
+		},
+		"/v1/service-offering/gx": {
+			"post": {
+				"summary": "Compline service offering SD",
+				"description": "Creates VP for service offering and sends it to compliance service",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ComplineSOSchemaBody"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								},
+								"examples": {
+									"serviceOffering": {
+										"summary": "Compliane Service offering",
+										"value": {
+											"message": "Success",
+											"data": {}
+										}
+									}
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"components": {
@@ -1153,6 +1209,55 @@
 					"serviceOfferingSD": {
 						"type": "string",
 						"example": "https://delta-dao.com/.well-known/serviceGaiaxDLTNetwork.json"
+					}
+				}
+			},
+			"ComplineSOSchemaBody": {
+				"required": ["privateKey", "legalParticipant", "serviceOffering"],
+				"properties": {
+					"privateKey": {
+						"type": "string",
+						"example": "https://www.delta-dao.com/.well-known/participant.json"
+					},
+					"legalParticipant": {
+						"type": "string",
+						"example": "https://delta-dao.com/.well-known/serviceGaiaxDLTNetwork.json"
+					},
+					"vcs": {
+						"type": "object",
+						"example": {
+							"serviceOffering": {
+								"@context": [
+									"https://www.w3.org/2018/credentials/v1",
+									"https://w3id.org/security/suites/jws-2020/v1",
+									"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+								],
+								"type": "VerifiableCredential",
+								"id": "did:web:greenworld.proofsense.in",
+								"issuer": "did:web:greenworld.proofsense.in",
+								"issuanceDate": "2023-07-12T09:37:01.595Z",
+								"credentialSubject": {
+									"id": "https://greenworld.proofsense.in/.well-known/serviceComplianceService.json",
+									"type": "gx:ServiceOffering",
+									"gx:providedBy": {
+										"id": ""
+									},
+									"gx:policy": "",
+									"gx:termsAndConditions": {
+										"gx:URL": "http://termsandconds.com",
+										"gx:hash": "d8402a23de560f5ab34b22d1a142feb9e13b3143"
+									},
+									"gx:dataAccountExport": {
+										"gx:requestType": "API",
+										"gx:accessType": "digital",
+										"gx:formatType": "application/json"
+									},
+									"gx:aggregationOf": [],
+									"gx:dataProtectionRegime": [],
+									"gx:dependsOn": []
+								}
+							}
+						}
 					}
 				}
 			}
