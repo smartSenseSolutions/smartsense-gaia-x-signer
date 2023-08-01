@@ -1,4 +1,4 @@
-import { DidDocument, Service, LegalRegistrationNumberDto, VerifiableCredentialDto } from '../interface/interface'
+import { DidDocument, LegalRegistrationNumberDto, Service, VerifiableCredentialDto } from '../interface/interface'
 
 namespace CommonFunctions {
 	export class Utils {
@@ -307,7 +307,7 @@ namespace CommonFunctions {
 
 		async issueRegistrationNumberVC(axios: any, request: LegalRegistrationNumberDto) {
 			try {
-				request.id = request.id.replace("#", "%23")
+				request.id = request.id.replace('#', '%23')
 				// console.log(request)
 				// console.log(JSON.stringify(request))
 				const url = `${process.env.REGISTRATION_SERVICE as string}?vcid=${request.id}`

@@ -1,5 +1,3 @@
-import { Utils } from '../utils/common-functions'
-import { AppConst, AppMessages } from '../utils/constants'
 import axios from 'axios'
 import crypto from 'crypto'
 import { Resolver } from 'did-resolver'
@@ -8,6 +6,10 @@ import { check, validationResult } from 'express-validator'
 import * as jose from 'jose'
 import jsonld from 'jsonld'
 import web from 'web-did-resolver'
+
+import { Utils } from '../utils/common-functions'
+import { AppConst, AppMessages } from '../utils/constants'
+
 const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
 export const privateRoute = express.Router()
@@ -111,17 +113,15 @@ privateRoute.post(
 					message: AppMessages.SD_SIGN_VALIDATION_FAILED
 				})
 			} else {
-				const legalParticipant = (await axios.get(legalParticipantURL)).data
-				// const legalParticipant = require('./../../legalParticipant.json')
+				// const legalParticipant = (await axios.get(legalParticipantURL)).data
+				const legalParticipant = require('./../../legalParticipant.json')
 				const {
-					verifiableCredential: {
-						selfDescriptionCredential: { verifiableCredential }
-					}
+					selfDescriptionCredential: { verifiableCredential }
 				} = legalParticipant
 
 				const ddo = await Utils.getDDOfromDID(issuer, resolver)
 				if (!ddo) {
-					console.log(`❌ DDO not found for given did: '${issuer}' in proof`)
+					console.error(`❌ DDO not found for given did: '${issuer}' in proof`)
 					res.status(400).json({
 						error: `DDO not found for given did: '${issuer}' in proof`
 					})
@@ -134,15 +134,15 @@ privateRoute.post(
 				serviceOffering.proof = proof
 				verifiableCredential.push(serviceOffering)
 
-				const serviceOfferingSD = Utils.createVP(verifiableCredential)
+				const selfDescriptionCredential = Utils.createVP(verifiableCredential)
 
 				const endpoint = process.env.COMPLIANCE_SERVICE as string
 
-				const complianceCredential = (await axios.post(endpoint, serviceOfferingSD)).data
+				const complianceCredential = (await axios.post(endpoint, selfDescriptionCredential)).data
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 
 				res.status(200).json({
-					data: complianceCredential,
+					data: { selfDescriptionCredential, complianceCredential },
 					message: AppMessages.SD_SIGN_SUCCESS
 				})
 			}

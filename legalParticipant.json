@@ -1,144 +1,131 @@
 {
-    "verifiableCredential": {
-      "selfDescriptionCredential": {
-        "@context": "https://www.w3.org/2018/credentials/v1",
-        "type": [
-          "VerifiablePresentation"
-        ],
-        "verifiableCredential": [
-          {
-            "@context": [
-              "https://www.w3.org/2018/credentials/v1",
-              "https://w3id.org/security/suites/jws-2020/v1",
-              "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
-            ],
-            "type": [
-              "VerifiableCredential"
-            ],
-            "id": "did:web:greenworld.proofsense.in",
-            "issuer": "did:web:greenworld.proofsense.in",
-            "issuanceDate": "2023-07-28T11:13:53.734Z",
-            "credentialSubject": {
-              "id": "https://greenworld.proofsense.in/.well-known/participant.json#0",
-              "type": "gx:LegalParticipant",
-              "gx:legalName": "Green World",
-              "gx:legalRegistrationNumber": {
-                "id": "https://greenworld.proofsense.in/.well-known/participant.json#1"
-              },
-              "gx:headquarterAddress": {
-                "gx:countrySubdivisionCode": "BE-BRU"
-              },
-              "gx:legalAddress": {
-                "gx:countrySubdivisionCode": "BE-BRU"
-              }
-            },
-            "proof": {
-              "type": "JsonWebSignature2020",
-              "created": "2023-07-31T06:48:16.959Z",
-              "proofPurpose": "assertionMethod",
-              "verificationMethod": "did:web:greenworld.proofsense.in",
-              "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..LiZSsrlqXUI352P4zGTaGYqLoLU-T7l6Rrc_bAX5gxfpfHTMCFX9LwNxC5xhSMDyzQYw7_3fVw9tE3lCA7xresrX31GNKbH2eg1Pjvk_BdxSx9R8gmVNnG1JvTchoPk21ZiNhbpb7hEdueMJhgLV6FXC0tcPaZh2rhHE02jsjBysvqVJnZl-y3L3fz1WBaCR-oS8HPrQOax3teoCl4kUf63-srMxaZJn-Ieupx0nHMR1tqq2iTCmV9NzcdTYhf8i4XMshPJGOgrgwnik6KvlFjkeCtbEIN_NZdacukc2rQTenurL3I2YinusnjPPGfgk5GF_0AJMCrk8w6tZCciL2w"
-            }
-          },
-          {
-            "@context": [
-              "https://www.w3.org/2018/credentials/v1",
-              "https://w3id.org/security/suites/jws-2020/v1"
-            ],
-            "type": "VerifiableCredential",
-            "id": "https://greenworld.proofsense.in/.well-known/participant.json#1",
-            "issuer": "did:web:registration.lab.gaia-x.eu::development",
-            "issuanceDate": "2023-07-31T06:48:14.902Z",
-            "credentialSubject": {
-              "@context": "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#",
-              "type": "gx:legalRegistrationNumber",
-              "id": "https://greenworld.proofsense.in/.well-known/participant.json#1",
-              "gx:leiCode": "9695007586GCAKPYJ703",
-              "gx:leiCode-countryCode": "FR"
-            },
-            "evidence": [
-              {
-                "gx:evidenceURL": "https://api.gleif.org/api/v1/lei-records/",
-                "gx:executionDate": "2023-07-31T06:48:14.902Z",
-                "gx:evidenceOf": "gx:leiCode"
-              }
-            ],
-            "proof": {
-              "type": "JsonWebSignature2020",
-              "created": "2023-07-31T06:48:16.006Z",
-              "proofPurpose": "assertionMethod",
-              "verificationMethod": "did:web:registration.lab.gaia-x.eu::development#X509-JWK2020",
-              "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..eMdNDXXl00T4Pqo_xZ-DZEJkS5hHl2uaiENy8TOIV5CB-U7ExbJKJwh6H-gAbjUAWJofv30951nd5F5rIgGneW9YBmtOVCdAQ8MFAKIV2upjCeiEpyydL-dbTIkkMtWna5yUZ1XvE6_QT5z6fbEXECRtiIiTtbmyvjJO_p_aiUC6Id-1vLcMtKk5rqNPoe4HLnkZFj35Vno6spcrvszH1RuAMHu_eZnEzEFuHC5Kb2x0Z7uwJRpXmiIExSajKxpiqddpysVE0x1SwH6126RaIeco0NIvOZwqHIvV8C42umdv2npcLR5cXaGNTBYKLHaxzQIvNdqo3IQm_wa-tiNxew"
-            }
-          },
-          {
-            "@context": [
-              "https://www.w3.org/2018/credentials/v1",
-              "https://w3id.org/security/suites/jws-2020/v1",
-              "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
-            ],
-            "type": [
-              "VerifiableCredential"
-            ],
-            "issuanceDate": "2023-07-28T11:13:56.533Z",
-            "credentialSubject": {
-              "@context": "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#",
-              "type": "gx:GaiaXTermsAndConditions",
-              "gx:termsAndConditions": "The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD).",
-              "id": "https://greenworld.proofsense.in/.well-known/participant.json#2"
-            },
-            "issuer": "did:web:greenworld.proofsense.in",
-            "id": "did:web:greenworld.proofsense.in",
-            "proof": {
-              "type": "JsonWebSignature2020",
-              "created": "2023-07-31T06:48:17.604Z",
-              "proofPurpose": "assertionMethod",
-              "verificationMethod": "did:web:greenworld.proofsense.in",
-              "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..ATC-kMlmZCUdIViclT6PCcnQeyypxz4ahVH88RURylRcE5Bh0zgtxF5T6D3jAXWWNjHYb6t7RKcfZBnbWERdk_V8HoFUfAfjmTV5hdlD-CAIVijADf8Y9fNn_udaC2Z1mVpTpLzhKhGQ-ZkL5otpXMqROT1AHHBLuj8JZV_4BHcxiQBd90qiKL5-QZgdsk48WkZhS-Z1H4TWaSq6qD3Ug1njW5kyc47yfIGGbPFcZaV3BEMGVYf_fcx9d3r5srOYMfHm5TJIr5SkwWg9tUuGaZ_vk7hJ95girPCftDpijNBzW0MnAJCyVSJXE_KGKzRJ23KFped3q5CX6UB0KxY-KA"
-            }
-          }
-        ]
-      },
-      "complianceCredential": {
-        "@context": [
-          "https://www.w3.org/2018/credentials/v1",
-          "https://w3id.org/security/suites/jws-2020/v1",
-          "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
-        ],
-        "type": [
-          "VerifiableCredential"
-        ],
-        "id": "https://compliance.lab.gaia-x.eu/development/credential-offers/2c059441-17b6-4fec-a9fc-5654c5e5af25",
-        "issuer": "did:web:compliance.lab.gaia-x.eu:development",
-        "issuanceDate": "2023-07-31T06:48:25.129Z",
-        "expirationDate": "2023-10-29T06:48:25.129Z",
-        "credentialSubject": [
-          {
-            "type": "gx:compliance",
-            "id": "https://greenworld.proofsense.in/.well-known/participant.json#0",
-            "integrity": "sha256-d0fbe30b14a9facc8367fb9c0c3cfa78d60ff885826e83e7150badbe695f6508",
-            "version": "22.10"
-          },
-          {
-            "type": "gx:compliance",
-            "id": "https://greenworld.proofsense.in/.well-known/participant.json#1",
-            "integrity": "sha256-0b6bceedb63dd4674a31fb8fbe4a057883b0324c729eee61fc8e24c762328e27",
-            "version": "22.10"
-          },
-          {
-            "type": "gx:compliance",
-            "id": "https://greenworld.proofsense.in/.well-known/participant.json#2",
-            "integrity": "sha256-e806da65504af4427938c5bf1801852445c4f5161c42024118e6214abfab2201",
-            "version": "22.10"
-          }
-        ],
-        "proof": {
-          "type": "JsonWebSignature2020",
-          "created": "2023-07-31T06:48:25.793Z",
-          "proofPurpose": "assertionMethod",
-          "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Eaz6ZzEhQLln37WFxBtbFEW8vhsJ4Ux9fsD5pb3mxd4XTmK5VeqAB31MlFt40kRJuYdQPt0Ycx7KWoR58OvsWNWl7Mf8AkbWF6zfUv7fQaOaSpxaryTFNGm4BLd68Qamb72pyKSL-KoOo1E76c-CUP94bjkUzZEmTywvG0_BIzgMlbMP9j2zKNipHSegcQBqCceN9xdR5zX0P0eMO4kAMnOCwsAjuYh-RhB2HsbzwSLu19HRue32TngWCiHaqb0qeU9Y244i6mS5QtYNdJeKZOyKLsoajI-TJeHqFx0RJt3HnaBOpKFWs5ILoM5eb0w-MlJ8mXr0fGXi3gZ1nrQaoQ",
-          "verificationMethod": "did:web:compliance.lab.gaia-x.eu:development"
-        }
-      }
-    }
-  }
+	"selfDescriptionCredential": {
+		"@context": "https://www.w3.org/2018/credentials/v1",
+		"type": ["VerifiablePresentation"],
+		"verifiableCredential": [
+			{
+				"@context": [
+					"https://www.w3.org/2018/credentials/v1",
+					"https://w3id.org/security/suites/jws-2020/v1",
+					"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+				],
+				"type": ["VerifiableCredential"],
+				"id": "did:web:greenworld.proofsense.in",
+				"issuer": "did:web:greenworld.proofsense.in",
+				"issuanceDate": "2023-07-28T11:13:53.734Z",
+				"credentialSubject": {
+					"id": "https://greenworld.proofsense.in/.well-known/participant.json#0",
+					"type": "gx:LegalParticipant",
+					"gx:legalName": "Green World",
+					"gx:legalRegistrationNumber": {
+						"id": "https://greenworld.proofsense.in/.well-known/participant.json#1"
+					},
+					"gx:headquarterAddress": {
+						"gx:countrySubdivisionCode": "BE-BRU"
+					},
+					"gx:legalAddress": {
+						"gx:countrySubdivisionCode": "BE-BRU"
+					}
+				},
+				"proof": {
+					"type": "JsonWebSignature2020",
+					"created": "2023-08-01T10:49:34.385Z",
+					"proofPurpose": "assertionMethod",
+					"verificationMethod": "did:web:greenworld.proofsense.in",
+					"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..jdGGZGI57Wf4HOk6RzZh6O59G-tSDWm2X0-ZN4Lsn_zHSW2nMHsG9KLqy_RaM9kbknYm-NOIHkpx4j-Hk-m6GgZt5j5DSbFn86q64X3RDaerWjNUf8H6QpXxayCc1gC5O3sys6ge4CjJ8iYzCET5LfVxW2WUcsOlhIWqXAtfTsO41Q_jk5WT2swBlOyGgluPkmWGe6Zf4-qVMuS_bNbeQrpknc0LltaVnfThExPypwmBoBGwRObkuZ34exDLRGPkOq5I0F_qm2DIRdRsPXfZCOA0EF9QTcWECj7IukcMspVVWYrrhXlb_TiUsVhr7pzcTxuSs9gjsr-kRsJB2m5H_Q"
+				}
+			},
+			{
+				"@context": ["https://www.w3.org/2018/credentials/v1", "https://w3id.org/security/suites/jws-2020/v1"],
+				"type": "VerifiableCredential",
+				"id": "https://greenworld.proofsense.in/.well-known/participant.json#1",
+				"issuer": "did:web:registration.lab.gaia-x.eu:development",
+				"issuanceDate": "2023-08-01T10:49:30.286Z",
+				"credentialSubject": {
+					"@context": "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#",
+					"type": "gx:legalRegistrationNumber",
+					"id": "https://greenworld.proofsense.in/.well-known/participant.json#1",
+					"gx:leiCode": "9695007586GCAKPYJ703",
+					"gx:leiCode-countryCode": "FR"
+				},
+				"evidence": [
+					{
+						"gx:evidenceURL": "https://api.gleif.org/api/v1/lei-records/",
+						"gx:executionDate": "2023-08-01T10:49:30.285Z",
+						"gx:evidenceOf": "gx:leiCode"
+					}
+				],
+				"proof": {
+					"type": "JsonWebSignature2020",
+					"created": "2023-08-01T10:49:31.297Z",
+					"proofPurpose": "assertionMethod",
+					"verificationMethod": "did:web:registration.lab.gaia-x.eu:development#X509-JWK2020",
+					"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..L2MbENKa5z78bvSsBoCi5VSPp0djHmrZ1SCbP-phIzBtadn3Z9v20CGvaThAM2CgzN8FQLAfg5mQKnu1kC870zkLLmXvGqQBjV5Yx8PdGADFDpisUMfb7_6EvV-t7t6cRGOqR9_uksImRWfQDp80a5LjhjDK6v2G0MkuOoJJQWV9zMw5G94Y4P0B-HnP5SJqKIcSrHJPmZvvisLZKlfapXzr2teokoi8r_qnNwQwpZ6q_iKI4GKgHmdLuPfzJqhL6fxkZytRZsjaORbM2bDIe72iu0f0s7Q9Hq5ApWw6bnTNmjB7Iz_QX5VSmfOiIFtZ6MU9O7QxqAlSFkdh7_wk_A"
+				}
+			},
+			{
+				"@context": [
+					"https://www.w3.org/2018/credentials/v1",
+					"https://w3id.org/security/suites/jws-2020/v1",
+					"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+				],
+				"type": ["VerifiableCredential"],
+				"issuanceDate": "2023-07-28T11:13:56.533Z",
+				"credentialSubject": {
+					"@context": "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#",
+					"type": "gx:GaiaXTermsAndConditions",
+					"gx:termsAndConditions": "The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD).",
+					"id": "https://greenworld.proofsense.in/.well-known/participant.json#2"
+				},
+				"issuer": "did:web:greenworld.proofsense.in",
+				"id": "did:web:greenworld.proofsense.in",
+				"proof": {
+					"type": "JsonWebSignature2020",
+					"created": "2023-08-01T10:49:37.503Z",
+					"proofPurpose": "assertionMethod",
+					"verificationMethod": "did:web:greenworld.proofsense.in",
+					"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..CXb7ErijPZ3L1Y7r0NGdKiM_K2SYSkN-bdPF8v7xcYARQydzNeJ3rm0M3UKjDJVcBQKaC4Ye1e1_IoeeZJox9kDthOaVnuell08S9f4JM7QCu_MCnCjSoREAoFg772t-5jW4RwkdG4cdcUd8xjTG-Kw8WLxskAM-FsvYYN5D4TGk-81mibz06wrszcC2uf0QZtXJrAvJIRZd6rkQPN1dP6tKb4SWwsV5vHzb6Y3DRENKRUK443bt5tc9TGSnm_Fc0-rpCZ5SUe2LYO3CMh9UbAZiYimKejsLNGybRqplV-y3bEAv9YHY_m5TrvajPa9kWIf7ePMxAqxyhZgV4y1LAA"
+				}
+			}
+		]
+	},
+	"complianceCredential": {
+		"@context": [
+			"https://www.w3.org/2018/credentials/v1",
+			"https://w3id.org/security/suites/jws-2020/v1",
+			"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+		],
+		"type": ["VerifiableCredential"],
+		"id": "https://compliance.lab.gaia-x.eu/development/credential-offers/7103b251-99bc-4f33-a7e7-40b6608b12ab",
+		"issuer": "did:web:compliance.lab.gaia-x.eu:development",
+		"issuanceDate": "2023-08-01T10:49:47.098Z",
+		"expirationDate": "2023-10-30T10:49:47.098Z",
+		"credentialSubject": [
+			{
+				"type": "gx:compliance",
+				"id": "https://greenworld.proofsense.in/.well-known/participant.json#0",
+				"integrity": "sha256-42807844dc6857179809f82953cb440cfe539ee30051ae2e89e95b472bf0cf75",
+				"version": "22.10"
+			},
+			{
+				"type": "gx:compliance",
+				"id": "https://greenworld.proofsense.in/.well-known/participant.json#1",
+				"integrity": "sha256-9a7643bcf9a748c7f5b5dc8c32e8cb778564896889efab711b7d9d5471aee289",
+				"version": "22.10"
+			},
+			{
+				"type": "gx:compliance",
+				"id": "https://greenworld.proofsense.in/.well-known/participant.json#2",
+				"integrity": "sha256-e7562102e69d04f6d661bfb85ce4f0a26c1c238cf47975bb91051e22802126f0",
+				"version": "22.10"
+			}
+		],
+		"proof": {
+			"type": "JsonWebSignature2020",
+			"created": "2023-08-01T10:49:47.858Z",
+			"proofPurpose": "assertionMethod",
+			"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Zr9yyKBBvzHiUgnhiT4MeW-0xasEOrBYawQw5SxIVJ6T5WKlCH43qmAaevOSFw0F0Jkjd9St8dA5KWpMmPS0797PS6rKFn1Fu5jHk9z6hmQIu4FaMojPe0YQY7bPPEStiBjzuzAsWLO3UEAdPdKxYFEXEYNh4PJOn2QdYxo_eM_q-TFeeblDFUyhWSrm47snxqCJsvDGpselQa0iGC3yvhiQ_HTxKa678n6nAnhJWt2yYFBqaWEoD5NTUfMmNfj-MmQszD2VKCDSfcPh4jOUkbJ-Z8h4KtLCnGRpjFtmhATerHM37WEfsAsnD3bW8lpGPY5ZhS60vhtsKcZ12LzC9g",
+			"verificationMethod": "did:web:compliance.lab.gaia-x.eu:development#X509-JWK2020"
+		}
+	}
+}
