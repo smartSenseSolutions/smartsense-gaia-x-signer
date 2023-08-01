@@ -1,13 +1,13 @@
 import axios from 'axios'
+import crypto, { createHash } from 'crypto'
+import { Utils } from '../utils/common-functions'
+import { AppConst, AppMessages } from '../utils/constants'
+import { Resolver } from 'did-resolver'
 import express, { Request, Response } from 'express'
 import { check, validationResult } from 'express-validator'
-import crypto, { createHash } from 'crypto'
-import { Resolver } from 'did-resolver'
-import { Utils } from '../utils/common-functions'
 import web from 'web-did-resolver'
 import * as jose from 'jose'
 import jsonld from 'jsonld'
-import { AppConst, AppMessages } from '../utils/constants'
 import { VerifiableCredentialDto } from '../interface/interface'
 
 const webResolver = web.getResolver()
@@ -19,12 +19,14 @@ privateRoute.post(
 	check('issuer').not().isEmpty().trim().escape(),
 	check('verificationMethod').not().isEmpty().trim().escape(),
 	check('privateKey').not().isEmpty().trim().escape(),
-	check('legalParticipant').isObject(),
-	check('legalRegistrationNumber').isObject(),
-	check('gaiaXTermsAndConditions').isObject(),
+	check('vcs.legalParticipant').isObject(),
+	check('vcs.legalRegistrationNumber').isObject(),
+	check('vcs.gaiaXTermsAndConditions').isObject(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			let { issuer, verificationMethod, privateKey, legalParticipant, legalRegistrationNumber, gaiaXTermsAndConditions } = req.body
+			const { issuer, verificationMethod, vcs } = req.body
+			let { privateKey } = req.body
+			let { legalParticipant, legalRegistrationNumber, gaiaXTermsAndConditions } = vcs
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				const errorsArr = errors.array()
@@ -73,6 +75,52 @@ privateRoute.post(
 			res.status(500).json({
 				error: (e as Error).message,
 				message: AppMessages.VP_FAILED
+			})
+		}
+	}
+)
+
+privateRoute.post(
+	'/service-offering/gx',
+	check('privateKey').not().isEmpty().trim().escape(),
+	check('legalParticipant')
+		.not()
+		.isEmpty()
+		.trim()
+		.custom(async (value) => {
+			if (!Utils.IsValidURL(value)) {
+				console.error(`❌ Invalid legal participant self description url format`)
+				throw new Error('Invalid legal participant self description url format')
+			}
+		}),
+	check('vcs.serviceOffering').isObject(),
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			let { privateKey } = req.body
+			const {
+				legalParticipantSD,
+				vcs: { serviceOffering }
+			} = req.body
+			const errors = validationResult(req)
+			if (!errors.isEmpty()) {
+				const errorsArr = errors.array()
+				res.status(422).json({
+					error: `${errorsArr[0].msg} for param '${errorsArr[0].param}'`,
+					message: AppMessages.SD_SIGN_VALIDATION_FAILED
+				})
+			} else {
+				const legalParticipant = (await axios.get(legalParticipantSD)).data
+				const vcs = {}
+				privateKey = Buffer.from(privateKey, 'base64').toString('ascii')
+				res.status(200).json({
+					data: { serviceOffering },
+					message: AppMessages.SD_SIGN_SUCCESS
+				})
+			}
+		} catch (e) {
+			res.status(500).json({
+				error: (e as Error).message,
+				message: AppMessages.SD_SIGN_FAILED
 			})
 		}
 	}
