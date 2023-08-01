@@ -8,7 +8,7 @@ import { check, validationResult } from 'express-validator'
 import web from 'web-did-resolver'
 import * as jose from 'jose'
 import jsonld from 'jsonld'
-import { VerifiableCredentialDto } from '../interface/interface'
+import { ComplianceCredential, SignatureDto, VerifiableCredentialDto, VerificationMethod, VerificationStatus } from '../interface/interface'
 
 const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
@@ -159,12 +159,15 @@ privateRoute.post(
 				})
 			} else {
 				const { participantUrl, policies } = req.body
-				const verificationStatus: any = {}
+				const verificationStatus: VerificationStatus = {
+					valid: false
+				}
 
 				console.log('fetching participant json...')
 				const participantJson = await Utils.fetchParticipantJson(participantUrl)
+
 				//check if VC not null or in other form
-				if (!participantJson.selfDescriptionCredential.verifiableCredential) {
+				if (!participantJson?.selfDescriptionCredential?.verifiableCredential) {
 					console.log(`❌ No Verifiable Credential Found`)
 					res.status(400).json({
 						error: `VC not found`,
@@ -181,7 +184,7 @@ privateRoute.post(
 				}
 
 				// check if complianceCred not null
-				if (!participantJson.complianceCredential || !participantJson.complianceCredential.proof) {
+				if (!participantJson?.complianceCredential || !participantJson?.complianceCredential?.proof) {
 					console.log(`❌ Compliance Credential Not Found`)
 					res.status(400).json({
 						error: `Compliance Credential not found`,
@@ -200,8 +203,8 @@ privateRoute.post(
 					return
 				}
 				//fetching VC with subject type gx:LegalParticipant
-				const VC = verifiableCredential.find(async (vc: VerifiableCredentialDto) => {
-					return vc.credentialSubject.type === 'gx:LegalParticipant'
+				const VC = verifiableCredential?.find(async (vc: VerifiableCredentialDto) => {
+					return vc?.credentialSubject?.type === 'gx:LegalParticipant'
 				})
 				if (!VC) {
 					console.log(`❌ Verifiable Credential doesn't have type 'gx:LegalParticipant'`)
@@ -214,18 +217,23 @@ privateRoute.post(
 					console.log(`Executing ${policy} check ...`)
 					switch (policy) {
 						case AppConst.VERIFY_LP_POLICIES[0]:
-							//integrity check
-							verificationStatus.integrityCheck = true
-							participantJson.selfDescriptionCredential.verifiableCredential.map((vc: any) => {
+							// integrity check
+							let allChecksPassed = true
+
+							for (const vc of participantJson.selfDescriptionCredential.verifiableCredential) {
 								const integrityHash = `sha256-${createHash('sha256').update(JSON.stringify(vc)).digest('hex')}`
-								const credIntegrityHash = participantJson.complianceCredential.credentialSubject.find((cs: any) => cs.id == vc.credentialSubject.id).integrity
+								const credIntegrityHash = participantJson.complianceCredential?.credentialSubject?.find((cs: ComplianceCredential) => cs.id == vc.credentialSubject.id)?.integrity
 								const integrityCheck = integrityHash === credIntegrityHash
+
 								if (!integrityCheck) {
-									verificationStatus.integrityCheck = integrityCheck
+									allChecksPassed = false
 									console.log(`❌ Integrity Failed`)
+									break
 								}
-							})
+							}
+							verificationStatus.integrityCheck = allChecksPassed
 							break
+
 						case AppConst.VERIFY_LP_POLICIES[1]:
 							//holder sig verification
 							const vcProof = VC.proof
@@ -236,17 +244,26 @@ privateRoute.post(
 						case AppConst.VERIFY_LP_POLICIES[2]:
 							// compliance sig verification
 							const complianceCred = participantJson.complianceCredential
-							verificationStatus.complianceSignature = await verifyGxCompliance(complianceCred)
-							VC.break
+							const complianceProof = complianceCred.proof
+							delete complianceCred.proof
+							verificationStatus.complianceSignature = await verification(complianceCred, complianceProof, false)
+							break
 						case AppConst.VERIFY_LP_POLICIES[3]:
 							verificationStatus.complianceCheck = true
 							break
 					}
 				}
-				verificationStatus.valid = true
+
+				let validity = true
+
 				for (const status in verificationStatus) {
-					verificationStatus.valid = verificationStatus.valid && verificationStatus[status]
+					if (status !== 'valid' && !verificationStatus[status as keyof typeof verificationStatus]) {
+						validity = false
+						break
+					}
 				}
+
+				verificationStatus.valid = validity
 				res.status(200).json({
 					data: { ...verificationStatus },
 					message: 'verification successful'
@@ -267,7 +284,7 @@ privateRoute.post(
  * @param proof the proof obj
  * @returns boolean - true if the signature is verified
  */
-const verification = async (credentialContent: any, proof: any, checkSSLwithRegistry: boolean) => {
+const verification = async (credentialContent: VerifiableCredentialDto, proof: SignatureDto, checkSSLwithRegistry: boolean) => {
 	// check if proof is of type JsonWebSignature2020
 	try {
 		if (proof.type !== 'JsonWebSignature2020') {
@@ -283,7 +300,7 @@ const verification = async (credentialContent: any, proof: any, checkSSLwithRegi
 		}
 
 		// get the public keys from the DID Document
-		const { publicKeyJwk } = ddo.didDocument.verificationMethod.find((verMethod: any) => {
+		const { publicKeyJwk } = ddo?.didDocument?.verificationMethod?.find((verMethod: VerificationMethod) => {
 			if (verMethod.controller == proof.verificationMethod) {
 				return verMethod
 			}
@@ -336,25 +353,6 @@ const verification = async (credentialContent: any, proof: any, checkSSLwithRegi
 		const verificationResult = await Utils.verify(jose, proof.jws.replace('..', `.${hash}.`), AppConst.RSA_ALGO, publicKeyJwk, hash)
 		console.log(verificationResult ? `✅ ${AppMessages.SIG_VERIFY_SUCCESS}` : `❌ ${AppMessages.SIG_VERIFY_FAILED}`)
 		return verificationResult
-	} catch (error) {
-		throw error
-	}
-}
-
-/**
- * @dev - verify Gaia-x signature
- * @param complianceCred
- * @returns
- */
-async function verifyGxCompliance(complianceCred: any) {
-	try {
-		const gxProof = complianceCred.proof
-		delete complianceCred.proof
-		const gxCred = complianceCred
-
-		const signVerify = await verification(gxCred, gxProof, false)
-
-		return signVerify
 	} catch (error) {
 		throw error
 	}

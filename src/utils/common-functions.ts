@@ -388,8 +388,12 @@ namespace CommonFunctions {
 		 *
 		 */
 		fetchParticipantJson = async (participantUrl: string) => {
-			const participantJson = (await axios.get(participantUrl)).data
-			return participantJson
+			try {
+				const participantJson = (await axios.get(participantUrl)).data
+				return participantJson
+			} catch (error) {
+				throw error
+			}
 		}
 	}
 }
