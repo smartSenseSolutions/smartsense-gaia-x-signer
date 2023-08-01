@@ -165,6 +165,7 @@ privateRoute.post(
 
 				console.log('fetching participant json...')
 				const participantJson = await Utils.fetchParticipantJson(participantUrl)
+
 				//check if VC not null or in other form
 				if (!participantJson?.selfDescriptionCredential?.verifiableCredential) {
 					console.log(`❌ No Verifiable Credential Found`)
@@ -262,7 +263,7 @@ privateRoute.post(
 					}
 				}
 
-				verifiableCredential.valid = validity
+				verificationStatus.valid = validity
 				res.status(200).json({
 					data: { ...verificationStatus },
 					message: 'verification successful'
