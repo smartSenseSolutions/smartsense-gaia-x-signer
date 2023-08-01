@@ -1221,7 +1221,7 @@
 					},
 					"legalParticipantURL": {
 						"type": "string",
-						"example": "https://delta-dao.com/.well-known/serviceGaiaxDLTNetwork.json"
+						"example": "https://greenworld.proofsense.in/.well-known/participant.json"
 					},
 					"issuer": {
 						"type": "string",
@@ -1229,7 +1229,7 @@
 					},
 					"verificationMethod": {
 						"type": "string",
-						"example": "did:web:wizard.lab.gaia-x.eu:api:credentials:2d37wbGvQzbAQ84yRouh2m2vBKkN8s5AfH9Q75HZRCUQmJW7yAVSNKzjJj6gcjE2mDNDUHCichXWdMH3S2c8AaDLm3kXmf5R8DFPWTYo5iRYkn8kvgU3AjMXc2qTbhuMHCpucKGgT1ZMkcHUygZkt11iD3T8VJNKYwsdk4MGoZwdqoFUuTKVcsXVTBA4ofD1Dtqzjavyng5WUpvJf4gRyfGkMvYYuHCgay8TK8Dayt6Rhcs3r2d1gRCg2UV419S9CpWZGwKQNEXdYbaB2eTiNbQ83KMd4mj1oSJgF7LLDZLJtKJbhwLzR3x35QUqEGevRxnRDKoPdHrEZN7r9TVAmvr9rt7Xq8eB4zGMTza59hisEAUaHsmWQNaVDorqFyZgN5bXswMK1irVQ5SVR9osCCRrKUKkntxfakjmSqapPfveMP39vkgTXfEhsfLUZXGwFcpgLpWxWRn1QLnJY11BVymS7DyaSvbSKotNFQxyV6vghfM2Jetw1mLxU5qsQqDYnDYJjPZQSmkwxjX3yenPVCz6N2ox83tj9AuuQrzg5p2iukNdunDd2QCsHaMEtTq9JVLzXtWs2eZbPkxCBEQwoKTGGVhKu5yxZjCtQGc#JWK2020"
+						"example": "did:web:greenworld.proofsense.in"
 					},
 					"vcs": {
 						"type": "object",
@@ -1248,9 +1248,8 @@
 									"id": "https://greenworld.proofsense.in/.well-known/serviceComplianceService.json",
 									"type": "gx:ServiceOffering",
 									"gx:providedBy": {
-										"id": ""
+										"id": "https://greenworld.proofsense.in/.well-known/participant.json#0"
 									},
-									"gx:policy": "",
 									"gx:termsAndConditions": {
 										"gx:URL": "http://termsandconds.com",
 										"gx:hash": "d8402a23de560f5ab34b22d1a142feb9e13b3143"
@@ -1260,9 +1259,7 @@
 										"gx:accessType": "digital",
 										"gx:formatType": "application/json"
 									},
-									"gx:aggregationOf": [],
-									"gx:dataProtectionRegime": [],
-									"gx:dependsOn": []
+									"gx:policy": ""
 								}
 							}
 						}

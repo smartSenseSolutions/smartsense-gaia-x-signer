@@ -141,8 +141,26 @@ privateRoute.post(
 				const complianceCredential = (await axios.post(endpoint, selfDescriptionCredential)).data
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 
+				const { veracity, certificateDetails } = await Utils.calcVeracity(legalParticipant, resolver)
+				console.log('veracity :-', veracity)
+
+				const transparency: number = await Utils.calcTransparency(serviceOffering)
+				console.log('transparency :-', transparency)
+
+				const trustIndex: number = Utils.calcTrustIndex(veracity, transparency)
+				console.log('trustIndex :-', trustIndex)
+
 				res.status(200).json({
-					data: { selfDescriptionCredential, complianceCredential },
+					data: {
+						selfDescriptionCredential,
+						complianceCredential,
+						trustIndex: {
+							veracity,
+							transparency,
+							trustIndex,
+							certificateDetails
+						}
+					},
 					message: AppMessages.SD_SIGN_SUCCESS
 				})
 			}
