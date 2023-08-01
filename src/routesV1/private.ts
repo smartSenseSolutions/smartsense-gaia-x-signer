@@ -184,7 +184,7 @@ privateRoute.post(
 				}
 
 				// check if complianceCred not null
-				if (!participantJson.complianceCredential || !participantJson.complianceCredential.proof) {
+				if (!participantJson?.complianceCredential || !participantJson?.complianceCredential?.proof) {
 					console.log(`❌ Compliance Credential Not Found`)
 					res.status(400).json({
 						error: `Compliance Credential not found`,
@@ -203,8 +203,8 @@ privateRoute.post(
 					return
 				}
 				//fetching VC with subject type gx:LegalParticipant
-				const VC = verifiableCredential.find(async (vc: VerifiableCredentialDto) => {
-					return vc.credentialSubject.type === 'gx:LegalParticipant'
+				const VC = verifiableCredential?.find(async (vc: VerifiableCredentialDto) => {
+					return vc?.credentialSubject?.type === 'gx:LegalParticipant'
 				})
 				if (!VC) {
 					console.log(`❌ Verifiable Credential doesn't have type 'gx:LegalParticipant'`)
@@ -222,7 +222,7 @@ privateRoute.post(
 
 							for (const vc of participantJson.selfDescriptionCredential.verifiableCredential) {
 								const integrityHash = `sha256-${createHash('sha256').update(JSON.stringify(vc)).digest('hex')}`
-								const credIntegrityHash = participantJson.complianceCredential.credentialSubject.find((cs: ComplianceCredential) => cs.id == vc.credentialSubject.id).integrity
+								const credIntegrityHash = participantJson.complianceCredential?.credentialSubject?.find((cs: ComplianceCredential) => cs.id == vc.credentialSubject.id)?.integrity
 								const integrityCheck = integrityHash === credIntegrityHash
 
 								if (!integrityCheck) {
