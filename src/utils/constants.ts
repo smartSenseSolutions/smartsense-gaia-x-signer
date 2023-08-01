@@ -7,6 +7,7 @@ export class AppConst {
 	static readonly VERIFY_POLICIES = ['checkSignature', 'gxCompliance']
 	static readonly REQUEST_TYPES = ['API', 'email', 'webform', 'unregisteredLetter', 'registeredLetter', 'supportCenter']
 	static readonly ACCESS_TYPES = ['digital', 'physical']
+	static readonly VERIFY_LP_POLICIES = ['integrityCheck', 'holderSignature', 'complianceSignature', 'complianceCheck']
 }
 
 export class AppMessages {
@@ -35,4 +36,6 @@ export class AppMessages {
 	static readonly SD_SIGN_SUCCESS = 'Service offering SD signed successfully'
 	static readonly SD_SIGN_FAILED = 'Service offering SD signing failed'
 	static readonly SD_SIGN_VALIDATION_FAILED = 'Service offering SD validation failed'
+	static readonly COMPLIANCE_CRED_FOUND_FAILED = 'Compliance Credential not found'
+	static readonly PARTICIPANT_VC_INVALID = 'Verifiable Credential not valid'
 }

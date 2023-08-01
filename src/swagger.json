@@ -965,6 +965,79 @@
 					}
 				}
 			}
+		},
+		"/v1/verifyLegalParticipant" : {
+			"post": {
+				"summary": "Verify Legal Participant",
+				"description": "Validate signature of Issuer , Holder for Participant Url",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/VerifyLPSchemaBody"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SuccessSchemaResponse"
+								},
+								"examples": {
+									"verifyLP": {
+										"summary": "Verify Legal Participant",
+										"value": {
+											"message": "Success",
+											"data": {
+												"integrityCheck": true,
+												"holderSignature": true,
+												"complianceSignature": true,
+												"complianceCheck": true,
+												"valid": true
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorSchemaResponse"
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"components": {
@@ -1258,6 +1331,19 @@
 								}
 							}
 						}
+					}
+				}
+			},
+			"VerifyLPSchemaBody" : {
+				"required": ["participantUrl" , "policies"],
+				"properties" : {
+					"participantUrl": {
+						"type": "string",
+						"example": "https://greenworld.proofsense.in/.well-known/participant.json"
+					},
+					"policies": {
+						"type": "array",
+						"example": ["integrityCheck", "holderSignature", "complianceSignature", "complianceCheck"]
 					}
 				}
 			}
