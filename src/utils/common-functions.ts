@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { DidDocument, Service, LegalRegistrationNumberDto, VerifiableCredentialDto } from '../interface/interface'
 
 namespace CommonFunctions {
@@ -281,6 +282,16 @@ namespace CommonFunctions {
 			}
 		}
 
+		async validateSslFromRegistryWithUri(uri: string, axios: any) {
+			try {
+				const registryRes = await axios.post(`${process.env.REGISTRY_TRUST_ANCHOR_URL as string}/trustAnchor/chain/file`, { uri: uri })
+				return registryRes.status === 200
+			} catch (error) {
+				console.log(`❌ Validation from registry failed for certificates | error: ${error}`)
+				return false
+			}
+		}
+
 		async comparePubKeys(certificates: string, publicKeyJwk: any, jose: any) {
 			try {
 				const pk = await jose.importJWK(publicKeyJwk)
@@ -307,7 +318,7 @@ namespace CommonFunctions {
 
 		async issueRegistrationNumberVC(axios: any, request: LegalRegistrationNumberDto) {
 			try {
-				request.id = request.id.replace("#", "%23")
+				request.id = request.id.replace('#', '%23')
 				// console.log(request)
 				// console.log(JSON.stringify(request))
 				const url = `${process.env.REGISTRATION_SERVICE as string}?vcid=${request.id}`
@@ -370,6 +381,15 @@ namespace CommonFunctions {
 				type: ['VerifiablePresentation'],
 				verifiableCredential: vcs
 			}
+		}
+
+		/**
+		 * @dev - common function to fetch ParticipantJson from participantUrl
+		 *
+		 */
+		fetchParticipantJson = async (participantUrl: string) => {
+			const participantJson = (await axios.get(participantUrl)).data
+			return participantJson
 		}
 	}
 }
