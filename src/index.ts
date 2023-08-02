@@ -6,7 +6,6 @@ import swaggerUi from 'swagger-ui-express'
 import { routes } from './routes'
 import { routesV1 } from './routesV1'
 
-
 const app: Express = express()
 const port = process.env.PORT
 import * as swaggerDocument from './swagger.json'
@@ -25,3 +24,5 @@ app.use('/', routes)
 app.listen(port, () => {
 	console.log(`⚡️[server]: Server is running at http://localhost:${port}`)
 })
+
+export default app
