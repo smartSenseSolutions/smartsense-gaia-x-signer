@@ -59,3 +59,34 @@ export interface SignatureDto {
 	jws: string
 	verificationMethod: string
 }
+
+export interface VerificationStatus {
+	integrityCheck?: boolean
+	holderSignature?: boolean
+	complianceSignature?: boolean
+	complianceCheck?: boolean
+	valid: boolean
+}
+
+export interface ComplianceCredential {
+	type: string
+	id: string
+	integrity: string
+	version: string
+}
+
+export type PublicKeyJwk = {
+	kty: string
+	n: string
+	e: string
+	alg: string
+	x5u: string
+}
+
+export type VerificationMethod = {
+	'@context': string
+	id: string
+	type: string
+	controller: string
+	publicKeyJwk: PublicKeyJwk
+}
