@@ -3,8 +3,9 @@ import app from '..'
 import STATUS_CODES from 'http-status-codes'
 import { Utils } from '../utils/common-functions'
 import { AppMessages } from '../utils/constants'
+import helper from './Helper'
 
-const participantJson: any = {
+const participantJson = {
 	selfDescriptionCredential: {
 		'@context': 'https://www.w3.org/2018/credentials/v1',
 		type: ['VerifiablePresentation'],
@@ -136,6 +137,30 @@ const participantJson: any = {
 		}
 	}
 }
+const holderDdoJson = {
+	'@context': ['https://www.w3.org/ns/did/v1'],
+	id: 'did:web:greenworld.proofsense.in',
+	verificationMethod: [
+		{
+			'@context': 'https://w3c-ccg.github.io/lds-jws2020/contexts/v1/',
+			id: 'did:web:greenworld.proofsense.in',
+			type: 'JsonWebKey2020',
+			controller: 'did:web:greenworld.proofsense.in',
+			publicKeyJwk: {
+				kty: 'RSA',
+				n: 'rr2hovWW7Uy_FSP1U9uYx4PLZij6J8oRD-w7X-2DwtfFgWw9ISJcJzK4JzPLcQiK2OF__2DcdgQuPqYPZk9VhKLMnZTqy5GCKCjeBmkXPooSORLvP4EGOudcUdUnscPqAk3uMl5lPQkqDJR9kNAFZVn-pIVj_4qPWOI0RL4_CIPU2tM6ygcnrRURuvaarRlDhGftUGKPPixlghPJGTgL0D26NLgIqanGMGYhPMoTwFY8IOgyq6tcaJlHydWxkp-aoUA_XVPHPPojxi9SoMGSNIi2qwF2H8zYWHRVu5mtBWMqAYZh-hE1uHTOzAQXP7KFXdEOuX_dzvBn7Tr2-xiHiw',
+				e: 'AQAB',
+				alg: 'PS256',
+				x5u: 'https://greenworld.proofsense.in/.well-known/x509CertificateChain.pem'
+			}
+		}
+	],
+	assertionMethod: ['did:web:greenworld.proofsense.in#JWK2020-RSA']
+}
+const validBody = {
+	policies: ['integrityCheck', 'holderSignature', 'complianceSignature', 'complianceCheck'],
+	participantUrl: 'https://greenworld.proofsense.in/.well-known/participant.json'
+}
 //mocking - Utils
 jest.mock('../utils/common-functions', () => {
 	return {
@@ -144,9 +169,22 @@ jest.mock('../utils/common-functions', () => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		fetchParticipantJson: async (participantUrl: string) => {
 			return participantJson
+		},
+		getDDOfromDID: (did: string, resolver: any) => {
+			if (did == 'did:web:greenworld.proofsense.in') return { didDocument: holderDdoJson }
 		}
 	}
 })
+
+jest.mock('./Helper', () => {
+	return {
+		...jest.requireActual('./Helper'),
+		verification: () => {
+			return true
+		}
+	}
+})
+
 describe('/verifyLegalParticipant', () => {
 	describe('Failing Cases', () => {
 		describe('validation error', () => {
@@ -156,7 +194,7 @@ describe('/verifyLegalParticipant', () => {
 					message: 'Signature verification api validation failed.'
 				}
 				await supertest(app)
-					.post(`/v1/verifyLegalParticipant`)
+					.post(`/v1/verify`)
 					.expect((response) => {
 						expect(response.status).toBe(STATUS_CODES.UNPROCESSABLE_ENTITY)
 						expect(response.body).toEqual(error)
@@ -172,7 +210,7 @@ describe('/verifyLegalParticipant', () => {
 					message: 'Signature verification api validation failed.'
 				}
 				await supertest(app)
-					.post(`/v1/verifyLegalParticipant`)
+					.post(`/v1/verify`)
 					.send(body)
 					.expect((response) => {
 						expect(response.status).toBe(STATUS_CODES.UNPROCESSABLE_ENTITY)
@@ -181,7 +219,7 @@ describe('/verifyLegalParticipant', () => {
 				body.participantUrl = 'abc'
 
 				await supertest(app)
-					.post(`/v1//verifyLegalParticipant`)
+					.post(`/v1/verify`)
 					.send(body)
 					.expect((response) => {
 						expect(response.status).toBe(STATUS_CODES.UNPROCESSABLE_ENTITY)
@@ -201,7 +239,7 @@ describe('/verifyLegalParticipant', () => {
 					message: 'Signature verification api validation failed.'
 				}
 				await supertest(app)
-					.post(`/v1/verifyLegalParticipant`)
+					.post(`/v1/verify`)
 					.send(body)
 					.expect((response) => {
 						expect(response.status).toBe(STATUS_CODES.UNPROCESSABLE_ENTITY)
@@ -209,7 +247,7 @@ describe('/verifyLegalParticipant', () => {
 					})
 				body.policies = ['invalid policies']
 				await supertest(app)
-					.post(`/v1//verifyLegalParticipant`)
+					.post(`/v1/verify`)
 					.send(body)
 					.expect((response) => {
 						expect(response.status).toBe(STATUS_CODES.UNPROCESSABLE_ENTITY)
@@ -222,16 +260,13 @@ describe('/verifyLegalParticipant', () => {
 				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
 					throw new Error('Fail to fetch')
 				})
-				const body = {
-					policies: ['integrityCheck', 'holderSignature', 'complianceSignature', 'complianceCheck'],
-					participantUrl: 'https://greenyyyworld.proofsense.in/.well-known/participant.json'
-				}
+				const body = validBody
 				const error = {
 					error: 'Fail to fetch',
-					message: 'Signature verification failed'
+					message: AppMessages.SIG_VERIFY_FAILED
 				}
 				await supertest(app)
-					.post(`/v1/verifyLegalParticipant`)
+					.post(`/v1/verify`)
 					.send(body)
 					.expect((response) => {
 						expect(response.status).toBe(STATUS_CODES.INTERNAL_SERVER_ERROR)
@@ -243,16 +278,13 @@ describe('/verifyLegalParticipant', () => {
 				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
 					return {}
 				})
-				const body = {
-					policies: ['integrityCheck', 'holderSignature', 'complianceSignature', 'complianceCheck'],
-					participantUrl: 'https://greenworld.proofsense.in/.well-known/participant.json'
-				}
+				const body = validBody
 				const error = {
 					error: `VC not found`,
 					message: AppMessages.PARTICIPANT_VC_FOUND_FAILED
 				}
 				await supertest(app)
-					.post(`/v1/verifyLegalParticipant`)
+					.post(`/v1/verify`)
 					.send(body)
 					.expect((response) => {
 						expect(response.status).toBe(STATUS_CODES.BAD_REQUEST)
@@ -260,38 +292,33 @@ describe('/verifyLegalParticipant', () => {
 					})
 				jest.resetAllMocks()
 			})
-			it('vc not in form of array', async () => {
+			it('vc invalid', async () => {
 				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
 					return { ...participantJson, selfDescriptionCredential: { ...participantJson.selfDescriptionCredential, verifiableCredential: 'verifiable credential' } }
 				})
-				const body = {
-					policies: ['integrityCheck', 'holderSignature', 'complianceSignature', 'complianceCheck'],
-					participantUrl: 'https://greenworld.proofsense.in/.well-known/participant.json'
-				}
+				const body = validBody
 				const error = {
 					error: `VC not valid`,
 					message: AppMessages.PARTICIPANT_VC_INVALID
 				}
 				await supertest(app)
-					.post(`/v1/verifyLegalParticipant`)
+					.post(`/v1/verify`)
 					.send(body)
 					.expect((response) => {
 						expect(response.status).toBe(STATUS_CODES.BAD_REQUEST)
 						expect(response.body).toEqual(error)
 					})
 
-				jest.resetAllMocks()
-
 				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
-					const mockParticipantJson = participantJson
+					//creating deep copy
+					const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
 					delete mockParticipantJson.selfDescriptionCredential.verifiableCredential
-					console.log({ ...mockParticipantJson.selfDescriptionCredential.verifiableCredential })
 					return { ...mockParticipantJson }
 				})
 				error.error = 'VC not found'
 				error.message = AppMessages.PARTICIPANT_VC_FOUND_FAILED
 				await supertest(app)
-					.post(`/v1/verifyLegalParticipant`)
+					.post(`/v1/verify`)
 					.send(body)
 					.expect((response) => {
 						expect(response.status).toBe(STATUS_CODES.BAD_REQUEST)
@@ -300,6 +327,270 @@ describe('/verifyLegalParticipant', () => {
 
 				jest.resetAllMocks()
 			})
+			it('compliance credential invalid', async () => {
+				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
+					const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
+					delete mockParticipantJson.complianceCredential
+					return { ...mockParticipantJson }
+				})
+				const body = validBody
+				const error = {
+					error: `Compliance Credential not found`,
+					message: AppMessages.COMPLIANCE_CRED_FOUND_FAILED
+				}
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.BAD_REQUEST)
+						expect(response.body).toEqual(error)
+					})
+
+				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
+					const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
+					delete mockParticipantJson.complianceCredential.proof
+
+					return { ...mockParticipantJson }
+				})
+
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.BAD_REQUEST)
+						expect(response.body).toEqual(error)
+					})
+				jest.resetAllMocks()
+			})
+			it('type invalid in selfDescription', async () => {
+				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
+					const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
+					delete mockParticipantJson.selfDescriptionCredential.type
+					return { ...mockParticipantJson }
+				})
+				const body = validBody
+				const error = {
+					error: `Credential Type not supported`,
+					message: `Credential Type not supported`
+				}
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.BAD_REQUEST)
+						expect(response.body).toEqual(error)
+					})
+
+				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
+					const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
+					mockParticipantJson.selfDescriptionCredential.type = ['randomProof']
+					return { ...mockParticipantJson }
+				})
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.BAD_REQUEST)
+						expect(response.body).toEqual(error)
+					})
+				jest.resetAllMocks()
+			})
+			it('vc found without gx:LegalParticipant', async () => {
+				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
+					const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
+					mockParticipantJson.selfDescriptionCredential.verifiableCredential = [
+						{
+							'@context': [
+								'https://www.w3.org/2018/credentials/v1',
+								'https://w3id.org/security/suites/jws-2020/v1',
+								'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#'
+							],
+							type: ['VerifiableCredential'],
+							issuanceDate: '2023-07-28T11:13:56.533Z',
+							credentialSubject: {
+								'@context': 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#',
+								type: 'gx:GaiaXTermsAndConditions',
+								'gx:termsAndConditions':
+									'The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD).',
+								id: 'https://greenworld.proofsense.in/.well-known/participant.json#2'
+							},
+							issuer: 'did:web:greenworld.proofsense.in',
+							id: 'did:web:greenworld.proofsense.in',
+							proof: {
+								type: 'JsonWebSignature2020',
+								created: '2023-07-31T11:47:31.186Z',
+								proofPurpose: 'assertionMethod',
+								verificationMethod: 'did:web:greenworld.proofsense.in',
+								jws: 'eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..FhIctfvYnWlNaUVCduHe9sPSOLZUyfwuz6EbMbwtN1DYhRD0P9fCHJfKbF5TwWI9i2S0rF2LlM3lXK00RxNJN2qFTpeydR01kxDzYZrlEUZO7xXyy8XdYxwZaEwXRfSrbNkKI1AcsHLoANofo460udlIAEj9hAqHvM4tS05ZMIx8jI1a3LBI6K879zENeoSOyn713lIU5hMSU4jhX06iT152PUqAiyrMbJFHKp9KI2JlZs0T90vB5JYYo9V_Lqe3n3Ad3sn5Yi7bBZJipHEsSavHYRQqEbvANdWFWDuU_7aClNbWeQrCPhbMdS3x5RVmBzRVYin-YXQVyBcp5FXhKQ'
+							}
+						}
+					]
+					return { ...mockParticipantJson }
+				})
+				const body = validBody
+				const error = {
+					error: "VC with type 'gx:LegalParticipant' not found!!",
+					message: "VC with type 'gx:LegalParticipant' not found!!"
+				}
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.BAD_REQUEST)
+						expect(response.body).toEqual(error)
+					})
+			})
+		})
+		describe('integrityCheck', () => {
+			it('integrity fails', async () => {
+				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
+					const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
+					mockParticipantJson.selfDescriptionCredential.verifiableCredential[1].id = 'did:web:whiteworld.proofsense.in'
+					return { ...mockParticipantJson }
+				})
+
+				const body = validBody
+				body.policies = ['integrityCheck']
+
+				const message = {
+					message: AppMessages.SIG_VERIFY_SUCCESS,
+					data: {
+						integrityCheck: false,
+						valid: false
+					}
+				}
+
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.OK)
+						expect(response.body).toEqual(message)
+					})
+				jest.resetAllMocks()
+			})
+		})
+		describe('holderSignature', () => {
+			it('error from verification', async () => {
+				jest.spyOn(helper, 'verification').mockImplementation(async () => {
+					throw new Error('Verification failed due to xyz reason')
+				})
+				const body = validBody
+				body.policies = ['holderSignature']
+
+				const error = {
+					message: AppMessages.SIG_VERIFY_FAILED,
+					error: 'Verification failed due to xyz reason'
+				}
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.INTERNAL_SERVER_ERROR)
+						expect(response.body).toEqual(error)
+					})
+			})
+			it('verification returns false', async () => {
+				jest.spyOn(helper, 'verification').mockImplementation(async () => {
+					return false
+				})
+				const body = validBody
+				body.policies = ['holderSignature']
+
+				const message = {
+					message: AppMessages.SIG_VERIFY_SUCCESS,
+					data: {
+						holderSignature: false,
+						valid: false
+					}
+				}
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.OK)
+						expect(response.body).toEqual(message)
+					})
+			})
+			// 	jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
+			// 		const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
+			// 		mockParticipantJson.selfDescriptionCredential.verifiableCredential[0].proof.type = 'JsonWebSignature2021'
+			// 		return { ...mockParticipantJson }
+			// 	})
+			// 	const body = validBody
+			// 	body.policies = ['holderSignature']
+			// 	const error = {
+			// 		message: AppMessages.SIG_VERIFY_FAILED,
+			// 		error: `signature type: 'JsonWebSignature2021' not supported`
+			// 	}
+			// 	await supertest(app)
+			// 		.post(`/v1/verify`)
+			// 		.send(body)
+			// 		.expect((response) => {
+			// 			expect(response.status).toBe(STATUS_CODES.INTERNAL_SERVER_ERROR)
+			// 			expect(response.body).toEqual(error)
+			// 		})
+			// 	jest.resetAllMocks()
+			// })
+			// it('undefined ddo', async () => {
+			// 	jest.spyOn(Utils, 'getDDOfromDID').mockImplementation(async () => {
+			// 		return
+			// 	})
+			// 	const body = validBody
+			// 	body.policies = ['holderSignature']
+			// 	const error = {
+			// 		message: AppMessages.SIG_VERIFY_FAILED,
+			// 		error: `DDO not found for given did: 'did:web:greenworld.proofsense.in' in proof`
+			// 	}
+			// 	await supertest(app)
+			// 		.post(`/v1/verify`)
+			// 		.send(body)
+			// 		.expect((response) => {
+			// 			expect(response.status).toBe(STATUS_CODES.INTERNAL_SERVER_ERROR)
+			// 			expect(response.body).toEqual(error)
+			// 		})
+			// 	jest.resetAllMocks()
+			// })
+			// it('invalid ddo i.e publicKeyJwk not found', async () => {
+			// 	jest.spyOn(Utils, 'getDDOfromDID').mockImplementation(async () => {
+			// 		return {}
+			// 	})
+			// 	const body = validBody
+			// 	body.policies = ['holderSignature']
+			// 	const error = {
+			// 		message: AppMessages.SIG_VERIFY_FAILED,
+			// 		error: `publicKeyJwk not found in ddo`
+			// 	}
+			// 	await supertest(app)
+			// 		.post(`/v1/verify`)
+			// 		.send(body)
+			// 		.expect((response) => {
+			// 			expect(response.status).toBe(STATUS_CODES.INTERNAL_SERVER_ERROR)
+			// 			expect(response.body).toEqual(error)
+			// 		})
+			// 	jest.resetAllMocks()
+			// })
+			// it('x5u certificate not found', async () => {
+			// 	jest.spyOn(Utils, 'getDDOfromDID').mockImplementation(async () => {
+			// 		const mockDDO = JSON.parse(JSON.stringify(holderDdoJson))
+			// 		delete mockDDO.verificationMethod[0].publicKeyJwk.x5u
+			// 		return { didDocument: { ...mockDDO } }
+			// 	})
+			// 	const body = validBody
+			// 	body.policies = ['holderSignature']
+			// 	const error = {
+			// 		message: AppMessages.SIG_VERIFY_FAILED,
+			// 		error: `x5u not found in ddo`
+			// 	}
+			// 	await supertest(app)
+			// 		.post(`/v1/verify`)
+			// 		.send(body)
+			// 		.expect((response) => {
+			// 			expect(response.status).toBe(STATUS_CODES.INTERNAL_SERVER_ERROR)
+			// 			expect(response.body).toEqual(error)
+			// 		})
+			// 	jest.resetAllMocks()
+			// })
 		})
 	})
 })
