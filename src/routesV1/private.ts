@@ -15,7 +15,7 @@ const resolver = new Resolver(webResolver)
 export const privateRoute = express.Router()
 
 privateRoute.post(
-	'/LegalParticipantOnGaiaX',
+	'/gaia-x/legal-participant',
 	check('issuer').not().isEmpty().trim().escape(),
 	check('verificationMethod').not().isEmpty().trim().escape(),
 	check('privateKey').not().isEmpty().trim().escape(),
@@ -61,13 +61,13 @@ privateRoute.post(
 				// // const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 				// // await publisherService.publishVP(complianceCredential);
-				const completeSd = {
+				const completeSD = {
 					selfDescriptionCredential: selfDescription,
 					complianceCredential: complianceCredential
 				}
 
 				res.status(200).json({
-					data: { verifiableCredential: completeSd },
+					data: completeSD,
 					message: AppMessages.VP_SUCCESS
 				})
 			}
@@ -81,7 +81,7 @@ privateRoute.post(
 )
 
 privateRoute.post(
-	'/service-offering/gx',
+	'/gaia-x/service-offering',
 	check('privateKey').not().isEmpty().trim().escape(),
 	check('issuer').not().isEmpty().trim().escape(),
 	check('verificationMethod').not().isEmpty().trim().escape(),
@@ -142,6 +142,11 @@ privateRoute.post(
 				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescriptionCredential)).data
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 
+				const completeSD = {
+					selfDescriptionCredential: selfDescriptionCredential,
+					complianceCredential: complianceCredential
+				}
+
 				// Calculate Veracity
 				const { veracity, certificateDetails } = await Utils.calcVeracity(verifiableCredential, resolver)
 				console.log('🔒 veracity calculated')
@@ -157,8 +162,7 @@ privateRoute.post(
 
 				res.status(200).json({
 					data: {
-						selfDescriptionCredential,
-						complianceCredential,
+						completeSD,
 						trustIndex: {
 							veracity,
 							transparency,
