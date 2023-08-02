@@ -1,14 +1,15 @@
 import axios from 'axios'
 import crypto, { createHash } from 'crypto'
-import { Utils } from '../utils/common-functions'
-import { AppConst, AppMessages } from '../utils/constants'
 import { Resolver } from 'did-resolver'
 import express, { Request, Response } from 'express'
 import { check, validationResult } from 'express-validator'
-import web from 'web-did-resolver'
 import * as jose from 'jose'
 import jsonld from 'jsonld'
+import web from 'web-did-resolver'
+
 import { ComplianceCredential, SignatureDto, VerifiableCredentialDto, VerificationMethod, VerificationStatus } from '../interface/interface'
+import { Utils } from '../utils/common-functions'
+import { AppConst, AppMessages } from '../utils/constants'
 
 const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
@@ -127,7 +128,7 @@ privateRoute.post(
 )
 
 privateRoute.post(
-	'/verifyLegalParticipant',
+	'/verify',
 	check('policies')
 		.isArray()
 		.exists()
@@ -271,7 +272,7 @@ privateRoute.post(
 				verificationStatus.valid = validity
 				res.status(200).json({
 					data: { ...verificationStatus },
-					message: 'verification successful'
+					message: AppMessages.SIG_VERIFY_SUCCESS
 				})
 			}
 		} catch (error) {

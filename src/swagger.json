@@ -966,7 +966,7 @@
 				}
 			}
 		},
-		"/v1/verifyLegalParticipant" : {
+		"/v1/verify" : {
 			"post": {
 				"summary": "Verify Legal Participant",
 				"description": "Validate signature of Issuer , Holder for Participant Url",
