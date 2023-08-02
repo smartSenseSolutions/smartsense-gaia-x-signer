@@ -22,50 +22,41 @@ const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
 // const publisherService = new PublisherService()
 
-privateRoute.post(
-	'/createWebDID',
-	check('domain')
-		.not()
-		.isEmpty()
-		.trim()
-		.escape()
-		.matches(/^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/),
-	async (req: Request, res: Response): Promise<void> => {
-		try {
-			const { domain, tenant, services } = req.body
-			if (services) {
-				await check('services').isArray().run(req)
-				for (let index = 0; index < services.length; index++) {
-					await check(`services[${index}].type`).not().isEmpty().trim().escape().run(req)
-					await check(`services[${index}].serviceEndpoint`).isURL().run(req)
-				}
+privateRoute.post('/createWebDID', check('domain').not().isEmpty().trim(), async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { domain, tenant, services } = req.body
+		if (services) {
+			await check('services').isArray().run(req)
+			for (let index = 0; index < services.length; index++) {
+				await check(`services[${index}].type`).not().isEmpty().trim().escape().run(req)
+				await check(`services[${index}].serviceEndpoint`).isURL().run(req)
 			}
-			const errors = validationResult(req)
-			if (!errors.isEmpty()) {
-				const errorsArr = errors.array()
-				res.status(422).json({
-					error: `${errorsArr[0].msg} of param '${errorsArr[0].param}'`,
-					message: AppMessages.DID_VALIDATION
-				})
-			} else {
-				const didId = tenant ? `did:web:${domain}:${tenant}` : `did:web:${domain}`
-				const x5uURL = tenant ? `https://${domain}/${tenant}/x509CertificateChain.pem` : `https://${domain}/.well-known/x509CertificateChain.pem`
-				const certificate = (await axios.get(x5uURL)).data as string
-				const publicKeyJwk = await Utils.generatePublicJWK(jose, AppConst.RSA_ALGO, certificate, x5uURL)
-				const did = Utils.generateDID(didId, publicKeyJwk, services)
-				res.status(200).json({
-					data: { did },
-					message: AppMessages.DID_SUCCESS
-				})
-			}
-		} catch (e) {
-			res.status(500).json({
-				error: (e as Error).message,
-				message: AppMessages.DID_FAILED
+		}
+		const errors = validationResult(req)
+		if (!errors.isEmpty()) {
+			const errorsArr = errors.array()
+			res.status(422).json({
+				error: `${errorsArr[0].msg} of param '${errorsArr[0].param}'`,
+				message: AppMessages.DID_VALIDATION
+			})
+		} else {
+			const didId = tenant ? `did:web:${domain}:${tenant}` : `did:web:${domain}`
+			const x5uURL = tenant ? `https://${domain}/${tenant}/x509CertificateChain.pem` : `https://${domain}/.well-known/x509CertificateChain.pem`
+			const certificate = (await axios.get(x5uURL)).data as string
+			const publicKeyJwk = await Utils.generatePublicJWK(jose, AppConst.RSA_ALGO, certificate, x5uURL)
+			const did = Utils.generateDID(didId, publicKeyJwk, services)
+			res.status(200).json({
+				data: { did },
+				message: AppMessages.DID_SUCCESS
 			})
 		}
+	} catch (e) {
+		res.status(500).json({
+			error: (e as Error).message,
+			message: AppMessages.DID_FAILED
+		})
 	}
-)
+})
 
 privateRoute.post(
 	'/onBoardToGaiaX',
