@@ -1,6 +1,7 @@
 import axios from 'axios'
-import { DidDocument, LegalRegistrationNumberDto, Service, VerifiableCredentialDto, X509CertificateDetail } from '../interface/interface'
 import { X509Certificate } from 'crypto'
+
+import { DidDocument, LegalRegistrationNumberDto, Service, VerifiableCredentialDto, X509CertificateDetail } from '../interface/interface'
 
 namespace CommonFunctions {
 	export class Utils {
@@ -241,7 +242,7 @@ namespace CommonFunctions {
 		}
 
 		createVpObj(claims: any): Object {
-			let contextUris: string[] = []
+			const contextUris: string[] = []
 			for (const claim of claims) {
 				const contextUriArr = claim['@context']
 				for (const uri of contextUriArr) {
@@ -374,13 +375,12 @@ namespace CommonFunctions {
 			}
 		}
 
-		async calcVeracity(participantJson: any, resolver: any) {
-			console.log('==participantJson===>', JSON.stringify(participantJson))
-			if (participantJson && participantJson.verifiableCredential.length) {
+		async calcVeracity(verifiableCredential: any, resolver: any) {
+			if (verifiableCredential.length) {
 				let keypairDepth = 1
 				let veracity = 1
 				let certificateDetails = null
-				const participantSD = participantJson.verifiableCredential[0]
+				const participantSD = verifiableCredential[0]
 				const {
 					id: holderDID,
 					proof: { verificationMethod: participantVM }
@@ -475,7 +475,6 @@ namespace CommonFunctions {
 					country: extractFieldValue(issuerFieldsArray, 'C')
 				}
 			}
-
 			return certificateDetails
 		}
 
@@ -493,25 +492,21 @@ namespace CommonFunctions {
 		 * @param soUrl service offering self description url
 		 * @returns Number | undefined - undefined if bad data else returns the transparency value
 		 */
-		calcTransparency = async (soUrl: any): Promise<number> => {
-			const optionalProps: string[] = ['gx-service-offering:name', 'gx-service-offering:dependsOn', 'gx-service-offering:dataProtectionRegime']
+		calcTransparency = async (credentialSubject: any): Promise<number> => {
+			const optionalProps: string[] = ['gx:name', 'gx:dependsOn', 'gx:dataProtectionRegime']
 			const totalMandatoryProps = 5
 			let availOptProps = 0
 			try {
-				// get the json document of service offering
-				const {
-					selfDescriptionCredential: { credentialSubject }
-				} = (await axios.get(soUrl)).data
-
-				for (let index = 0; index < optionalProps.length; index++) {
-					if (credentialSubject[optionalProps[index]]) {
+				for (const optionalProp in optionalProps) {
+					// eslint-disable-next-line no-prototype-builtins
+					if (credentialSubject.hasOwnProperty(optionalProp) && credentialSubject[optionalProp]) {
 						availOptProps++
 					}
 				}
 				const transparency: number = (totalMandatoryProps + availOptProps) / totalMandatoryProps
 				return transparency
 			} catch (error) {
-				console.error(`❌ Invalid service offering self description url :- error \n`)
+				console.error(`❌ Error while calculating transparency :- error \n`, error)
 				throw error
 			}
 		}

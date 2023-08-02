@@ -26,7 +26,7 @@ privateRoute.post(
 		try {
 			const { issuer, verificationMethod, vcs } = req.body
 			let { privateKey } = req.body
-			let { legalParticipant, legalRegistrationNumber, gaiaXTermsAndConditions } = vcs
+			const { legalParticipant, legalRegistrationNumber, gaiaXTermsAndConditions } = vcs
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				const errorsArr = errors.array()
@@ -113,8 +113,8 @@ privateRoute.post(
 					message: AppMessages.SD_SIGN_VALIDATION_FAILED
 				})
 			} else {
-				// const legalParticipant = (await axios.get(legalParticipantURL)).data
-				const legalParticipant = require('./../../legalParticipant.json')
+				const legalParticipant = (await axios.get(legalParticipantURL)).data
+				// const legalParticipant = require('./../../legalParticipant.json')
 				const {
 					selfDescriptionCredential: { verifiableCredential }
 				} = legalParticipant
@@ -127,6 +127,7 @@ privateRoute.post(
 					})
 					return
 				}
+
 				const { x5u } = await Utils.getPublicKeys(ddo.didDocument)
 				privateKey = Buffer.from(privateKey, 'base64').toString('ascii')
 
@@ -134,21 +135,25 @@ privateRoute.post(
 				serviceOffering.proof = proof
 				verifiableCredential.push(serviceOffering)
 
+				// Create VP for service offering
 				const selfDescriptionCredential = Utils.createVP(verifiableCredential)
 
-				const endpoint = process.env.COMPLIANCE_SERVICE as string
-
-				const complianceCredential = (await axios.post(endpoint, selfDescriptionCredential)).data
+				// Call compliance service to sign in gaia-x
+				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescriptionCredential)).data
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 
-				const { veracity, certificateDetails } = await Utils.calcVeracity(legalParticipant, resolver)
-				console.log('veracity :-', veracity)
+				// Calculate Veracity
+				const { veracity, certificateDetails } = await Utils.calcVeracity(verifiableCredential, resolver)
+				console.log('🔒 veracity calculated')
 
-				const transparency: number = await Utils.calcTransparency(serviceOffering)
-				console.log('transparency :-', transparency)
+				// Calculate Transparency
+				const { credentialSubject } = serviceOffering
+				const transparency: number = await Utils.calcTransparency(credentialSubject)
+				console.log('🔒 transparency calculated')
 
+				// Calculate TrustIndex
 				const trustIndex: number = Utils.calcTrustIndex(veracity, transparency)
-				console.log('trustIndex :-', trustIndex)
+				console.log('🔒 trustIndex calculated')
 
 				res.status(200).json({
 					data: {
@@ -164,9 +169,10 @@ privateRoute.post(
 					message: AppMessages.SD_SIGN_SUCCESS
 				})
 			}
-		} catch (e) {
+		} catch (error) {
+			console.error(`❌ ${AppMessages.SD_SIGN_FAILED} :- error \n`, error)
 			res.status(500).json({
-				error: (e as Error).message,
+				error: (error as Error).message,
 				message: AppMessages.SD_SIGN_FAILED
 			})
 		}
