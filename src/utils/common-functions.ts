@@ -375,6 +375,14 @@ namespace CommonFunctions {
 			}
 		}
 
+		/**
+		 * @RefLinks
+		 * DID web with multiple keys https://www.w3.org/TR/did-core/#example-did-document-with-many-different-key-types
+		 * VC which has verification method pointing to a particular key https://www.w3.org/TR/vc-data-model/#example-a-simple-example-of-a-verifiable-credential
+		 * @dev Takes holder vc of self description as input and calculate veracity
+		 * @param verifiableCredential Holder self description url
+		 * @returns Object | undefined - undefined if bad data else return the veracity value and its certificate details
+		 */
 		async calcVeracity(verifiableCredential: any, resolver: any) {
 			if (verifiableCredential.length) {
 				let keypairDepth = 1
@@ -480,16 +488,16 @@ namespace CommonFunctions {
 
 		/**
 		 *	@Formula count(properties) / count(mandatoryproperties)
-		 *	Provided By 			Mandatory	(gx-service-offering:providedBy)
-		 *	Aggregation Of	 		Mandatory	(gx-service-offering:aggregationOf)
-		 *	Terms and Conditions 	Mandatory	(gx-service-offering:termsAndConditions)
-		 *	Policy	 				Mandatory	(gx-service-offering:policy)
-		 *	Data Account Export 	Mandatory	(gx-service-offering:dataExport)
-		 *	Name 					Optional	(gx-service-offering:name)
-		 *	Depends On	 			Optional  	(gx-service-offering:dependsOn)
-		 *	Data Protection Regime	Optional	(gx-service-offering:dataProtectionRegime)
+		 *	Provided By 			Mandatory	(gx:providedBy)
+		 *	Aggregation Of	 		Mandatory	(gx:aggregationOf)
+		 *	Terms and Conditions 	Mandatory	(gx:termsAndConditions)
+		 *	Policy	 				Mandatory	(gx:policy)
+		 *	Data Account Export 	Mandatory	(gx:dataAccountExport)
+		 *	Name 					Optional	(gx:name)
+		 *	Depends On	 			Optional  	(gx:dependsOn)
+		 *	Data Protection Regime	Optional	(gx:dataProtectionRegime)
 		 * @dev Takes service offering self description as input and calculates transparency
-		 * @param soUrl service offering self description url
+		 * @param credentialSubject service offering self description credentialSubject
 		 * @returns Number | undefined - undefined if bad data else returns the transparency value
 		 */
 		calcTransparency = async (credentialSubject: any): Promise<number> => {
