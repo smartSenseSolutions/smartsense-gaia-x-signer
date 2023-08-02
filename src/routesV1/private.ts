@@ -216,7 +216,7 @@ privateRoute.post(
 				for (const policy of policies) {
 					console.log(`Executing ${policy} check ...`)
 					switch (policy) {
-						case AppConst.VERIFY_LP_POLICIES[0]:
+						case AppConst.VERIFY_LP_POLICIES[0]: {
 							// integrity check
 							let allChecksPassed = true
 
@@ -233,24 +233,28 @@ privateRoute.post(
 							}
 							verificationStatus.integrityCheck = allChecksPassed
 							break
+						}
 
-						case AppConst.VERIFY_LP_POLICIES[1]:
+						case AppConst.VERIFY_LP_POLICIES[1]: {
 							//holder sig verification
 							const vcProof = VC.proof
 							const vcCredentialContent = VC
 							delete vcCredentialContent.proof
 							verificationStatus.holderSignature = await verification(vcCredentialContent, vcProof, true)
 							break
-						case AppConst.VERIFY_LP_POLICIES[2]:
+						}
+						case AppConst.VERIFY_LP_POLICIES[2]: {
 							// compliance sig verification
 							const complianceCred = participantJson.complianceCredential
 							const complianceProof = complianceCred.proof
 							delete complianceCred.proof
 							verificationStatus.complianceSignature = await verification(complianceCred, complianceProof, false)
 							break
-						case AppConst.VERIFY_LP_POLICIES[3]:
+						}
+						case AppConst.VERIFY_LP_POLICIES[3]: {
 							verificationStatus.complianceCheck = true
 							break
+						}
 					}
 				}
 
@@ -285,8 +289,9 @@ privateRoute.post(
  * @returns boolean - true if the signature is verified
  */
 const verification = async (credentialContent: VerifiableCredentialDto, proof: SignatureDto, checkSSLwithRegistry: boolean) => {
-	// check if proof is of type JsonWebSignature2020
+	// eslint-disable-next-line no-useless-catch
 	try {
+		// check if proof is of type JsonWebSignature2020
 		if (proof.type !== 'JsonWebSignature2020') {
 			console.log(`❌ signature type: '${proof.type}' not supported`)
 			throw new Error(`signature type: '${proof.type}' not supported`)
@@ -300,6 +305,7 @@ const verification = async (credentialContent: VerifiableCredentialDto, proof: S
 		}
 
 		// get the public keys from the DID Document
+		// eslint-disable-next-line no-unsafe-optional-chaining
 		const { publicKeyJwk } = ddo?.didDocument?.verificationMethod?.find((verMethod: VerificationMethod) => {
 			if (verMethod.controller == proof.verificationMethod) {
 				return verMethod
