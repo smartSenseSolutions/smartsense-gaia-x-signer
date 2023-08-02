@@ -284,6 +284,17 @@ namespace CommonFunctions {
 			}
 		}
 
+		async validateSslFromRegistryWithUri(uri: string, axios: any) {
+			try {
+				const registryRes = await axios.post(`${process.env.REGISTRY_TRUST_ANCHOR_URL as string}/trustAnchor/chain/file`, { uri: uri })
+				const result = registryRes?.data?.result
+				return result
+			} catch (error) {
+				console.log(`❌ Validation from registry failed for certificates | error: ${error}`)
+				return false
+			}
+		}
+
 		async comparePubKeys(certificates: string, publicKeyJwk: any, jose: any) {
 			try {
 				const pk = await jose.importJWK(publicKeyJwk)
@@ -529,6 +540,19 @@ namespace CommonFunctions {
 		calcTrustIndex = (veracity: number, transparency: number): number => {
 			const trustIndex: number = (veracity + transparency) / 2
 			return trustIndex
+		}
+
+		/**
+		 * @dev - common function to fetch ParticipantJson from participantUrl
+		 */
+		fetchParticipantJson = async (participantUrl: string) => {
+			// eslint-disable-next-line no-useless-catch
+			try {
+				const participantJson = (await axios.get(participantUrl)).data
+				return participantJson
+			} catch (error) {
+				throw error
+			}
 		}
 	}
 }
