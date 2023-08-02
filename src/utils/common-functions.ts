@@ -285,7 +285,8 @@ namespace CommonFunctions {
 		async validateSslFromRegistryWithUri(uri: string, axios: any) {
 			try {
 				const registryRes = await axios.post(`${process.env.REGISTRY_TRUST_ANCHOR_URL as string}/trustAnchor/chain/file`, { uri: uri })
-				return registryRes.status === 200
+				const result = registryRes?.data?.result
+				return result
 			} catch (error) {
 				console.log(`❌ Validation from registry failed for certificates | error: ${error}`)
 				return false
@@ -388,6 +389,7 @@ namespace CommonFunctions {
 		 *
 		 */
 		fetchParticipantJson = async (participantUrl: string) => {
+			// eslint-disable-next-line no-useless-catch
 			try {
 				const participantJson = (await axios.get(participantUrl)).data
 				return participantJson
