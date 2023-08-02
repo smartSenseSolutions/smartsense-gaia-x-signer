@@ -1,5 +1,7 @@
 import axios from 'axios'
-import { DidDocument, Service, LegalRegistrationNumberDto, VerifiableCredentialDto } from '../interface/interface'
+import { X509Certificate } from 'crypto'
+
+import { DidDocument, LegalRegistrationNumberDto, Service, VerifiableCredentialDto, X509CertificateDetail } from '../interface/interface'
 
 namespace CommonFunctions {
 	export class Utils {
@@ -240,7 +242,7 @@ namespace CommonFunctions {
 		}
 
 		createVpObj(claims: any): Object {
-			let contextUris: string[] = []
+			const contextUris: string[] = []
 			for (const claim of claims) {
 				const contextUriArr = claim['@context']
 				for (const uri of contextUriArr) {
@@ -385,8 +387,163 @@ namespace CommonFunctions {
 		}
 
 		/**
+		 * @RefLinks
+		 * DID web with multiple keys https://www.w3.org/TR/did-core/#example-did-document-with-many-different-key-types
+		 * VC which has verification method pointing to a particular key https://www.w3.org/TR/vc-data-model/#example-a-simple-example-of-a-verifiable-credential
+		 * @dev Takes holder vc of self description as input and calculate veracity
+		 * @param verifiableCredential Holder self description url
+		 * @returns Object | undefined - undefined if bad data else return the veracity value and its certificate details
+		 */
+		async calcVeracity(verifiableCredential: any, resolver: any) {
+			if (verifiableCredential.length) {
+				let keypairDepth = 1
+				let veracity = 1
+				let certificateDetails = null
+				const participantSD = verifiableCredential[0]
+				const {
+					id: holderDID,
+					proof: { verificationMethod: participantVM }
+				} = participantSD
+				console.log(`holderDID :-${holderDID}  holderDID :- ${participantVM}`)
+
+				const ddo = await this.getDDOfromDID(holderDID, resolver)
+				if (!ddo) {
+					// Bad Data
+					console.error(`❌ DDO not found for given did: '${holderDID}' in proof`)
+					throw new Error(`DDO not found for given did: '${holderDID}' in proof`)
+				}
+				const {
+					didDocument: { verificationMethod: verificationMethodArray }
+				} = ddo
+
+				// There can be multiple verification methods in the did document but we have to find the one which has signed the holder vc
+				// So verificationMethod mentioned in the proof of holder SD should have to be equal to the id filed in the verification method
+				// participantSD.json >> proof >> verificationMethod === did.json >> verificationMethodArray >> verificationMethodObject >> id
+
+				for (const verificationMethod of verificationMethodArray) {
+					if (verificationMethod.id === participantVM && verificationMethod.publicKeyJwk) {
+						const { x5u } = verificationMethod.publicKeyJwk
+
+						// get the SSL certificates from x5u url
+						const certificates = (await axios.get(x5u)).data as string
+						// console.log('certificates :- ', certificates)
+
+						const certArray = certificates.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g)
+						if (certArray?.length) {
+							keypairDepth += certArray?.length // sum(len(keychain)
+						}
+
+						// getting object of a PEM encoded X509 Certificate.
+						const certificate = new X509Certificate(certificates)
+						certificateDetails = this.parseCertificate(certificate)
+
+						break
+					}
+				}
+				if (certificateDetails) {
+					// As per formula(1 / len(keychain)), veracity will be 1 divided by number of signing
+					// keypairs found in the certificate
+					veracity = +(1 / keypairDepth).toFixed(2) //1 / len(keychain)
+					return { veracity, certificateDetails }
+				}
+				console.error(`❌ Participant proof verification method and did verification method id not matched`)
+				throw new Error('Participant proof verification method and did verification method id not matched')
+			}
+			console.error(`❌ Verifiable credential array not found in participant self description`)
+			throw new Error('Verifiable credential array not found in participant self description')
+		}
+
+		/**
+		 * @dev Helps to parse and format x509Certificate data to return in response
+		 * @param certificate X509Certificate object
+		 * @returns X509CertificateDetail - Formatted X509Certificate object
+		 */
+		parseCertificate = (certificate: X509Certificate): X509CertificateDetail => {
+			const issuerFieldsString: string = certificate.issuer
+			const issuerFieldsArray: string[] = issuerFieldsString.split('\n')
+
+			const extractFieldValue = (fieldArray: string[], fieldName: string) => {
+				const field: string | undefined = fieldArray.find((line: any) => line.startsWith(`${fieldName}=`))
+				if (field) {
+					return field.slice(fieldName.length + 1)
+				}
+				return null
+			}
+			// Extract individual fields from the subject string
+			const subjectFieldsString: string = certificate.subject
+			const subjectFieldsArray: string[] = subjectFieldsString.split('\n')
+
+			const certificateDetails: X509CertificateDetail = {
+				validFrom: certificate.validFrom,
+				validTo: certificate.validTo,
+				subject: {
+					jurisdictionCountry: extractFieldValue(subjectFieldsArray, 'jurisdictionC'),
+					jurisdictionSate: extractFieldValue(subjectFieldsArray, 'jurisdictionST'),
+					jurisdictionLocality: extractFieldValue(subjectFieldsArray, 'jurisdictionL'),
+					businessCategory: extractFieldValue(subjectFieldsArray, 'businessCategory'),
+					serialNumber: extractFieldValue(subjectFieldsArray, 'serialNumber'),
+					country: extractFieldValue(subjectFieldsArray, 'C'),
+					state: extractFieldValue(subjectFieldsArray, 'ST'),
+					locality: extractFieldValue(subjectFieldsArray, 'L'),
+					organization: extractFieldValue(subjectFieldsArray, 'O'),
+					commonName: extractFieldValue(subjectFieldsArray, 'CN')
+				},
+				issuer: {
+					commonName: extractFieldValue(issuerFieldsArray, 'CN'),
+					organization: extractFieldValue(issuerFieldsArray, 'O'),
+					country: extractFieldValue(issuerFieldsArray, 'C')
+				}
+			}
+			return certificateDetails
+		}
+
+		/**
+		 *	@Formula count(properties) / count(mandatoryproperties)
+		 *	Provided By 			Mandatory	(gx:providedBy)
+		 *	Aggregation Of	 		Mandatory	(gx:aggregationOf)
+		 *	Terms and Conditions 	Mandatory	(gx:termsAndConditions)
+		 *	Policy	 				Mandatory	(gx:policy)
+		 *	Data Account Export 	Mandatory	(gx:dataAccountExport)
+		 *	Name 					Optional	(gx:name)
+		 *	Depends On	 			Optional  	(gx:dependsOn)
+		 *	Data Protection Regime	Optional	(gx:dataProtectionRegime)
+		 * @dev Takes service offering self description as input and calculates transparency
+		 * @param credentialSubject service offering self description credentialSubject
+		 * @returns Number | undefined - undefined if bad data else returns the transparency value
+		 */
+		calcTransparency = async (credentialSubject: any): Promise<number> => {
+			const optionalProps: string[] = ['gx:name', 'gx:dependsOn', 'gx:dataProtectionRegime']
+			const totalMandatoryProps = 5
+			let availOptProps = 0
+			try {
+				for (const optionalProp in optionalProps) {
+					// eslint-disable-next-line no-prototype-builtins
+					if (credentialSubject.hasOwnProperty(optionalProp) && credentialSubject[optionalProp]) {
+						availOptProps++
+					}
+				}
+				const transparency: number = (totalMandatoryProps + availOptProps) / totalMandatoryProps
+				return transparency
+			} catch (error) {
+				console.error(`❌ Error while calculating transparency :- error \n`, error)
+				throw error
+			}
+		}
+
+		/**
+		 * @formula trust_index = mean(veracity, transparency)
+		 * @dev takes the veracity and transparency as input and calculates trust index
+		 * @param veracity Veracity value
+		 * @param transparency Transparency value
+		 * @returns number - Trust index value
+		 */
+		calcTrustIndex = (veracity: number, transparency: number): number => {
+			const trustIndex: number = (veracity + transparency) / 2
+			return trustIndex
+		}
+
+		/**
 		 * @dev - common function to fetch ParticipantJson from participantUrl
-		 *
 		 */
 		fetchParticipantJson = async (participantUrl: string) => {
 			// eslint-disable-next-line no-useless-catch

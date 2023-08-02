@@ -16,7 +16,7 @@ const resolver = new Resolver(webResolver)
 export const privateRoute = express.Router()
 
 privateRoute.post(
-	'/LegalParticipantOnGaiaX',
+	'/gaia-x/legal-participant',
 	check('issuer').not().isEmpty().trim().escape(),
 	check('verificationMethod').not().isEmpty().trim().escape(),
 	check('privateKey').not().isEmpty().trim().escape(),
@@ -27,7 +27,7 @@ privateRoute.post(
 		try {
 			const { issuer, verificationMethod, vcs } = req.body
 			let { privateKey } = req.body
-			let { legalParticipant, legalRegistrationNumber, gaiaXTermsAndConditions } = vcs
+			const { legalParticipant, legalRegistrationNumber, gaiaXTermsAndConditions } = vcs
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				const errorsArr = errors.array()
@@ -62,13 +62,13 @@ privateRoute.post(
 				// // const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 				// // await publisherService.publishVP(complianceCredential);
-				const completeSd = {
+				const completeSD = {
 					selfDescriptionCredential: selfDescription,
 					complianceCredential: complianceCredential
 				}
 
 				res.status(200).json({
-					data: { verifiableCredential: completeSd },
+					data: completeSD,
 					message: AppMessages.VP_SUCCESS
 				})
 			}
@@ -82,9 +82,11 @@ privateRoute.post(
 )
 
 privateRoute.post(
-	'/service-offering/gx',
+	'/gaia-x/service-offering',
 	check('privateKey').not().isEmpty().trim().escape(),
-	check('legalParticipant')
+	check('issuer').not().isEmpty().trim().escape(),
+	check('verificationMethod').not().isEmpty().trim().escape(),
+	check('legalParticipantURL')
 		.not()
 		.isEmpty()
 		.trim()
@@ -99,7 +101,9 @@ privateRoute.post(
 		try {
 			let { privateKey } = req.body
 			const {
-				legalParticipantSD,
+				legalParticipantURL,
+				verificationMethod,
+				issuer,
 				vcs: { serviceOffering }
 			} = req.body
 			const errors = validationResult(req)
@@ -110,17 +114,70 @@ privateRoute.post(
 					message: AppMessages.SD_SIGN_VALIDATION_FAILED
 				})
 			} else {
-				const legalParticipant = (await axios.get(legalParticipantSD)).data
-				const vcs = {}
+				const legalParticipant = (await axios.get(legalParticipantURL)).data
+				// const legalParticipant = require('./../../legalParticipant.json')
+				const {
+					selfDescriptionCredential: { verifiableCredential }
+				} = legalParticipant
+
+				const ddo = await Utils.getDDOfromDID(issuer, resolver)
+				if (!ddo) {
+					console.error(`❌ DDO not found for given did: '${issuer}' in proof`)
+					res.status(400).json({
+						error: `DDO not found for given did: '${issuer}' in proof`
+					})
+					return
+				}
+
+				const { x5u } = await Utils.getPublicKeys(ddo.didDocument)
 				privateKey = Buffer.from(privateKey, 'base64').toString('ascii')
+
+				const proof = await Utils.addProof(jsonld, axios, jose, crypto, serviceOffering, privateKey, verificationMethod, AppConst.RSA_ALGO, x5u)
+				serviceOffering.proof = proof
+				verifiableCredential.push(serviceOffering)
+
+				// Create VP for service offering
+				const selfDescriptionCredential = Utils.createVP(verifiableCredential)
+
+				// Call compliance service to sign in gaia-x
+				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescriptionCredential)).data
+				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
+
+				const completeSD = {
+					selfDescriptionCredential: selfDescriptionCredential,
+					complianceCredential: complianceCredential
+				}
+
+				// Calculate Veracity
+				const { veracity, certificateDetails } = await Utils.calcVeracity(verifiableCredential, resolver)
+				console.log('🔒 veracity calculated')
+
+				// Calculate Transparency
+				const { credentialSubject } = serviceOffering
+				const transparency: number = await Utils.calcTransparency(credentialSubject)
+				console.log('🔒 transparency calculated')
+
+				// Calculate TrustIndex
+				const trustIndex: number = Utils.calcTrustIndex(veracity, transparency)
+				console.log('🔒 trustIndex calculated')
+
 				res.status(200).json({
-					data: { serviceOffering },
+					data: {
+						completeSD,
+						trustIndex: {
+							veracity,
+							transparency,
+							trustIndex,
+							certificateDetails
+						}
+					},
 					message: AppMessages.SD_SIGN_SUCCESS
 				})
 			}
-		} catch (e) {
+		} catch (error) {
+			console.error(`❌ ${AppMessages.SD_SIGN_FAILED} :- error \n`, error)
 			res.status(500).json({
-				error: (e as Error).message,
+				error: (error as Error).message,
 				message: AppMessages.SD_SIGN_FAILED
 			})
 		}
