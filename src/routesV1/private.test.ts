@@ -592,5 +592,48 @@ describe('/verifyLegalParticipant', () => {
 			// 	jest.resetAllMocks()
 			// })
 		})
+		describe('complianceSignature', () => {
+			it('error from verification', async () => {
+				jest.spyOn(helper, 'verification').mockImplementation(async () => {
+					throw new Error('Verification failed due to xyz reason')
+				})
+				const body = validBody
+				body.policies = ['complianceSignature']
+
+				const error = {
+					message: AppMessages.SIG_VERIFY_FAILED,
+					error: 'Verification failed due to xyz reason'
+				}
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.INTERNAL_SERVER_ERROR)
+						expect(response.body).toEqual(error)
+					})
+			})
+			it('verification returns false', async () => {
+				jest.spyOn(helper, 'verification').mockImplementation(async () => {
+					return false
+				})
+				const body = validBody
+				body.policies = ['complianceSignature']
+
+				const message = {
+					message: AppMessages.SIG_VERIFY_SUCCESS,
+					data: {
+						complianceSignature: false,
+						valid: false
+					}
+				}
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.OK)
+						expect(response.body).toEqual(message)
+					})
+			})
+		})
 	})
 })
