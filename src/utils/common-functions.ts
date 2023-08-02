@@ -237,7 +237,7 @@ namespace CommonFunctions {
 				return content === hash
 			} catch (error) {
 				console.log(`❌ Signature Verification Failed | error: ${error}`)
-				return false
+				throw error
 			}
 		}
 
