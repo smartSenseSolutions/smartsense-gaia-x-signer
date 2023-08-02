@@ -195,10 +195,11 @@ privateRoute.post(
 
 				// check VC are of valid type
 				const { verifiableCredential, type } = participantJson.selfDescriptionCredential
-				if (type[0] != 'VerifiableCredential' && type[0] != 'VerifiablePresentation') {
+				if (!(Array.isArray(type) || type?.include('VerifiableCredential') || type?.includes('VerifiablePresentation'))) {
 					console.log(`❌ Credential Type not supported`)
 					res.status(400).json({
-						error: `Credential Type not supported`
+						error: `Credential Type not supported`,
+						message: `Credential Type not supported`
 					})
 					return
 				}
