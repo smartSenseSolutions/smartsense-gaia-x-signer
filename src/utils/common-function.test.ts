@@ -385,11 +385,11 @@ describe('commonFunction Testing', () => {
 			let isError = false
 			try {
 				const response = await Utils.verification(holderCred, proof, false, resolver)
-				expect(response).toBe(false)
 			} catch (error) {
 				isError = true
+				expect(error).toBeInstanceOf(Error)
 			}
-			expect(isError).toBe(false)
+			expect(isError).toBe(true)
 			jest.resetAllMocks()
 		})
 		it('hash verification successful', async () => {
