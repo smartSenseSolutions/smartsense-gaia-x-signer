@@ -10,8 +10,7 @@ import * as jose from 'jose'
 import jsonld from 'jsonld'
 import typer from 'media-typer'
 import web from 'web-did-resolver'
-
-import { Utils } from '../utils/common-functions'
+import Utils from '../utils/common-functions'
 import { AppConst, AppMessages } from '../utils/constants'
 
 // import { PublisherService } from '../utils/service/publisher.service'
