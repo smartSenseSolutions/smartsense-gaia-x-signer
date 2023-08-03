@@ -6,12 +6,9 @@ import { check, validationResult } from 'express-validator'
 import * as jose from 'jose'
 import jsonld from 'jsonld'
 import web from 'web-did-resolver'
-
-import { ComplianceCredential, SignatureDto, VerifiableCredentialDto, VerificationMethod, VerificationStatus } from '../interface/interface'
-import { Utils } from '../utils/common-functions'
+import { ComplianceCredential, VerifiableCredentialDto, VerificationStatus } from '../interface/interface'
+import Utils from '../utils/common-functions'
 import { AppConst, AppMessages } from '../utils/constants'
-import helper from './Helper'
-
 const webResolver = web.getResolver()
 const resolver = new Resolver(webResolver)
 export const privateRoute = express.Router()
@@ -240,18 +237,18 @@ privateRoute.post(
 
 						case AppConst.VERIFY_LP_POLICIES[1]: {
 							//holder sig verification
-							const vcProof = VC.proof
-							const vcCredentialContent = VC
+							const vcProof = JSON.parse(JSON.stringify(VC.proof))
+							const vcCredentialContent = JSON.parse(JSON.stringify(VC))
 							delete vcCredentialContent.proof
-							verificationStatus.holderSignature = await helper.verification(vcCredentialContent, vcProof, true)
+							verificationStatus.holderSignature = await Utils.verification(vcCredentialContent, vcProof, true, resolver)
 							break
 						}
 						case AppConst.VERIFY_LP_POLICIES[2]: {
 							// compliance sig verification
-							const complianceCred = participantJson.complianceCredential
-							const complianceProof = complianceCred.proof
+							const complianceCred = JSON.parse(JSON.stringify(participantJson.complianceCredential))
+							const complianceProof = JSON.parse(JSON.stringify(complianceCred.proof))
 							delete complianceCred.proof
-							verificationStatus.complianceSignature = await helper.verification(complianceCred, complianceProof, false)
+							verificationStatus.complianceSignature = await Utils.verification(complianceCred, complianceProof, false, resolver)
 							break
 						}
 						case AppConst.VERIFY_LP_POLICIES[3]: {

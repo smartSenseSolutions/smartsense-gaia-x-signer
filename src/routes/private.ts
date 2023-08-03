@@ -12,7 +12,7 @@ import typer from 'media-typer'
 import web from 'web-did-resolver'
 
 import { X509CertificateDetail } from '../interface/interface'
-import { Utils } from '../utils/common-functions'
+import Utils from '../utils/common-functions'
 import { AppConst, AppMessages } from '../utils/constants'
 
 // import { PublisherService } from '../utils/service/publisher.service'
@@ -118,9 +118,9 @@ privateRoute.post(
 				let selfDescription: any = null
 				if (templateId === AppConst.LEGAL_PARTICIPANT) {
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
-					selfDescription = Utils.generateLegalPerson(`${participantURL}#0`, didId, legalName, headquarterAddress, legalAddress,`${participantURL}#1`)
-					const regVC = (await Utils.generateRegistrationNumber(axios, didId, legalRegistrationType, legalRegistrationNumber,`${participantURL}%231`))
-					const termsVC = await Utils.generateTermsAndConditions(axios, didId,`${participantURL}#2`)
+					selfDescription = Utils.generateLegalPerson(`${participantURL}#0`, didId, legalName, headquarterAddress, legalAddress, `${participantURL}#1`)
+					const regVC = await Utils.generateRegistrationNumber(axios, didId, legalRegistrationType, legalRegistrationNumber, `${participantURL}%231`)
+					const termsVC = await Utils.generateTermsAndConditions(axios, didId, `${participantURL}#2`)
 					selfDescription['verifiableCredential'].push(regVC, termsVC)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
 					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
@@ -128,8 +128,8 @@ privateRoute.post(
 					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data)
 					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
 					for (let index = 0; index < selfDescriptionCredential.verifiableCredential.length; index++) {
-						const vc = selfDescriptionCredential.verifiableCredential[index];
-						selfDescription.verifiableCredential.push(vc)	
+						const vc = selfDescriptionCredential.verifiableCredential[index]
+						selfDescription.verifiableCredential.push(vc)
 					}
 				} else {
 					res.status(422).json({
@@ -140,7 +140,7 @@ privateRoute.post(
 				for (let index = 0; index < selfDescription['verifiableCredential'].length; index++) {
 					const vc = selfDescription['verifiableCredential'][index]
 					if (!selfDescription['verifiableCredential'][index].hasOwnProperty('proof')) {
-						const proof = await Utils.generateProof(jsonld, he, axios, jose,crypto, vc, privateKeyUrl, didId, domain, tenant, AppConst.RSA_ALGO)
+						const proof = await Utils.generateProof(jsonld, he, axios, jose, crypto, vc, privateKeyUrl, didId, domain, tenant, AppConst.RSA_ALGO)
 						selfDescription['verifiableCredential'][index].proof = proof
 					}
 				}

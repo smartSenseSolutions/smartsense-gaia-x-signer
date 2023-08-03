@@ -1,9 +1,8 @@
 import supertest from 'supertest'
 import app from '..'
 import STATUS_CODES from 'http-status-codes'
-import { Utils } from '../utils/common-functions'
 import { AppMessages } from '../utils/constants'
-import helper from './Helper'
+import Utils from '../utils/common-functions'
 
 const participantJson = {
 	selfDescriptionCredential: {
@@ -137,6 +136,7 @@ const participantJson = {
 		}
 	}
 }
+
 const holderDdoJson = {
 	'@context': ['https://www.w3.org/ns/did/v1'],
 	id: 'did:web:greenworld.proofsense.in',
@@ -161,26 +161,20 @@ const validBody = {
 	policies: ['integrityCheck', 'holderSignature', 'complianceSignature', 'complianceCheck'],
 	participantUrl: 'https://greenworld.proofsense.in/.well-known/participant.json'
 }
-//mocking - Utils
-jest.mock('../utils/common-functions', () => {
-	return {
-		...jest.requireActual('../utils/common-functions'),
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+//mocking - Utils
+jest.mock('../utils/common-functions.ts', () => {
+	return {
+		...jest.requireActual('../utils/common-functions.ts'),
+		verification: () => {
+			return true
+		},
 		fetchParticipantJson: async (participantUrl: string) => {
-			return participantJson
+			const mockPJ = JSON.parse(JSON.stringify(participantJson))
+			return { ...mockPJ }
 		},
 		getDDOfromDID: (did: string, resolver: any) => {
 			if (did == 'did:web:greenworld.proofsense.in') return { didDocument: holderDdoJson }
-		}
-	}
-})
-
-jest.mock('./Helper', () => {
-	return {
-		...jest.requireActual('./Helper'),
-		verification: () => {
-			return true
 		}
 	}
 })
@@ -346,6 +340,8 @@ describe('/verifyLegalParticipant', () => {
 						expect(response.body).toEqual(error)
 					})
 
+				jest.resetAllMocks()
+
 				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
 					const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
 					delete mockParticipantJson.complianceCredential.proof
@@ -380,7 +376,7 @@ describe('/verifyLegalParticipant', () => {
 						expect(response.status).toBe(STATUS_CODES.BAD_REQUEST)
 						expect(response.body).toEqual(error)
 					})
-
+				jest.resetAllMocks()
 				jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
 					const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
 					mockParticipantJson.selfDescriptionCredential.type = ['randomProof']
@@ -472,7 +468,7 @@ describe('/verifyLegalParticipant', () => {
 		})
 		describe('holderSignature', () => {
 			it('error from verification', async () => {
-				jest.spyOn(helper, 'verification').mockImplementation(async () => {
+				jest.spyOn(Utils, 'verification').mockImplementation(async () => {
 					throw new Error('Verification failed due to xyz reason')
 				})
 				const body = validBody
@@ -489,9 +485,10 @@ describe('/verifyLegalParticipant', () => {
 						expect(response.status).toBe(STATUS_CODES.INTERNAL_SERVER_ERROR)
 						expect(response.body).toEqual(error)
 					})
+				jest.resetAllMocks()
 			})
 			it('verification returns false', async () => {
-				jest.spyOn(helper, 'verification').mockImplementation(async () => {
+				jest.spyOn(Utils, 'verification').mockImplementation(async () => {
 					return false
 				})
 				const body = validBody
@@ -511,6 +508,7 @@ describe('/verifyLegalParticipant', () => {
 						expect(response.status).toBe(STATUS_CODES.OK)
 						expect(response.body).toEqual(message)
 					})
+				jest.resetAllMocks()
 			})
 			// 	jest.spyOn(Utils, 'fetchParticipantJson').mockImplementation(async () => {
 			// 		const mockParticipantJson = JSON.parse(JSON.stringify(participantJson))
@@ -594,7 +592,7 @@ describe('/verifyLegalParticipant', () => {
 		})
 		describe('complianceSignature', () => {
 			it('error from verification', async () => {
-				jest.spyOn(helper, 'verification').mockImplementation(async () => {
+				jest.spyOn(Utils, 'verification').mockImplementation(async () => {
 					throw new Error('Verification failed due to xyz reason')
 				})
 				const body = validBody
@@ -611,9 +609,10 @@ describe('/verifyLegalParticipant', () => {
 						expect(response.status).toBe(STATUS_CODES.INTERNAL_SERVER_ERROR)
 						expect(response.body).toEqual(error)
 					})
+				jest.resetAllMocks()
 			})
 			it('verification returns false', async () => {
-				jest.spyOn(helper, 'verification').mockImplementation(async () => {
+				jest.spyOn(Utils, 'verification').mockImplementation(async () => {
 					return false
 				})
 				const body = validBody
@@ -626,6 +625,7 @@ describe('/verifyLegalParticipant', () => {
 						valid: false
 					}
 				}
+
 				await supertest(app)
 					.post(`/v1/verify`)
 					.send(body)
@@ -633,6 +633,102 @@ describe('/verifyLegalParticipant', () => {
 						expect(response.status).toBe(STATUS_CODES.OK)
 						expect(response.body).toEqual(message)
 					})
+				jest.resetAllMocks()
+			})
+		})
+	})
+	describe('success case', () => {
+		describe('integrityCheck', () => {
+			it('integrity successful', async () => {
+				const body = validBody
+				body.policies = ['integrityCheck']
+
+				const message = {
+					message: AppMessages.SIG_VERIFY_SUCCESS,
+					data: {
+						integrityCheck: true,
+						valid: true
+					}
+				}
+
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.OK)
+						expect(response.body).toEqual(message)
+					})
+				jest.resetAllMocks()
+			})
+		})
+		describe('holderSignature', () => {
+			it('holder sig validated', async () => {
+				const body = validBody
+				body.policies = ['holderSignature']
+
+				const message = {
+					message: AppMessages.SIG_VERIFY_SUCCESS,
+					data: {
+						holderSignature: true,
+						valid: true
+					}
+				}
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.OK)
+						expect(response.body).toEqual(message)
+					})
+				jest.resetAllMocks()
+			})
+		})
+		describe('complianceSignature', () => {
+			it('compliance signature verified', async () => {
+				const body = validBody
+				body.policies = ['complianceSignature']
+
+				const message = {
+					message: AppMessages.SIG_VERIFY_SUCCESS,
+					data: {
+						complianceSignature: true,
+						valid: true
+					}
+				}
+
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.OK)
+						expect(response.body).toEqual(message)
+					})
+				jest.resetAllMocks()
+			})
+		})
+		describe('check all', () => {
+			it('compliance signature verified', async () => {
+				const body = validBody
+				body.policies = ['holderSignature', 'integrityCheck', 'complianceSignature']
+
+				const message = {
+					message: AppMessages.SIG_VERIFY_SUCCESS,
+					data: {
+						holderSignature: true,
+						integrityCheck: true,
+						complianceSignature: true,
+						valid: true
+					}
+				}
+
+				await supertest(app)
+					.post(`/v1/verify`)
+					.send(body)
+					.expect((response) => {
+						expect(response.status).toBe(STATUS_CODES.OK)
+						expect(response.body).toEqual(message)
+					})
+				jest.resetAllMocks()
 			})
 		})
 	})
