@@ -3,6 +3,8 @@ import { DidDocument, Service, LegalRegistrationNumberDto, VerifiableCredentialD
 import { AppConst, AppMessages } from './constants'
 import * as jose from 'jose'
 import jsonld from 'jsonld'
+import crypto, { X509Certificate } from 'crypto'
+
 class Utils {
 	generateDID(didId: string, publicKeyJwk: any, services: Service[]): unknown {
 		const did: DidDocument = {
@@ -434,7 +436,7 @@ class Utils {
 				throw new Error('x5u not found in ddo')
 			}
 			// get the SSL certificates from x5u url
-			const certificates = (await axios.get(x5u)).data as string
+			const certificates = (await axios.get(x5u))?.data as string
 			if (!certificates) {
 				throw new Error('ssl certificate not found')
 			}
