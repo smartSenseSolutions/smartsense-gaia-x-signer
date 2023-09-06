@@ -671,8 +671,8 @@ privateRoute.post(
 			}
 
 			// Decrypt private key(received in request) from base64 to raw string
-			// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
-			const privateKey = process.env.PRIVATE_KEY as string
+			const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+			// const privateKey = process.env.PRIVATE_KEY as string
 			// Sign service offering self description with private key(received in request)
 			const proof = await Utils.addProof(jsonld, axios, jose, crypto, labelLevel, privateKey, verificationMethod, AppConst.RSA_ALGO, x5u)
 			labelLevel.proof = proof
