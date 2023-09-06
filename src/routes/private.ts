@@ -117,11 +117,13 @@ privateRoute.post(
 				let selfDescription: any = null
 				if (templateId === AppConst.LEGAL_PARTICIPANT) {
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
-					const legalRegistrationNumberVCUrl = tenant ? `https://${domain}/${tenant}/legalRegistrationNumberVC.json` : `https://${domain}/.well-known/legalRegistrationNumberVC.json`
-					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, headquarterAddress, legalAddress,legalRegistrationNumberVCUrl)
-					const regVC = (await Utils.generateRegistrationNumber(axios, didId, legalRegistrationType, legalRegistrationNumber,legalRegistrationNumberVCUrl))
+					const legalRegistrationNumberVCUrl = tenant
+						? `https://${domain}/${tenant}/legalRegistrationNumberVC.json`
+						: `https://${domain}/.well-known/legalRegistrationNumberVC.json`
+					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, headquarterAddress, legalAddress, legalRegistrationNumberVCUrl)
+					const regVC = await Utils.generateRegistrationNumber(axios, didId, legalRegistrationType, legalRegistrationNumber, legalRegistrationNumberVCUrl)
 					const tandcsURL = tenant ? `https://${domain}/${tenant}/tandcs.json` : `https://${domain}/.well-known/tandcs.json`
-					const termsVC = await Utils.generateTermsAndConditions(axios, didId,tandcsURL)
+					const termsVC = await Utils.generateTermsAndConditions(axios, didId, tandcsURL)
 					selfDescription['verifiableCredential'].push(regVC, termsVC)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
 					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
@@ -129,8 +131,8 @@ privateRoute.post(
 					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data)
 					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
 					for (let index = 0; index < selfDescriptionCredential.verifiableCredential.length; index++) {
-						const vc = selfDescriptionCredential.verifiableCredential[index];
-						selfDescription.verifiableCredential.push(vc)	
+						const vc = selfDescriptionCredential.verifiableCredential[index]
+						selfDescription.verifiableCredential.push(vc)
 					}
 				} else {
 					res.status(422).json({
@@ -141,7 +143,7 @@ privateRoute.post(
 				for (let index = 0; index < selfDescription['verifiableCredential'].length; index++) {
 					const vc = selfDescription['verifiableCredential'][index]
 					if (!selfDescription['verifiableCredential'][index].hasOwnProperty('proof')) {
-						const proof = await Utils.generateProof(jsonld, he, axios, jose,crypto, vc, privateKeyUrl, didId, domain, tenant, AppConst.RSA_ALGO)
+						const proof = await Utils.generateProof(jsonld, he, axios, jose, crypto, vc, privateKeyUrl, didId, domain, tenant, AppConst.RSA_ALGO)
 						selfDescription['verifiableCredential'][index].proof = proof
 					}
 				}
@@ -604,6 +606,90 @@ privateRoute.post(
 			res.status(500).json({
 				error: (error as Error).message,
 				message: AppMessages.PARTICIPANT_VC_FOUND_FAILED
+			})
+		}
+	}
+)
+
+privateRoute.post(
+	'/label-level',
+	check('privateKeyUrl').not().isEmpty().trim().escape(),
+	check('issuer').not().isEmpty().trim().escape(),
+	check('verificationMethod').not().isEmpty().trim().escape(),
+	check('vcs.labelLevel').isObject(),
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			let { privateKeyUrl } = req.body
+			const {
+				verificationMethod,
+				issuer: issuerDID,
+				vcs: { labelLevel }
+			} = req.body
+			// Get DID document of issuer from issuer DID
+			const ddo = await Utils.getDDOfromDID(issuerDID, resolver)
+			if (!ddo) {
+				console.error(__filename, 'LabelLevel', `❌ DDO not found for given did: '${issuerDID}' in proof`)
+				res.status(400).json({
+					error: `DDO not found for given did: '${issuerDID}' in proof`,
+					message: AppMessages.VP_FAILED
+				})
+				return
+			}
+
+			const { credentialSubject: labelLevelCS } = labelLevel
+			if (!labelLevelCS) {
+				console.error(__filename, 'LabelLevel', 'labelLevelCS')
+				res.status(400).json({
+					error: AppMessages.VP_FAILED,
+					message: AppMessages.VP_FAILED
+				})
+				return
+			}
+
+			// Calculate LabelLevel
+			const labelLevelResult = await Utils.calcLabelLevel(labelLevelCS)
+			if (labelLevelResult === '') {
+				console.error(__filename, 'LabelLevel', 'labelLevelResult')
+				res.status(400).json({
+					error: AppMessages.VP_FAILED,
+					message: AppMessages.VP_FAILED
+				})
+				return
+			}
+			labelLevelCS['gx:labelLevel'] = labelLevelResult
+			console.debug(__filename, 'LabelLevel', '🔒 labelLevel calculated')
+
+			// Extract certificate url from did document
+			const { x5u } = await Utils.getPublicKeys(ddo.didDocument)
+			if (!x5u || x5u == '') {
+				console.error(__filename, 'LabelLevel', 'x5u')
+				res.status(400).json({
+					error: 'x5u',
+					message: AppMessages.VP_FAILED
+				})
+				return
+			}
+
+			// Decrypt private key(received in request) from base64 to raw string
+			// const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
+			const privateKey = process.env.PRIVATE_KEY as string
+			// Sign service offering self description with private key(received in request)
+			const proof = await Utils.addProof(jsonld, axios, jose, crypto, labelLevel, privateKey, verificationMethod, AppConst.RSA_ALGO, x5u)
+			labelLevel.proof = proof
+
+			const completeSD = {
+				selfDescriptionCredential: labelLevel,
+				complianceCredential: {}
+			}
+			res.status(200).json({
+				data: completeSD,
+				message: AppMessages.VP_SUCCESS
+			})
+		} catch (error) {
+			console.error(__filename, 'LabelLevel', `❌ ${AppMessages.VP_FAILED}`)
+			res.status(500).json({
+				error: (error as Error).message,
+				message: AppMessages.VP_FAILED
 			})
 		}
 	}
