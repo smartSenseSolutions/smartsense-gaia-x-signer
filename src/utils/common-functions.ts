@@ -1,5 +1,5 @@
 import { DidDocument, Service } from '../interface/interface'
-import { AppMessages, LABEL_LEVEL_RULE } from './constants'
+import { AppMessages, LABEL_LEVEL_RULE, W3C_CONTEXT } from './constants'
 
 namespace CommonFunctions {
 	export class Utils {
@@ -44,7 +44,7 @@ namespace CommonFunctions {
 							'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#'
 						],
 						type: ['VerifiableCredential'],
-						id: didId,
+						id: participantURL,
 						issuer: didId,
 						issuanceDate: new Date().toISOString(),
 						credentialSubject: {
@@ -86,7 +86,7 @@ namespace CommonFunctions {
 					id: tandcsURL
 				},
 				issuer: didId,
-				id: didId
+				id: tandcsURL
 			}
 			return verifiableCredential
 		}
@@ -119,7 +119,7 @@ namespace CommonFunctions {
 					{
 						'@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#'],
 						type: ['VerifiableCredential'],
-						id: didId,
+						id: serviceComplianceUrl,
 						issuer: didId,
 						issuanceDate: new Date().toISOString(),
 						credentialSubject: [
@@ -213,10 +213,27 @@ namespace CommonFunctions {
 
 		async normalize(jsonld: any, payload: object) {
 			try {
-				const canonized = await jsonld.canonize(payload, {
-					algorithm: 'URDNA2015',
-					format: 'application/n-quads'
-				})
+				const nodeDocumentLoader = jsonld.documentLoaders.node()
+				const customLoader = async (url: string) => {
+					if (url in W3C_CONTEXT) {
+						return {
+							contextUrl: null, // this is for a context via a link header
+							document: W3C_CONTEXT[url], // this is the actual document that was loaded
+							documentUrl: url // this is the actual context URL after redirects
+						}
+					}
+					// call the default documentLoader
+					return nodeDocumentLoader(url)
+				}
+				jsonld.documentLoader = customLoader
+				const canonized = await jsonld.canonize(
+					payload,
+					{
+						algorithm: 'URDNA2015',
+						format: 'application/n-quads'
+					},
+					{ nodeDocumentLoader: customLoader }
+				)
 				if (canonized === '') throw new Error('Canonized SD is empty')
 				return canonized
 			} catch (error) {
