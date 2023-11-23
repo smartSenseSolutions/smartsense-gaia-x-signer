@@ -99,6 +99,33 @@
 											"formatType": "application/json"
 										}
 									}
+								},
+								"ResourceCreation": {
+									"value": {
+										"domain": "smart99.proofsense.in",
+										"templateId": "ResourceCreation",
+										"privateKeyUrl": "https://example.com",
+										"data": {
+											"name": "AWS S3 Service",
+											"fileName": "s3Service.json",
+											"description": "Amazon S3 bucket is a public cloud storage resource.",
+											"policyUrl": "https://aws.amazon.com/privacy/?nc1=f_pr",
+											"termsAndConditionsUrl": "https://aws.amazon.com/service-terms/",
+											"termsAndConditionsHash": "4f598faf41fb29a44d63ec413730d55fabd2d249f1976fee1c8eec8003d7f539",
+											"requestType": "API",
+											"accessType": "digital",
+											"formatType": "application/json"
+										},
+										"resource": {
+											"type": "gx:DataResource",
+											"name": "CES Data Resource",
+											"description": "Contains GX compliant credentials",
+											"containsPII": false,
+											"policy": "default: allow",
+											"license": "EPL-2.0",
+											"copyrightOwnedBy": "original owner"
+										}
+									}
 								}
 							}
 						}
@@ -874,597 +901,595 @@
 										"summary": "Sign Service offering SD from compliance service",
 										"value": {
 											"data": {
-											  "selfDescriptionCredential": {
-												"@context": [
-												  "https://www.w3.org/2018/credentials/v1",
-												  "https://w3id.org/security/suites/jws-2020/v1",
-												  "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
-												],
-												"type": [
-												  "VerifiableCredential"
-												],
-												"id": "https://wizard.lab.gaia-x.eu/api/credentials/2d37wbGvQzbAQ84yRouh2m2vBKkN8s5AfH9Q75HZRCUQmJW7yAVSNKzjJj6gcjE2mDNDUHCichXWdMH3S2c8AaDLm3kXmf5R8DFPWTYo5iRYkn8kvgU3AjMXc2qTbhuMHCpucKGgT1ZMkcHUygZkt11iD3T8VJNKYwsdk4MGoZwdqoFUuTKVcsXVTBA4ofD1Dtqzjavyng5WUpvJf4gRyfGkMvYYuHCgay8TK8Dayt6Rhcs3r2d1gRCg2UV419S9CpWZGwKQNEXdYbaB2eTiNbQ83KMd4mj1oSJgF7LLDZLJtKJbhwLzR3x35QUqEGevRxnRDKoPdHrEZN7r9TVAmvr9rt7Xq8eB4zGMTza59hisEAUaHsmWQNaVDorqFyZgN5bXswMK1irVQ5SVR9osCCRrKUKkntxfakjmSqapPfveMP39vkgTXfEhsfLUZXGwFcpgLpWxWRn1QLnJY11BVymS7DyaSvbSKotNFQxyV6vghfM2Jetw1mLxU5qsQqDYnDYJjPZQSmkwxjX3yenPVCz6N2ox83tj9AuuQrzg5p2iukNdunDd2QCsHaMEtTq9JVLzXtWs2eZbPkxCBEQwoKTGGVhKu5yxZjCtQGc?vcid=tsandcsVC",
-												"issuer": "did:web:wizard.lab.gaia-x.eu:api:credentials:2d37wbGvQzbAQ84yRouh2m2vBKkN8s5AfH9Q75HZRCUQmJW7yAVSNKzjJj6gcjE2mDNDUHCichXWdMH3S2c8AaDLm3kXmf5R8DFPWTYo5iRYkn8kvgU3AjMXc2qTbhuMHCpucKGgT1ZMkcHUygZkt11iD3T8VJNKYwsdk4MGoZwdqoFUuTKVcsXVTBA4ofD1Dtqzjavyng5WUpvJf4gRyfGkMvYYuHCgay8TK8Dayt6Rhcs3r2d1gRCg2UV419S9CpWZGwKQNEXdYbaB2eTiNbQ83KMd4mj1oSJgF7LLDZLJtKJbhwLzR3x35QUqEGevRxnRDKoPdHrEZN7r9TVAmvr9rt7Xq8eB4zGMTza59hisEAUaHsmWQNaVDorqFyZgN5bXswMK1irVQ5SVR9osCCRrKUKkntxfakjmSqapPfveMP39vkgTXfEhsfLUZXGwFcpgLpWxWRn1QLnJY11BVymS7DyaSvbSKotNFQxyV6vghfM2Jetw1mLxU5qsQqDYnDYJjPZQSmkwxjX3yenPVCz6N2ox83tj9AuuQrzg5p2iukNdunDd2QCsHaMEtTq9JVLzXtWs2eZbPkxCBEQwoKTGGVhKu5yxZjCtQGc",
-												"issuanceDate": "2023-07-12T09:11:30.604Z",
-												"credentialSubject": {
-												  "@context": "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#",
-												  "type": "gx:ServiceOfferingLabel",
-												  "id": "https://wizard-api.smart-x.smartsenselabs.com/12081064-8878-477e-8092-564a240c69e2/service-offering-label-level.json",
-												  "gx:assignedTo": "https://wizard-api.smart-x.smartsenselabs.com/12081064-8878-477e-8092-564a240c69e2/service_hYfy.json",
-												  "gx:criteria": {
-													"P1.1.1": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
+												"selfDescriptionCredential": {
+													"@context": [
+														"https://www.w3.org/2018/credentials/v1",
+														"https://w3id.org/security/suites/jws-2020/v1",
+														"https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+													],
+													"type": ["VerifiableCredential"],
+													"id": "https://wizard.lab.gaia-x.eu/api/credentials/2d37wbGvQzbAQ84yRouh2m2vBKkN8s5AfH9Q75HZRCUQmJW7yAVSNKzjJj6gcjE2mDNDUHCichXWdMH3S2c8AaDLm3kXmf5R8DFPWTYo5iRYkn8kvgU3AjMXc2qTbhuMHCpucKGgT1ZMkcHUygZkt11iD3T8VJNKYwsdk4MGoZwdqoFUuTKVcsXVTBA4ofD1Dtqzjavyng5WUpvJf4gRyfGkMvYYuHCgay8TK8Dayt6Rhcs3r2d1gRCg2UV419S9CpWZGwKQNEXdYbaB2eTiNbQ83KMd4mj1oSJgF7LLDZLJtKJbhwLzR3x35QUqEGevRxnRDKoPdHrEZN7r9TVAmvr9rt7Xq8eB4zGMTza59hisEAUaHsmWQNaVDorqFyZgN5bXswMK1irVQ5SVR9osCCRrKUKkntxfakjmSqapPfveMP39vkgTXfEhsfLUZXGwFcpgLpWxWRn1QLnJY11BVymS7DyaSvbSKotNFQxyV6vghfM2Jetw1mLxU5qsQqDYnDYJjPZQSmkwxjX3yenPVCz6N2ox83tj9AuuQrzg5p2iukNdunDd2QCsHaMEtTq9JVLzXtWs2eZbPkxCBEQwoKTGGVhKu5yxZjCtQGc?vcid=tsandcsVC",
+													"issuer": "did:web:wizard.lab.gaia-x.eu:api:credentials:2d37wbGvQzbAQ84yRouh2m2vBKkN8s5AfH9Q75HZRCUQmJW7yAVSNKzjJj6gcjE2mDNDUHCichXWdMH3S2c8AaDLm3kXmf5R8DFPWTYo5iRYkn8kvgU3AjMXc2qTbhuMHCpucKGgT1ZMkcHUygZkt11iD3T8VJNKYwsdk4MGoZwdqoFUuTKVcsXVTBA4ofD1Dtqzjavyng5WUpvJf4gRyfGkMvYYuHCgay8TK8Dayt6Rhcs3r2d1gRCg2UV419S9CpWZGwKQNEXdYbaB2eTiNbQ83KMd4mj1oSJgF7LLDZLJtKJbhwLzR3x35QUqEGevRxnRDKoPdHrEZN7r9TVAmvr9rt7Xq8eB4zGMTza59hisEAUaHsmWQNaVDorqFyZgN5bXswMK1irVQ5SVR9osCCRrKUKkntxfakjmSqapPfveMP39vkgTXfEhsfLUZXGwFcpgLpWxWRn1QLnJY11BVymS7DyaSvbSKotNFQxyV6vghfM2Jetw1mLxU5qsQqDYnDYJjPZQSmkwxjX3yenPVCz6N2ox83tj9AuuQrzg5p2iukNdunDd2QCsHaMEtTq9JVLzXtWs2eZbPkxCBEQwoKTGGVhKu5yxZjCtQGc",
+													"issuanceDate": "2023-07-12T09:11:30.604Z",
+													"credentialSubject": {
+														"@context": "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#",
+														"type": "gx:ServiceOfferingLabel",
+														"id": "https://wizard-api.smart-x.smartsenselabs.com/12081064-8878-477e-8092-564a240c69e2/service-offering-label-level.json",
+														"gx:assignedTo": "https://wizard-api.smart-x.smartsenselabs.com/12081064-8878-477e-8092-564a240c69e2/service_hYfy.json",
+														"gx:criteria": {
+															"P1.1.1": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.1.2": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.1.3": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.1.4": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.2.1": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.2.2": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.2.3": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.2.4": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.2.5": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.2.6": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.2.7": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.2.8": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.2.9": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.2.10": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.3.1": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.3.2": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.3.3": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.3.4": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P1.3.5": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.1.1": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.1.2": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.1.3": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.2.1": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.2.2": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.2.3": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.2.4": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.2.5": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.2.6": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.2.7": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.3.1": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.3.2": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P2.3.3": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.1": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.2": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.3": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.4": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.5": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.6": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.7": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.8": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.9": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.10": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.11": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.12": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.13": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.14": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.15": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.16": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.17": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.18": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.19": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P3.1.20": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P4.1.1": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P4.1.2": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P5.1.1": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P5.1.2": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P5.1.3": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P5.1.4": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P5.1.5": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P5.1.6": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P5.1.7": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															},
+															"P5.2.1": {
+																"evidence": {
+																	"website": "",
+																	"pdf": {},
+																	"vc": {}
+																},
+																"response": "Confirm",
+																"reason": ""
+															}
+														},
+														"gx:labelLevel": "L1"
 													},
-													"P1.1.2": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.1.3": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.1.4": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.2.1": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.2.2": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.2.3": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.2.4": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.2.5": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.2.6": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.2.7": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.2.8": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.2.9": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.2.10": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.3.1": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.3.2": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.3.3": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.3.4": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P1.3.5": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.1.1": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.1.2": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.1.3": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.2.1": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.2.2": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.2.3": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.2.4": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.2.5": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.2.6": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.2.7": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.3.1": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.3.2": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P2.3.3": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.1": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.2": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.3": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.4": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.5": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.6": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.7": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.8": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.9": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.10": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.11": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.12": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.13": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.14": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.15": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.16": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.17": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.18": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.19": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P3.1.20": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P4.1.1": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P4.1.2": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P5.1.1": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P5.1.2": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P5.1.3": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P5.1.4": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P5.1.5": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P5.1.6": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P5.1.7": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
-													},
-													"P5.2.1": {
-													  "evidence": {
-														"website": "",
-														"pdf": {},
-														"vc": {}
-													  },
-													  "response": "Confirm",
-													  "reason": ""
+													"proof": {
+														"type": "JsonWebSignature2020",
+														"created": "2023-09-06T10:28:46.799Z",
+														"proofPurpose": "assertionMethod",
+														"verificationMethod": "did:web:casio34.smart-x.smartsenselabs.com",
+														"jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Ir0jfauSoibBKhNLj_hXqz2LwmpjqipEG4P2HAnPrwBX2uy4MgRc4xP7srZ-WvplKdhR1gqHTn4phxZiZAQbxjcTv2X_6H5Cc60BOhkeYFceMwt3u3s39aQjd5ZXINusbzqZcFIqL-3YVrrta0gZ_Hc5fjLJpyYkAo_wULNcRdoFyy8zdZgRRrONQY_9CMQSijevHESseyhxtd3tfveMhmvBcOvhYXhKyj4gW6Q9y3wq-XrDxD8-7pfWovDAbnJoCJJ62dwk3YgeC4jOgoNufYmYspuuBOGiUo7wdE-m0F9HjNCPL_E-QayieXp51oGC--W6S_pY-s1o-wyulTbRVg"
 													}
-												  },
-												  "gx:labelLevel": "L1"
 												},
-												"proof": {
-												  "type": "JsonWebSignature2020",
-												  "created": "2023-09-06T10:28:46.799Z",
-												  "proofPurpose": "assertionMethod",
-												  "verificationMethod": "did:web:casio34.smart-x.smartsenselabs.com",
-												  "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..Ir0jfauSoibBKhNLj_hXqz2LwmpjqipEG4P2HAnPrwBX2uy4MgRc4xP7srZ-WvplKdhR1gqHTn4phxZiZAQbxjcTv2X_6H5Cc60BOhkeYFceMwt3u3s39aQjd5ZXINusbzqZcFIqL-3YVrrta0gZ_Hc5fjLJpyYkAo_wULNcRdoFyy8zdZgRRrONQY_9CMQSijevHESseyhxtd3tfveMhmvBcOvhYXhKyj4gW6Q9y3wq-XrDxD8-7pfWovDAbnJoCJJ62dwk3YgeC4jOgoNufYmYspuuBOGiUo7wdE-m0F9HjNCPL_E-QayieXp51oGC--W6S_pY-s1o-wyulTbRVg"
-												}
-											  },
-											  "complianceCredential": {}
+												"complianceCredential": {}
 											},
 											"message": "VP created successfully."
-										  }
+										}
 									}
 								}
 							}
@@ -1761,564 +1786,564 @@
 									"gx:assignedTo": "https://wizard-api.smart-x.smartsenselabs.com/12081064-8878-477e-8092-564a240c69e2/service_hYfy.json",
 									"gx:criteria": {
 										"P1.1.1": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.1.2": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.1.3": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.1.4": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.2.1": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.2.2": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.2.3": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.2.4": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.2.5": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.2.6": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.2.7": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.2.8": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.2.9": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.2.10": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.3.1": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.3.2": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.3.3": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.3.4": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P1.3.5": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.1.1": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.1.2": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.1.3": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.2.1": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.2.2": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.2.3": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.2.4": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.2.5": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.2.6": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.2.7": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.3.1": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.3.2": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P2.3.3": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.1": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.2": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.3": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.4": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.5": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.6": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.7": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.8": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.9": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.10": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.11": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.12": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.13": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.14": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.15": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.16": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.17": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.18": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.19": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P3.1.20": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P4.1.1": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P4.1.2": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P5.1.1": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P5.1.2": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P5.1.3": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P5.1.4": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P5.1.5": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P5.1.6": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P5.1.7": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										},
 										"P5.2.1": {
-										  "evidence": {
-											"website": "",
-											"pdf": {},
-											"vc": {}
-										  },
-										  "response": "Confirm",
-										  "reason": ""
+											"evidence": {
+												"website": "",
+												"pdf": {},
+												"vc": {}
+											},
+											"response": "Confirm",
+											"reason": ""
 										}
-									  }
+									}
 								}
 							}
 						}
