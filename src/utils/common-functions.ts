@@ -109,9 +109,10 @@ namespace CommonFunctions {
 			}
 		}
 
-		generateServiceOffer(participantURL: string, didId: string, serviceComplianceUrl: string, data: any): object {
+		generateServiceOffer(participantURL: string, didId: string, serviceComplianceUrl: string, data: any, resource?: any, resourceComplianceUrl?: string): object {
 			const { serviceName, description, policyUrl, termsAndConditionsUrl, termsAndConditionsHash, formatType, accessType, requestType } = data
-			const selfDescription = {
+
+			const selfDescription: any = {
 				'@context': 'https://www.w3.org/2018/credentials/v1',
 				type: ['VerifiablePresentation'],
 				verifiableCredential: [
@@ -121,27 +122,48 @@ namespace CommonFunctions {
 						id: didId,
 						issuer: didId,
 						issuanceDate: new Date().toISOString(),
-						credentialSubject: {
-							id: serviceComplianceUrl,
-							'gx:name': serviceName,
-							'gx:description': description,
-							type: 'gx:ServiceOffering',
-							'gx:providedBy': {
-								id: participantURL
-							},
-							'gx:policy': policyUrl,
-							'gx:termsAndConditions': {
-								'gx:URL': termsAndConditionsUrl,
-								'gx:hash': termsAndConditionsHash
-							},
-							'gx:dataAccountExport': {
-								'gx:requestType': requestType,
-								'gx:accessType': accessType,
-								'gx:formatType': formatType
+						credentialSubject: [
+							{
+								id: serviceComplianceUrl,
+								'gx:name': serviceName,
+								'gx:description': description,
+								type: 'gx:ServiceOffering',
+								'gx:providedBy': {
+									id: participantURL
+								},
+								'gx:policy': policyUrl,
+								'gx:termsAndConditions': {
+									'gx:URL': termsAndConditionsUrl,
+									'gx:hash': termsAndConditionsHash
+								},
+								'gx:dataAccountExport': {
+									'gx:requestType': requestType,
+									'gx:accessType': accessType,
+									'gx:formatType': formatType
+								}
 							}
-						}
+						]
 					}
 				]
+			}
+
+			if (resource) {
+				selfDescription.verifiableCredential[0].credentialSubject.push({
+					'@id': resourceComplianceUrl,
+					'@type': resource.type,
+					'gx:name': resource.name,
+					'gx:description': resource.description,
+					'gx:containsPII': resource.containsPII == 'true',
+					'gx:policy': resource.policy,
+					'gx:license': resource.license,
+					'gx:copyrightOwnedBy': resource.copyrightOwnedBy,
+					'gx:producedBy': {
+						'@id': participantURL
+					},
+					'gx:exposedThrough': {
+						'@id': serviceComplianceUrl
+					}
+				})
 			}
 			return selfDescription
 		}
@@ -282,6 +304,16 @@ namespace CommonFunctions {
 			}
 		}
 
+		async validateSslFromRegistryWithUri(uri: string, axios: any) {
+			try {
+				const registryRes = await axios.post(`${process.env.REGISTRY_TRUST_ANCHOR_URL as string}/trustAnchor/chain/file`, { uri: uri })
+				const result = registryRes?.data?.result
+				return result
+			} catch (error) {
+				console.error(__filename, 'validateSslFromRegistryWithUri', `❌ Validation from registry failed for certificates | error: ${error}`, '')
+				return false
+			}
+		}
 		async comparePubKeys(certificates: string, publicKeyJwk: any, jose: any) {
 			try {
 				const pk = await jose.importJWK(publicKeyJwk)

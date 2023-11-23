@@ -75,12 +75,13 @@ privateRoute.post(
 		.trim()
 		.escape()
 		.matches(/^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/),
-	check('templateId').not().isEmpty().trim().escape().isIn([AppConst.LEGAL_PARTICIPANT, AppConst.SERVICE_OFFER]),
+	check('templateId').not().isEmpty().trim().escape().isIn([AppConst.LEGAL_PARTICIPANT, AppConst.SERVICE_OFFER, AppConst.RESOURCE_CREATION]),
 	check('privateKeyUrl').not().isEmpty().trim().escape(),
 	check('data').isObject(),
 	async (req: Request, res: Response): Promise<void> => {
 		try {
 			const { domain, tenant, templateId, privateKeyUrl } = req.body
+
 			if (templateId === AppConst.LEGAL_PARTICIPANT) {
 				await check('data.legalName').not().isEmpty().trim().escape().run(req)
 				await check('data.legalRegistrationType').not().isEmpty().trim().escape().run(req)
@@ -103,7 +104,31 @@ privateRoute.post(
 					.run(req)
 				await check('data.accessType').not().isEmpty().trim().escape().isIn(AppConst.ACCESS_TYPES).run(req)
 				await check('data.requestType').not().isEmpty().trim().escape().isIn(AppConst.REQUEST_TYPES).run(req)
+			} else if (templateId === AppConst.RESOURCE_CREATION) {
+				await check('data.name').not().isEmpty().trim().escape().run(req)
+				await check('data.description').not().isEmpty().trim().escape().run(req)
+				await check('data.fileName').not().isEmpty().trim().escape().run(req)
+				await check('data.policyUrl').not().isEmpty().trim().escape().run(req)
+				await check('data.termsAndConditionsUrl').not().isEmpty().trim().escape().run(req)
+				await check('data.termsAndConditionsHash').not().isEmpty().trim().escape().run(req)
+				await check('data.formatType')
+					.not()
+					.isEmpty()
+					.trim()
+					.escape()
+					.custom((val) => typer.test(he.decode(val)))
+					.run(req)
+				await check('data.accessType').not().isEmpty().trim().escape().isIn(AppConst.ACCESS_TYPES).run(req)
+				await check('data.requestType').not().isEmpty().trim().escape().isIn(AppConst.REQUEST_TYPES).run(req)
+				await check('resource.name').not().isEmpty().trim().escape().run(req)
+				await check('resource.type').not().isEmpty().trim().escape().run(req)
+				await check('resource.description').not().isEmpty().trim().escape().run(req)
+				await check('resource.containsPII').not().isEmpty().trim().escape().run(req)
+				await check('resource.policy').not().isEmpty().trim().escape().run(req)
+				await check('resource.license').not().isEmpty().trim().escape().run(req)
+				await check('resource.copyrightOwnedBy').not().isEmpty().trim().escape().run(req)
 			}
+
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				const errorsArr = errors.array()
@@ -115,6 +140,7 @@ privateRoute.post(
 				const didId = tenant ? `did:web:${domain}:${tenant}` : `did:web:${domain}`
 				const participantURL = tenant ? `https://${domain}/${tenant}/participant.json` : `https://${domain}/.well-known/participant.json`
 				let selfDescription: any = null
+
 				if (templateId === AppConst.LEGAL_PARTICIPANT) {
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
 					const legalRegistrationNumberVCUrl = tenant
@@ -127,9 +153,23 @@ privateRoute.post(
 					selfDescription['verifiableCredential'].push(regVC, termsVC)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
 					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
+
 					const serviceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${data.fileName}`
 					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data)
 					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
+
+					for (let index = 0; index < selfDescriptionCredential.verifiableCredential.length; index++) {
+						const vc = selfDescriptionCredential.verifiableCredential[index]
+						selfDescription.verifiableCredential.push(vc)
+					}
+				} else if (templateId === AppConst.RESOURCE_CREATION) {
+					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
+					const resource = JSON.parse(he.decode(JSON.stringify(req.body.resource)))
+					const serviceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${data.fileName}`
+					const resourceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${resource.name.replace(/\s/g, '_')}.json`
+					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data, resource, resourceComplianceUrl)
+					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
+
 					for (let index = 0; index < selfDescriptionCredential.verifiableCredential.length; index++) {
 						const vc = selfDescriptionCredential.verifiableCredential[index]
 						selfDescription.verifiableCredential.push(vc)
@@ -147,7 +187,9 @@ privateRoute.post(
 						selfDescription['verifiableCredential'][index].proof = proof
 					}
 				}
+				const sd = JSON.stringify(selfDescription)
 				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
+
 				// const complianceCredential = {}
 				console.log(complianceCredential ? '🔒 SD signed successfully (compliance service)' : '❌ SD signing failed (compliance service)')
 				// await publisherService.publishVP(complianceCredential);
@@ -230,6 +272,7 @@ privateRoute.post(
 				// retrieve private key
 				const privateKey = (await axios.get(he.decode(privateKeyUrl))).data as string
 				// const privateKey = process.env.PRIVATE_KEY as string
+
 				// create proof
 				const proof = await Utils.createProof(jose, issuerDid, AppConst.RSA_ALGO, hash, privateKey)
 				// attach proof to vc
@@ -485,7 +528,11 @@ async function verification(credentialContent: any, proof: any, res: Response, c
 	const certificates = (await axios.get(x5u)).data as string
 	if (checkSSLwithRegistry) {
 		// signature check against Gaia-x registry
-		const registryRes = await Utils.validateSslFromRegistry(certificates, axios)
+		const registryRes = await Utils.validateSslFromRegistryWithUri(x5u, axios)
+		if (!registryRes) {
+			throw new Error('Certificate validation failed')
+		}
+
 		if (!registryRes) {
 			res.status(400).json({
 				error: `Certificates validation Failed`,
