@@ -100,10 +100,10 @@
 										}
 									}
 								},
-								"ResourceCreation": {
+								"ServiceOfferingWithResource": {
 									"value": {
 										"domain": "smart99.proofsense.in",
-										"templateId": "ResourceCreation",
+										"templateId": "ServiceOfferingWithResource",
 										"privateKeyUrl": "https://example.com",
 										"data": {
 											"name": "AWS S3 Service",
