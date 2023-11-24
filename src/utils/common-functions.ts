@@ -150,7 +150,7 @@ namespace CommonFunctions {
 			if (resource) {
 				selfDescription.verifiableCredential[0].credentialSubject.push({
 					'@id': resourceComplianceUrl,
-					'@type': resource.type,
+					'@type': 'gx:DataResource',
 					'gx:name': resource.name,
 					'gx:description': resource.description,
 					'gx:containsPII': resource.containsPII == 'true',

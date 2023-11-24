@@ -120,15 +120,13 @@ privateRoute.post(
 					.run(req)
 				await check('data.accessType').not().isEmpty().trim().escape().isIn(AppConst.ACCESS_TYPES).run(req)
 				await check('data.requestType').not().isEmpty().trim().escape().isIn(AppConst.REQUEST_TYPES).run(req)
-				await check('resource.name').not().isEmpty().trim().escape().run(req)
-				await check('resource.type').not().isEmpty().trim().escape().run(req)
-				await check('resource.description').not().isEmpty().trim().escape().run(req)
-				await check('resource.containsPII').not().isEmpty().trim().escape().run(req)
-				await check('resource.policy').not().isEmpty().trim().escape().run(req)
-				await check('resource.license').not().isEmpty().trim().escape().run(req)
-				await check('resource.copyrightOwnedBy').not().isEmpty().trim().escape().run(req)
+				await check('data.resource.name').not().isEmpty().trim().escape().run(req)
+				await check('data.resource.description').not().isEmpty().trim().escape().run(req)
+				await check('data.resource.containsPII').not().isEmpty().trim().escape().run(req)
+				await check('data.resource.policy').not().isEmpty().trim().escape().run(req)
+				await check('data.resource.license').not().isEmpty().trim().escape().run(req)
+				await check('data.resource.copyrightOwnedBy').not().isEmpty().trim().escape().run(req)
 			}
-
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				const errorsArr = errors.array()
@@ -164,10 +162,9 @@ privateRoute.post(
 					}
 				} else if (templateId === AppConst.RESOURCE_CREATION) {
 					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
-					const resource = JSON.parse(he.decode(JSON.stringify(req.body.resource)))
 					const serviceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${data.fileName}`
-					const resourceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${resource.name.replace(/\s/g, '_')}.json`
-					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data, resource, resourceComplianceUrl)
+					const resourceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${data.resource.name.replace(/\s/g, '_')}.json`
+					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data, data.resource, resourceComplianceUrl)
 					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
 
 					for (let index = 0; index < selfDescriptionCredential.verifiableCredential.length; index++) {
@@ -187,7 +184,7 @@ privateRoute.post(
 						selfDescription['verifiableCredential'][index].proof = proof
 					}
 				}
-				const sd = JSON.stringify(selfDescription)
+				// const sd = JSON.stringify(selfDescription)
 				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
 
 				// const complianceCredential = {}

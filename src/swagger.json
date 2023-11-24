@@ -114,16 +114,15 @@
 											"termsAndConditionsHash": "4f598faf41fb29a44d63ec413730d55fabd2d249f1976fee1c8eec8003d7f539",
 											"requestType": "API",
 											"accessType": "digital",
-											"formatType": "application/json"
-										},
-										"resource": {
-											"type": "gx:DataResource",
-											"name": "CES Data Resource",
-											"description": "Contains GX compliant credentials",
-											"containsPII": false,
-											"policy": "default: allow",
-											"license": "EPL-2.0",
-											"copyrightOwnedBy": "original owner"
+											"formatType": "application/json",
+											"resource": {
+												"name": "CES Data Resource",
+												"description": "Contains GX compliant credentials",
+												"containsPII": false,
+												"policy": "default: allow",
+												"license": "EPL-2.0",
+												"copyrightOwnedBy": "original owner"
+											}
 										}
 									}
 								}
