@@ -104,28 +104,12 @@ privateRoute.post(
 					.run(req)
 				await check('data.accessType').not().isEmpty().trim().escape().isIn(AppConst.ACCESS_TYPES).run(req)
 				await check('data.requestType').not().isEmpty().trim().escape().isIn(AppConst.REQUEST_TYPES).run(req)
-			} else if (templateId === AppConst.RESOURCE_CREATION) {
-				await check('data.name').not().isEmpty().trim().escape().run(req)
-				await check('data.description').not().isEmpty().trim().escape().run(req)
-				await check('data.fileName').not().isEmpty().trim().escape().run(req)
-				await check('data.policyUrl').not().isEmpty().trim().escape().run(req)
-				await check('data.termsAndConditionsUrl').not().isEmpty().trim().escape().run(req)
-				await check('data.termsAndConditionsHash').not().isEmpty().trim().escape().run(req)
-				await check('data.formatType')
-					.not()
-					.isEmpty()
-					.trim()
-					.escape()
-					.custom((val) => typer.test(he.decode(val)))
-					.run(req)
-				await check('data.accessType').not().isEmpty().trim().escape().isIn(AppConst.ACCESS_TYPES).run(req)
-				await check('data.requestType').not().isEmpty().trim().escape().isIn(AppConst.REQUEST_TYPES).run(req)
-				await check('data.resource.name').not().isEmpty().trim().escape().run(req)
-				await check('data.resource.description').not().isEmpty().trim().escape().run(req)
-				await check('data.resource.containsPII').not().isEmpty().trim().escape().run(req)
-				await check('data.resource.policy').not().isEmpty().trim().escape().run(req)
-				await check('data.resource.license').not().isEmpty().trim().escape().run(req)
-				await check('data.resource.copyrightOwnedBy').not().isEmpty().trim().escape().run(req)
+				await check('data.resource.name').not().optional().isEmpty().trim().escape().run(req)
+				await check('data.resource.description').optional().not().isEmpty().trim().escape().run(req)
+				await check('data.resource.containsPII').optional().not().isEmpty().trim().escape().run(req)
+				await check('data.resource.policy').optional().not().isEmpty().trim().escape().run(req)
+				await check('data.resource.license').optional().not().isEmpty().trim().escape().run(req)
+				await check('data.resource.copyrightOwnedBy').optional().not().isEmpty().trim().escape().run(req)
 			}
 			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
@@ -153,18 +137,12 @@ privateRoute.post(
 					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
 
 					const serviceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${data.fileName}`
-					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data)
-					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
-
-					for (let index = 0; index < selfDescriptionCredential.verifiableCredential.length; index++) {
-						const vc = selfDescriptionCredential.verifiableCredential[index]
-						selfDescription.verifiableCredential.push(vc)
+					if (data.resource) {
+						const resourceComplianceUrl = serviceComplianceUrl + '#1'
+						selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data, data.resource, resourceComplianceUrl)
+					} else {
+						selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data)
 					}
-				} else if (templateId === AppConst.RESOURCE_CREATION) {
-					const data = JSON.parse(he.decode(JSON.stringify(req.body.data)))
-					const serviceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${data.fileName}`
-					const resourceComplianceUrl = tenant ? `https://${domain}/${tenant}/${data.fileName}` : `https://${domain}/.well-known/${data.resource.name.replace(/\s/g, '_')}.json`
-					selfDescription = Utils.generateServiceOffer(participantURL, didId, serviceComplianceUrl, data, data.resource, resourceComplianceUrl)
 					const { selfDescriptionCredential } = (await axios.get(participantURL)).data
 
 					for (let index = 0; index < selfDescriptionCredential.verifiableCredential.length; index++) {

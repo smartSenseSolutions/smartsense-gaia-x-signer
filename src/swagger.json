@@ -103,7 +103,7 @@
 								"ServiceOfferingWithResource": {
 									"value": {
 										"domain": "smart99.proofsense.in",
-										"templateId": "ServiceOfferingWithResource",
+										"templateId": "ServiceOffering",
 										"privateKeyUrl": "https://example.com",
 										"data": {
 											"name": "AWS S3 Service",
