@@ -428,7 +428,7 @@ namespace CommonFunctions {
 					data: complianceCred
 				}
 				const response = await axios.post(process.env.CES_COMPLIANCE + '/credentials-events', reqBody)
-				console.log(response)
+				// console.log(response)
 			} catch (err) {
 				console.error(err)
 			}
