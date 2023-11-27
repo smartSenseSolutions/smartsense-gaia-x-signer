@@ -423,14 +423,18 @@ namespace CommonFunctions {
 					specversion: '1.0',
 					type: 'eu.gaia-x.credential',
 					source: '/mycontext',
-					time: complianceCred.issuanceDat2,
+					time: complianceCred.issuanceDate,
 					datacontenttype: 'application/json',
 					data: complianceCred
 				}
 				const response = await axios.post(process.env.CES_COMPLIANCE + '/credentials-events', reqBody)
-				// console.log(response)
+				if (response == 201) {
+					console.log('successfully created compliance')
+				} else {
+					console.error('❌ error in getting compliance')
+				}
 			} catch (err) {
-				console.error(err)
+				console.error('❌ error in getting compliance', err)
 			}
 		}
 	}
