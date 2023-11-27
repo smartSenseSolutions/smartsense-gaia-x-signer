@@ -172,7 +172,7 @@ privateRoute.post(
 					selfDescriptionCredential: selfDescription,
 					complianceCredential: complianceCredential
 				}
-
+				Utils.CESCompliance(axios, complianceCredential)
 				res.status(200).json({
 					data: { verifiableCredential: completeSd },
 					message: AppMessages.VP_SUCCESS

@@ -416,6 +416,23 @@ namespace CommonFunctions {
 
 			return resultLabelLevel
 		}
+
+		CESCompliance = async (axios: any, complianceCred: any) => {
+			try {
+				const reqBody = {
+					specversion: '1.0',
+					type: 'eu.gaia-x.credential',
+					source: '/mycontext',
+					time: complianceCred.issuanceDat2,
+					datacontenttype: 'application/json',
+					data: complianceCred
+				}
+				const response = await axios.post(process.env.CES_COMPLIANCE + '/credentials-events', reqBody)
+				console.log(response)
+			} catch (err) {
+				console.error(err)
+			}
+		}
 	}
 }
 
