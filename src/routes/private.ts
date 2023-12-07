@@ -160,7 +160,7 @@ privateRoute.post(
 						selfDescription['verifiableCredential'][index].proof = proof
 					}
 				}
-				// const sd = JSON.stringify(selfDescription)
+				console.log(JSON.stringify(selfDescription))
 				const complianceCredential = (await axios.post(process.env.COMPLIANCE_SERVICE as string, selfDescription)).data
 
 				// const complianceCredential = {}
