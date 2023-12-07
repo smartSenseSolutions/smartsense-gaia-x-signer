@@ -111,7 +111,7 @@ namespace CommonFunctions {
 		}
 
 		generateServiceOffer(participantURL: string, didId: string, serviceComplianceUrl: string, data: any, resource?: any, resourceComplianceUrl?: string): object {
-			const { serviceName, description, policyUrl, termsAndConditionsUrl, termsAndConditionsHash, formatType, accessType, requestType } = data
+			const { name, description, policyUrl, termsAndConditionsUrl, termsAndConditionsHash, formatType, accessType, requestType } = data
 
 			const selfDescription: any = {
 				'@context': 'https://www.w3.org/2018/credentials/v1',
@@ -126,7 +126,7 @@ namespace CommonFunctions {
 						credentialSubject: [
 							{
 								id: serviceComplianceUrl,
-								'gx:name': serviceName,
+								'gx:name': name,
 								'gx:description': description,
 								type: 'gx:ServiceOffering',
 								'gx:providedBy': {
