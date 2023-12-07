@@ -93,13 +93,13 @@ namespace CommonFunctions {
 
 		async generateRegistrationNumber(axios: any, didId: string, legalRegistrationType: string, legalRegistrationNumber: string, legalRegistrationNumberVCUrl: string) {
 			try {
-				legalRegistrationNumberVCUrl = legalRegistrationNumberVCUrl.replace('#', '%23')
 				const request = {
 					'@context': ['https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/participant'],
 					type: 'gx:legalRegistrationNumber',
 					id: legalRegistrationNumberVCUrl,
 					[`gx:${legalRegistrationType}`]: legalRegistrationNumber
 				}
+				legalRegistrationNumberVCUrl = legalRegistrationNumberVCUrl.replace('#', '%23')
 				console.log(request)
 				const regVC = await axios.post(`${process.env.REGISTRATION_SERVICE as string}?vcid=${legalRegistrationNumberVCUrl}`, request)
 				// console.log(JSON.stringify(regVC.data))
