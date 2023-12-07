@@ -125,12 +125,10 @@ privateRoute.post(
 
 				if (templateId === AppConst.LEGAL_PARTICIPANT) {
 					const { legalName, legalRegistrationType, legalRegistrationNumber, headquarterAddress, legalAddress } = req.body.data
-					const legalRegistrationNumberVCUrl = tenant
-						? `https://${domain}/${tenant}/legalRegistrationNumberVC.json`
-						: `https://${domain}/.well-known/legalRegistrationNumberVC.json`
+					const legalRegistrationNumberVCUrl = participantURL + "#1"
 					selfDescription = Utils.generateLegalPerson(participantURL, didId, legalName, headquarterAddress, legalAddress, legalRegistrationNumberVCUrl)
 					const regVC = await Utils.generateRegistrationNumber(axios, didId, legalRegistrationType, legalRegistrationNumber, legalRegistrationNumberVCUrl)
-					const tandcsURL = tenant ? `https://${domain}/${tenant}/tandcs.json` : `https://${domain}/.well-known/tandcs.json`
+					const tandcsURL = participantURL + "#2"
 					const termsVC = await Utils.generateTermsAndConditions(axios, didId, tandcsURL)
 					selfDescription['verifiableCredential'].push(regVC, termsVC)
 				} else if (templateId === AppConst.SERVICE_OFFER) {
